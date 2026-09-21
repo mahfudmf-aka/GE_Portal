@@ -1,0 +1,10 @@
+/* P40 Clean Draft 01: structural normalization only; Edition 1 remains visual baseline. */
+html,body{min-height:100%} .clean-page-loading{padding:32px;text-align:center}.clean-page-error{margin:24px;padding:18px;border:1px solid currentColor;border-radius:12px}
+/* Canonical overlay strata */
+header.top{z-index:200}.side{z-index:190}.dropdown,.menu-dropdown{z-index:500!important}
+.modal-backdrop,.overlay-backdrop,[class*="backdrop"]{z-index:800!important}
+.initiative-dialog,.modal,.dialog,[role="dialog"]{z-index:900!important}
+.toast,.notification-toast,[class*="toast"]{z-index:1000!important}
+/* Ensure modal-like fixed layers are viewport based rather than page-flow children. */
+.initiative-dialog{position:fixed!important;inset:0!important}
+.ge-clean-combined[data-section="map"]{margin-top:18px}
