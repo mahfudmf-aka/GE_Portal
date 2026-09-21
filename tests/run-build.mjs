@@ -1,0 +1,26 @@
+import { existsSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+
+const tests = [
+  'tests/clean-draft-regression.js',
+  'tests/firebase-rules-contract.js',
+  'tests/p29-lounge-planning.js',
+  'tests/p31-auth-role-runtime.js',
+  'tests/p31b-login-access-assistance.js',
+  'tests/p32-access-assistance-runtime.js'
+];
+
+const netlify = process.argv.includes('--netlify');
+function run(file) {
+  if (!existsSync(file)) throw new Error(`Missing test: ${file}`);
+  const r = spawnSync(process.execPath, [file], { stdio: 'inherit', cwd: process.cwd(), env: process.env });
+  if (r.status !== 0) throw new Error(`Build test failed: ${file}`);
+}
+
+try {
+  for (const file of tests) run(file);
+  console.log(netlify ? 'NETLIFY_BUILD_CHAIN_PASS' : 'LOCAL_BUILD_CHAIN_PASS');
+} catch (e) {
+  console.error(e.message);
+  process.exitCode = 1;
+}

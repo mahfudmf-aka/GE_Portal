@@ -1,0 +1,45 @@
+P40 Edition 1 Canonical Shell + Firestore Source Fix
+
+Replace the files in this ZIP at repository root using the same relative paths.
+
+This patch intentionally does NOT replace the P38-locked assets/portal-shell.js.
+Edition 1 uses assets/edition1-portal-shell-entry.js, a compatibility entrypoint
+based on the locked portal-shell geometry/markup, with Edition 1 route admission
+and transient UI-only in-memory state. It does not create a second visual shell.
+
+Edition 1 pages no longer load:
+- assets/e1-canonical.css
+- assets/edition1-canonical-shell.js
+
+Edition 1 pages now use:
+- assets/edition1-portal-shell-entry.js
+- assets/edition1-portal-route-adapter.js
+- assets/edition1-overlay-manager.js
+
+Firestore:
+- Business data is read/written through /api/edition1-data.
+- Browser business runtime/store does not use localStorage/sessionStorage.
+- The store persists only collections actually hydrated by the current page.
+- Firebase project ID: ground-experience-portal
+
+Modal behavior:
+- Page dialogs are promoted to document.body and own the full viewport,
+  so they render above the fixed header and sidebar.
+
+Validation:
+- P40_FIREBASE_EDITION1_FUNCTIONAL_CONTRACT_PASS
+- P40_V2_CANONICAL_SHELL_PASS
+- P40_CANONICAL_DASHBOARD_FIRESTORE_PASS
+- PACKAGE_VERIFY_PASS
+- REGRESSION_AUDIT_PASS
+- P29_LOUNGE_PLANNING_PASS
+- P31_AUTHENTICATION_CONTRACT_PASS
+- P31_ROLE_POV_RUNTIME_PASS
+- P31A_SESSION_PROFILE_SERVICE_PASS
+- P31B_LOGIN_ACCESS_ASSISTANCE_PASS
+- P32_ACCESS_ASSISTANCE_ADMIN_PASS
+- P32_ACCESS_ASSISTANCE_RUNTIME_PASS
+- P33_P34_P35_P36_P37_PRESENTATION_CONTRACT_PASS
+- P27_PROFILE_SELF_SERVICE_CONTRACT_PASS
+- P38_REPOSITORY_HYGIENE_PASS
+- NETLIFY_BUILD_CHAIN_PASS
