@@ -1,30 +1,22 @@
 --- a/assets/edition1-canonical-shell.js
 +++ b/assets/edition1-canonical-shell.js
 @@
--const path=()=>location.pathname.split('/').pop()||'';
+ const path=()=>location.pathname.split('/').pop()||'';
++// REPLACE the line above with the query-aware resolver below:
 +const ROUTE_TO_CANONICAL={
-+ index:'index.html',
-+ inisiatif:'e1-inisiatif.html',
-+ calendar:'e1-calendar.html',
-+ 'service-planning':'e1-service-planning.html',
-+ 'planning-documents':'e1-planning-documents.html',
-+ data:'e1-data.html',
-+ admin:'e1-admin.html',
-+ berita:'e1-berita.html',
-+ kontak:'e1-kontak.html',
-+ 'lounge-list':'e1-lounge-list.html',
-+ 'branch-office-planning':'e1-branch-office-planning.html',
-+ 'gaso-planning':'e1-gaso-planning.html',
-+ 'airport-experience':'network-stations.html',
-+ 'network-stations':'network-stations.html',
-+ 'station-360':'station-360.html',
-+ 'customer-experience':'customer-experience.html'
++  'index.html':'index',
++  'inisiatif.html':'inisiatif',
++  'e1-inisiatif.html':'inisiatif',
++  'calendar.html':'calendar',
++  'e1-calendar.html':'calendar',
++  'network-stations.html':'airport-experience',
++  'airport-experience-map.html':'airport-experience',
++  'map.html':'airport-experience',
++  'e1-admin.html':'admin',
++  'admin.html':'admin'
 +};
-+const path=()=>{const q=new URLSearchParams(location.search);const route=q.get('page');return route?(ROUTE_TO_CANONICAL[route]||route+'.html'):(location.pathname.split('/').pop()||'');};
-@@
- function build(){
-@@
- }
-+window.P40BuildCanonicalShell=build;
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build);else build();
- })();
++const path=()=>{
++  const file=location.pathname.split('/').pop()||'';
++  const q=new URLSearchParams(location.search).get('page');
++  return q || ROUTE_TO_CANONICAL[file] || file;
++};
