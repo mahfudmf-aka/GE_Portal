@@ -1,18 +1,26 @@
-P40 ROLLBACK — CLEAN RUNTIME
+P40 CLEAN — ROUTE CONTRACT FIX
 
-Rollback only. Restore the recent Clean Runtime experiment.
-Do not apply the previous Clean Runtime v1/v2 patches afterward.
+This is the first actual architecture fix after rollback.
 
-Root cause found:
-portal-shell.js uses location.pathname. For /app.html?page=index, pathname is
-app.html, but its finalUserPages contains index.html, not app.html. Therefore
-shell() returns before filling header/sidebar. portal.css still styles the empty
-.top/.side, producing the blank dark header seen in the screenshot.
-The Clean registry index entry also has html: "", so the content outlet is empty.
+Root cause:
+- Clean URL is /app.html?page=ROUTE.
+- Legacy/canonical shell code reads location.pathname and expects ROUTE.html.
+- Page registry still loads portal-shell.js, which therefore exits on app.html.
+- Dashboard index has html:"" even though dashboard-firestore.js requires #dashboardRoot.
+- Therefore the preview can show only the legacy empty .top/.side and no page content.
 
-Rollback scope:
+This patch establishes ONE runtime contract for app.html:
+1. app.html remains the only page container.
+2. The existing Edition 1 canonical shell is loaded once.
+3. Page registry legacy portal-shell.js is skipped.
+4. Shell build is explicitly called AFTER page dependencies load, so auth/session is available.
+5. ?page=index gets the dashboard mount.
+6. Existing dashboard-firestore.js remains the dashboard renderer.
+7. No Firebase rules/data/business logic is changed.
+
+Files changed:
 - app.html
 - assets/clean-page-registry.js
 - assets/edition1-canonical-shell.js
 
-No Firebase, data, OCR, Calendar, Initiative, Map or business logic is changed.
+No GitHub push or Netlify deploy was performed.

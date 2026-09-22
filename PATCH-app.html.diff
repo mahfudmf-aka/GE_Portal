@@ -1,11 +1,16 @@
 --- a/app.html
 +++ b/app.html
 @@
--<script src="assets/clean-page-registry.js?v=clean01"></script></head><body id="top" class="e1-page"><header class="top"></header>
-+<script src="assets/clean-page-registry.js?v=clean01"></script></head><body id="top" class="e1-page final-v257 final-shell-r5"><header class="top"></header>
-@@
 -<script src="assets/clean-route-adapter.js?v=clean01"></script><script>
-+<script src="assets/clean-route-adapter.js?v=clean01"></script><script src="assets/edition1-canonical-shell.js?v=p40-clean-shell"></script><script>
++<script src="assets/clean-route-adapter.js?v=clean01"></script><script src="assets/edition1-canonical-shell.js?v=p40-route-contract"></script><script>
 @@
-- for(const item of def.scripts||[]){ if(item.src){await loadSrc(item.src);} else if(item.code){(0,eval)(item.code);} }
-+ for(const item of def.scripts||[]){ if(item.src){const src=String(item.src);if(/(?:^|\/)portal-shell\.js(?:\?|$)/i.test(src)||/(?:^|\/)edition1-portal-shell-entry\.js(?:\?|$)/i.test(src)||/(?:^|\/)edition1-canonical-shell\.js(?:\?|$)/i.test(src))continue;await loadSrc(src);} else if(item.code){(0,eval)(item.code);} }
+- const params=new URLSearchParams(location.search); const route=params.get('page')||'index'; const def=window.P40_CLEAN_PAGES[route]; const outlet=document.getElementById('cleanPageOutlet');
++ const params=new URLSearchParams(location.search); const route=params.get('page')||'index'; const def=window.P40_CLEAN_PAGES[route]; const outlet=document.getElementById('cleanPageOutlet');
+@@
+- document.title=def.title+' — Ground Experience Portal'; outlet.innerHTML=def.html;
++ document.title=def.title+' — Ground Experience Portal'; outlet.innerHTML=def.html || (route==='index'?'<div id="dashboardRoot"></div>':'');
+@@
+-  for(const item of def.scripts||[]){ if(item.src){await loadSrc(item.src);} else if(item.code){(0,eval)(item.code);} }
++  for(const item of def.scripts||[]){ if(item.src){const src=String(item.src);if(/(?:^|\/)portal-shell\.js(?:\?|$)/i.test(src)||/(?:^|\/)edition1-portal-shell-entry\.js(?:\?|$)/i.test(src))continue;await loadSrc(src);} else if(item.code){(0,eval)(item.code);} }
++  window.P40BuildCanonicalShell?.();
+*** End Patch
