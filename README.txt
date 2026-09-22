@@ -1,16 +1,18 @@
-P40 CLEAN RUNTIME FIX v2
+P40 ROLLBACK — CLEAN RUNTIME
 
-Confirmed from test-1:
-- app.html still uses the old shell mount and does not load the canonical Edition 1 shell.
-- index in clean-page-registry.js has html: "" while dashboard-firestore.js requires #dashboardRoot.
-- Clean registry still contains legacy portal-shell.js entries.
-- The previous patch was not present in the current test-1 source.
+Rollback only. Restore the recent Clean Runtime experiment.
+Do not apply the previous Clean Runtime v1/v2 patches afterward.
 
-This patch:
-1. Activates the existing canonical Edition 1 shell on app.html.
-2. Adds #dashboardRoot to the index route.
-3. Prevents legacy shell scripts from being booted by Clean page definitions.
-4. Makes the canonical shell understand ?page=... for active navigation.
+Root cause found:
+portal-shell.js uses location.pathname. For /app.html?page=index, pathname is
+app.html, but its finalUserPages contains index.html, not app.html. Therefore
+shell() returns before filling header/sidebar. portal.css still styles the empty
+.top/.side, producing the blank dark header seen in the screenshot.
+The Clean registry index entry also has html: "", so the content outlet is empty.
 
-No Firebase rules or business/data logic are changed.
-No GitHub push or Netlify deploy was performed.
+Rollback scope:
+- app.html
+- assets/clean-page-registry.js
+- assets/edition1-canonical-shell.js
+
+No Firebase, data, OCR, Calendar, Initiative, Map or business logic is changed.
