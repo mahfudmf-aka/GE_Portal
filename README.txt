@@ -1,22 +1,21 @@
-P40 CLEAN RUNTIME INTEGRATION — DELTA PATCH
-Target branch: test-1
-No GitHub/Netlify write was performed.
+P40 CLEAN — OLD THEME REMOVAL / CANONICAL SHELL PATCH
 
-Purpose:
-1. Make app.html?page=... the canonical runtime page identity.
-2. Boot the existing portal shell from the 2-HTML mother.
-3. Provide #dashboardRoot for the existing Firestore dashboard renderer.
-4. Let Edition 1 page boot resolve Clean query routes.
-5. Make Clean routing preserve aliases, query parameters and hash.
-6. Keep E1/legacy business implementations; do not redesign pages.
-7. Fix the known programmatic Station 360 navigation escape hatch.
+Problem confirmed on test-1:
+- app.html currently mounts <header class="top"> + .side.
+- portal.css styles those as the legacy .top/.side shell.
+- portal-shell.js and edition1-portal-shell-entry.js are still present in the Clean registry.
+- The prior integration patch actually booted portal-shell.js, so it could make the legacy shell visible instead of removing it.
 
-Apply with the supplied apply-p40-clean-runtime.py against an existing checkout of test-1.
-The patcher performs targeted replacements and refuses to continue if an expected source
-anchor is missing or already changed. It does not blindly overwrite the target files.
+This patch changes only the active Clean runtime:
+1. app.html uses the canonical Edition 1 shell classes: .e1-top + body.e1-modern.
+2. Adds clean-shell-runtime.js for header/sidebar/user/period/notification/logout.
+3. Skips portal-shell.js, edition1-portal-shell-entry.js and edition1-canonical-shell.js when Clean registry scripts are loaded.
+4. Keeps portal.css for page/component styling; it is no longer allowed to own the active header/sidebar because the old .top shell is no longer mounted.
+5. Makes edition1-page-boot understand ?page=... query routes.
+6. No Firebase rules, collections, auth model, page data, CRUD, OCR, Calendar, Initiative, Map or business logic are changed.
 
 IMPORTANT:
-- Do not deploy yet.
-- Run npm test after applying.
-- Then run the functional gates: mother shell, Initiative, Calendar, OCR, Airport Map,
-  Station 360, Lounge/Tenant pricing, modal/overlay and Firebase persistence.
+- This is a targeted delta patch, not a full project replacement.
+- It has NOT been deployed or pushed.
+- npm test has NOT been claimed as passed.
+- Apply it to the test-1 checkout, then hard-refresh the browser.

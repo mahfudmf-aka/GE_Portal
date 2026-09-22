@@ -1,0 +1,11 @@
+--- a/app.html
++++ b/app.html
+@@
+-<header class="top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet">
++<header class="e1-top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet">
+@@
+-<script src="assets/clean-route-adapter.js?v=clean01"></script>
++<script src="assets/auth.js?v=p40-clean-shell"></script><script src="assets/clean-route-adapter.js?v=clean01"></script><script src="assets/clean-shell-runtime.js?v=p40-clean-shell"></script>
+@@
+-  for(const item of def.scripts||[]){ if(item.src){await loadSrc(item.src);} else if(item.code){(0,eval)(item.code);} }
++  for(const item of def.scripts||[]){ if(item.src){ const src=String(item.src); if(/(?:^|\/)portal-shell\.js(?:\?|$)/i.test(src)||/(?:^|\/)edition1-portal-shell-entry\.js(?:\?|$)/i.test(src)||/(?:^|\/)edition1-canonical-shell\.js(?:\?|$)/i.test(src)) continue; await loadSrc(src); } else if(item.code){(0,eval)(item.code);} }
