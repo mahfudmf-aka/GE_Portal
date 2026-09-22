@@ -1,0 +1,5 @@
+--- a/assets/clean-page-registry.js
++++ b/assets/clean-page-registry.js
+@@
+-"index": {"title": "Ground Experience Portal", "html": "",
++"index": {"title": "Ground Experience Portal", "html": "<div id=\"dashboardRoot\"></div>",

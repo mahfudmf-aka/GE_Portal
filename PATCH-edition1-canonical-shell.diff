@@ -1,0 +1,5 @@
+--- a/assets/edition1-canonical-shell.js
++++ b/assets/edition1-canonical-shell.js
+@@
+-const path=()=>location.pathname.split('/').pop()||'';
++const path=()=>{const q=new URLSearchParams(location.search);const p=q.get('page');if(p)return p==='index'?'index.html':(p+'.html');return location.pathname.split('/').pop()||''};
