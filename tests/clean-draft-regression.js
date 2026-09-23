@@ -7,10 +7,17 @@ const assert=(c,m)=>{if(!c)throw new Error(m)};
 const html=fs.readdirSync(root).filter(x=>x.endsWith('.html')).sort();
 assert(JSON.stringify(html)==JSON.stringify(['app.html','login.html']),`Clean architecture must remain 2 HTML files; found: ${html.join(', ')}`);
 const app=read('app.html'), login=read('login.html'), registry=read('assets/clean-page-registry.js'), adapter=read('assets/clean-route-adapter.js');
+assert(registry.includes('dashboardRoot'),'Canonical index page must provide dashboardRoot mount point.');
+
 for(const f of ['assets/clean-page-registry.js','assets/clean-route-adapter.js']) assert(app.includes(f.split('?')[0]),`app.html missing ${f}`);
 assert(registry.includes('window.P40_CLEAN_PAGES='),'Canonical page registry missing.');
 assert(registry.includes('window.P40_CLEAN_ALIASES='),'Canonical route aliases missing.');
 assert(adapter.includes("params.set('page',route)"),'Clean route adapter does not resolve routes into app.html.');
+const shell=read('assets/portal-shell.js');
+assert(shell.includes("file==='app.html'"),'Canonical shell must resolve app.html?page=... as its logical page.');
+const auth=read('assets/auth.js');
+assert(auth.includes('function gxCurrentPageKey()'),'Auth must resolve canonical app.html?page=... routes for access control.');
+assert(auth.includes("return'app.html?page=index'"),'Auth default route must target canonical app route.');
 for(const asset of ['assets/firebase-config.js','assets/firebase-client.js','assets/auth.js']) assert(login.includes(asset),`login.html missing ${asset}`);
 for(const asset of ['assets/firebase-config.js','assets/firebase-client.js','assets/edition1-store.js','assets/portal-shell.js']) assert(registry.includes(asset),`Canonical runtime registry missing ${asset}`);
 for(const critical of ['assets/tesseract.min.js','assets/tesseract-core-simd-lstm.wasm','assets/garuda_operational_map.svg','assets/xlsx.full.min.js']) assert(fs.existsSync(path.join(root,critical)),`Critical asset missing: ${critical}`);

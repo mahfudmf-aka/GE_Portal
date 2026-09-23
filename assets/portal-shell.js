@@ -25,7 +25,7 @@ const NAV_SVG={
  standard:'<path d="M4 5h12M4 10h12M4 15h12"/>'
 };
 function icon(x){const key=({'⌂':'home','◎':'cx','↔':'journey','✈':'network','⌾':'station','⚙':'initiative','✧':'opportunity','◇':'scenario','▦':'calendar','▣':'budget','◉':'budget','✓':'readiness','▤':'document','≡':'standard','⬡':'data','◫':'data','♙':'user','◷':'history','☎':'support','⇧':'data','◈':'station'})[x]||'standard';return `<span class="ni" aria-hidden="true"><svg viewBox="0 0 20 20">${NAV_SVG[key]}</svg></span>`;}
-const path=()=>location.pathname.split('/').pop()||'index.html';
+const path=()=>{const file=(location.pathname.split('/').pop()||'index.html').toLowerCase();if(file==='app.html')return `${new URLSearchParams(location.search).get('page')||'index'}.html`;return file};
 const item=(href,label,i,sub=false)=>`<a class="ge-nav-link ${sub?'ge-nav-sub':''} ${path()===href?'active':''}" href="${href}" title="${label}">${icon(i)}<span>${label}</span></a>`;
 function group(title,items){return `<div class="ge-nav-section">${title}</div>${items.join('')}`}
 function dashboardPOV(s){
