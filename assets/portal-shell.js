@@ -26,7 +26,8 @@ const NAV_SVG={
 };
 function icon(x){const key=({'⌂':'home','◎':'cx','↔':'journey','✈':'network','⌾':'station','⚙':'initiative','✧':'opportunity','◇':'scenario','▦':'calendar','▣':'budget','◉':'budget','✓':'readiness','▤':'document','≡':'standard','⬡':'data','◫':'data','♙':'user','◷':'history','☎':'support','⇧':'data','◈':'station'})[x]||'standard';return `<span class="ni" aria-hidden="true"><svg viewBox="0 0 20 20">${NAV_SVG[key]}</svg></span>`;}
 const path=()=>{const file=(location.pathname.split('/').pop()||'index.html').toLowerCase();if(file==='app.html')return `${new URLSearchParams(location.search).get('page')||'index'}.html`;return file};
-const item=(href,label,i,sub=false)=>`<a class="ge-nav-link ${sub?'ge-nav-sub':''} ${path()===href?'active':''}" href="${href}" title="${label}">${icon(i)}<span>${label}</span></a>`;
+const canonicalHref=href=>{const raw=String(href||'');if(!/^[a-z0-9-]+\\.html(?:[?#].*)?$/i.test(raw))return raw;const u=new URL(raw,location.href);const file=(u.pathname.split('/').pop()||'').toLowerCase();if(file==='app.html')return raw;const page=file.replace(/\\.html$/,'');const q=u.searchParams.toString();return `app.html?page=${encodeURIComponent(page)}${q?'&'+q:''}`};
+const item=(href,label,i,sub=false)=>{const target=canonicalHref(href);return `<a class="ge-nav-link ${sub?'ge-nav-sub':''} ${path()===href?'active':''}" href="${target}" title="${label}">${icon(i)}<span>${label}</span></a>`};
 function group(title,items){return `<div class="ge-nav-section">${title}</div>${items.join('')}`}
 function dashboardPOV(s){
  const r=String(s?.role||'').trim().toLowerCase().replace(/[\s_-]+/g,' ');
@@ -43,7 +44,8 @@ function navFor(s){
  const planning=[
    item('service-planning.html','Planning Overview','≡'),
    item('planning-workspace.html','Planning Workspace','◇'),
-   item('planning-documents.html','Planning Documents','▤')
+   item('planning-documents.html','Planning Documents','▤'),
+   item('calendar.html','Calendar & Project Tracking','▦')
  ];
  const commonSupport=group('SUPPORT',[item('berita.html','Berita & Informasi','▣'),item('kontak.html','Contact Support','☎')]);
  if(['Lounge Staff','Lounge Luar Biasa'].includes(s?.role)) return [

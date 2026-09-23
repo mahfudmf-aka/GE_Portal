@@ -14,6 +14,12 @@ assert(registry.includes('window.P40_CLEAN_PAGES='),'Canonical page registry mis
 assert(registry.includes('window.P40_CLEAN_ALIASES='),'Canonical route aliases missing.');
 assert(adapter.includes("params.set('page',route)"),'Clean route adapter does not resolve routes into app.html.');
 const shell=read('assets/portal-shell.js');
+assert(shell.includes("Calendar & Project Tracking"),'Sidebar navigation must expose Calendar & Project Tracking.');
+assert(shell.includes("item('calendar.html','Calendar & Project Tracking','▦')"),'Calendar must be registered in the shared planning navigation.');
+assert(shell.includes('const canonicalHref='),'Shared navigation must canonicalize logical page links to app.html?page=... without relying on a second HTML page.');
+assert(registry.includes('"calendar": {"title": "Kalender & Project Tracking"'),'Calendar registry title must be canonical.');
+assert(shell.includes('href="${target}"'),'Navigation items must emit the canonicalized target URL.');
+
 assert(shell.includes("file==='app.html'"),'Canonical shell must resolve app.html?page=... as its logical page.');
 const auth=read('assets/auth.js');
 assert(auth.includes('function gxCurrentPageKey()'),'Auth must resolve canonical app.html?page=... routes for access control.');
