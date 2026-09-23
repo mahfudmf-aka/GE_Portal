@@ -33,8 +33,26 @@
     const list=[...new Set(keys.map(collKey))];
     const t=await token();
     const r=await fetch('/api/edition1-data?collections='+encodeURIComponent(list.join(',')),{headers:{Authorization:'Bearer '+t},cache:'no-store'});
-    const p=await r.json().catch(()=>({})); if(!r.ok)throw new Error(p.message||`Data request failed (${r.status}).`);
-    return p.collections||{};
+    const p=await r.json().catch(()=>({}));
+    if(r.ok)return p.collections||{};
+    const msg=String(p.message||'');
+    if(!/Firebase Admin credentials are not configured/i.test(msg))throw new Error(msg||`Data request failed (${r.status}).`);
+    // Netlify server-side Admin credentials are not available in some deployed environments.
+    // Keep Firestore as the same source of truth by reading the canonical portalData tree
+    // with the already-authenticated Firebase Web SDK and Firestore Security Rules.
+    const fb=window.GXFirebase?.state;
+    if(!fb?.db)throw new Error(msg);
+    const out={};
+    for(const key of list){
+      if(key==='standardContent'||key==='portalManager'){
+        const snap=await fb.db.collection('portalMetadata').doc(key).collection('records').doc('global').get();
+        out[key]=snap.exists?[{id:'global',...snap.data()}]:[];
+      }else{
+        const snap=await fb.db.collection('portalData').doc(key).collection('records').get();
+        out[key]=snap.docs.map(d=>({id:d.id,...d.data()}));
+      }
+    }
+    return out;
   }
   async function apiPost(body){
     const t=await token();

@@ -1,39 +1,24 @@
 /* P40 Edition 1 canonical page boot.
- * Clean Draft route ownership: app.html?page=<route>.
+ * Shell ownership: assets/portal-shell.js (same shell as the production dashboard).
  * Business-data ownership: Firebase/Firestore through /api/edition1-data.
  */
 (function(){
 'use strict';
-const legacyByClean={
- 'standar':'e1-standar.html',
- 'inisiatif':'e1-inisiatif.html',
- 'service-planning':'e1-service-planning.html',
- 'calendar':'e1-calendar.html',
- 'planning-documents':'e1-planning-documents.html',
- 'data':'e1-data.html',
- 'admin':'e1-admin.html',
- 'berita':'e1-berita.html',
- 'kontak':'e1-kontak.html',
- 'lounge-list':'e1-lounge-list.html',
- 'branch-office-planning':'e1-branch-office-planning.html',
- 'gaso-planning':'e1-gaso-planning.html'
-};
-const cleanRoute=(new URLSearchParams(location.search).get('page')||'').toLowerCase();
-const pathname=(location.pathname.split('/').pop()||'').toLowerCase();
-const page=legacyByClean[cleanRoute]||pathname;
+const file=(location.pathname.split('/').pop()||'app.html').toLowerCase();
+const page=file==='app.html'?String(new URLSearchParams(location.search).get('page')||'index').trim().toLowerCase():file.replace(/\.html$/,'').replace(/^e1-/,'');
 const config={
- 'e1-standar.html':{perm:'services',collections:['airports','personnel','touchpointStandards','skyPriority','announcements','standardContent']},
- 'e1-inisiatif.html':{perm:'initiatives',collections:['initiatives','touchpoints','documents']},
- 'e1-service-planning.html':{perm:'planning',collections:['stationMaterials','lounges','boSpaces','airportSystems','touchpointStandards','documents','serviceProcurement']},
- 'e1-calendar.html':{perm:'initiatives',collections:['initiatives','projectEvents','touchpoints']},
- 'e1-planning-documents.html':{perm:'planning',collections:['documents','initiatives']},
- 'e1-data.html':{perm:'data',collections:['airports','personnel']},
- 'e1-admin.html':{perm:'admin',collections:['users','inbox','auditLogs','portalManagerR2','airports','lounges']},
- 'e1-berita.html':{perm:'news',collections:['articles','announcements','faqs','news','documents']},
- 'e1-kontak.html':{perm:'contact',collections:['inbox']},
- 'e1-lounge-list.html':{perm:'planning',collections:['lounges','loungeVisitors','serviceProcurement','documents']},
- 'e1-branch-office-planning.html':{perm:'planning',collections:['lounges','boSpaces','serviceProcurement','airportSystems','stationMaterials','documents']},
- 'e1-gaso-planning.html':{perm:'planning',collections:['gasoMaster','gasoServiceSupport','gasoPlanningService','airports','documents']}
+ 'standar':{perm:'services',collections:['airports','personnel','touchpointStandards','skyPriority','announcements','standardContent']},
+ 'inisiatif':{perm:'initiatives',collections:['initiatives','touchpoints','documents']},
+ 'service-planning':{perm:'planning',collections:['stationMaterials','lounges','boSpaces','airportSystems','touchpointStandards','documents','serviceProcurement']},
+ 'calendar':{perm:'initiatives',collections:['initiatives','projectEvents','touchpoints']},
+ 'planning-documents':{perm:'planning',collections:['documents','initiatives']},
+ 'data':{perm:'data',collections:['airports','personnel']},
+ 'admin':{perm:'admin',collections:['users','inbox','auditLogs','portalManagerR2','airports','lounges']},
+ 'berita':{perm:'news',collections:['articles','announcements','faqs','news','documents']},
+ 'kontak':{perm:'contact',collections:['inbox']},
+ 'lounge-list':{perm:'planning',collections:['lounges','loungeVisitors','serviceProcurement','documents']},
+ 'branch-office-planning':{perm:'planning',collections:['lounges','boSpaces','serviceProcurement','airportSystems','stationMaterials','documents']},
+ 'gaso-planning':{perm:'planning',collections:['gasoMaster','gasoServiceSupport','gasoPlanningService','airports','documents']}
 };
 const cfg=config[page]; if(!cfg)return;
 function session(){return typeof window.gxGetSession==='function'?(gxGetSession()||{}):window.GX_CURRENT_USER||{}}
@@ -49,29 +34,24 @@ async function ensureFirebase(){
 async function waitFirebase(){const state=await ensureFirebase();const u=await window.GXFirebase.currentUser();if(!u)throw new Error('Authentication required.');return{state,u}}
 function hasAccess(){if(cfg.perm==='admin')return window.gxHasUserManagementPermission?.()||session().role==='Super Admin';return window.gxHasPermission?.(cfg.perm)!==false}
 function rerender(){
- if(page==='e1-standar.html'){const panel=new URLSearchParams(location.search).get('panel');const panelButton=panel?document.querySelector(`[data-standard-panel="${panel}"]`):null;if(panel&&window.showStandardPanel)window.showStandardPanel(panel,panelButton);window.renderTouchpointStandards?.();window.renderPersonnelReadiness?.();window.renderSkyPriority?.();window.geEnsureStandardModalV248?.();window.geApplyStandardContentV248?.();window.renderAnnouncementLibraryV246?.()}
- else if(page==='e1-inisiatif.html'){window.renderInitiatives?.();window.geApplyInitiativePresentationV224?.()}
- else if(page==='e1-service-planning.html'){window.geRenderPlanningPage?.();window.renderStationMaterials?.()}
- else if(page==='e1-calendar.html'){window.geV251Ensure?.();window.geV251RenderTouchpointPage?.();window.geV251InitCalendar?.();window.geUpgradeCalendarModalV252?.();window.geAddCalendarFiltersV252?.();window.geUpgradeReminderV253?.();window.geCalBuildFiltersV2533?.();window.geCalRenderV2533?.();window.geCalRenderKPIV2534?.()}
- else if(page==='e1-planning-documents.html'){window.renderPlanningDocuments?.()}
- else if(page==='e1-data.html'){window.renderAirports?.();window.renderPersonnel?.();window.renderDocumentsAdmin?.()}
- else if(page==='e1-admin.html'){window.renderAdminOverview?.();window.renderAdminInbox?.();window.renderAuditLogs?.();window.p26RenderUsers?.();window.pmLoadPageR2?.()}
- else if(page==='e1-berita.html'){window.renderArticles?.();window.renderAnnouncements?.();window.renderFaqs?.();window.renderAnnouncementLibraryV246?.()}
- else if(page==='e1-lounge-list.html'){window.renderLounges?.();window.renderLoungeVisitors?.();window.renderLoungePriceSummaryV243?.();window.renderLoungeCardsV237?.()}
- else if(page==='e1-branch-office-planning.html'){window.geRenderPlanningPage?.();window.renderAirportSystems?.();window.renderLoungeProcurement?.();window.renderBOSpaces?.()}
- else if(page==='e1-gaso-planning.html'){window.renderGasoAllV231?.()}
+ if(page==='standar'){const panel=new URLSearchParams(location.search).get('panel');const panelButton=panel?document.querySelector(`[data-standard-panel="${panel}"]`):null;if(panel&&window.showStandardPanel)window.showStandardPanel(panel,panelButton);window.renderTouchpointStandards?.();window.renderPersonnelReadiness?.();window.renderSkyPriority?.();window.geEnsureStandardModalV248?.();window.geApplyStandardContentV248?.();window.renderAnnouncementLibraryV246?.()}
+ else if(page==='inisiatif'){window.renderInitiatives?.();window.geApplyInitiativePresentationV224?.()}
+ else if(page==='service-planning'){window.geRenderPlanningPage?.();window.renderStationMaterials?.()}
+ else if(page==='calendar'){window.geV251Ensure?.();window.geV251RenderTouchpointPage?.();window.geV251InitCalendar?.();window.geUpgradeCalendarModalV252?.();window.geAddCalendarFiltersV252?.();window.geUpgradeReminderV253?.();window.geCalBuildFiltersV2533?.();window.geCalRenderV2533?.();window.geCalRenderKPIV2534?.()}
+ else if(page==='planning-documents'){window.renderPlanningDocuments?.()}
+ else if(page==='data'){window.renderAirports?.();window.renderPersonnel?.();window.renderDocumentsAdmin?.()}
+ else if(page==='admin'){window.renderAdminOverview?.();window.renderAdminInbox?.();window.renderAuditLogs?.();window.p26RenderUsers?.();window.pmLoadPageR2?.()}
+ else if(page==='berita'){window.renderArticles?.();window.renderAnnouncements?.();window.renderFaqs?.();window.renderAnnouncementLibraryV246?.()}
+ else if(page==='lounge-list'){window.renderLounges?.();window.renderLoungeVisitors?.();window.renderLoungePriceSummaryV243?.();window.renderLoungeCardsV237?.()}
+ else if(page==='branch-office-planning'){window.geRenderPlanningPage?.();window.renderAirportSystems?.();window.renderLoungeProcurement?.();window.renderBOSpaces?.()}
+ else if(page==='gaso-planning'){window.renderGasoAllV231?.()}
 }
 async function boot(){
  try{
   showStatus('Menghubungkan ke Firebase / Firestore…');
   await window.GEStore.waitAuth();
   await waitFirebase();
-  if(!hasAccess()){
-   const fallback=typeof gxDefaultPage==='function'?gxDefaultPage():'index.html';
-   const target=typeof window.p40CleanRoute==='function'?window.p40CleanRoute(fallback):fallback;
-   if(target!==location.href)location.replace(target);
-   return;
-  }
+  if(!hasAccess()){const target=typeof gxDefaultPage==='function'?gxDefaultPage():'app.html?page=index';if(target!==location.pathname+location.search)location.replace(target);return}
   showStatus('Mengambil data dari Firebase / Firestore…');
   await window.GEStore.hydrate(cfg.collections);
   rerender();

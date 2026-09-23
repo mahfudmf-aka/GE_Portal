@@ -4,7 +4,7 @@
    No business data or page CRUD logic is changed. */
 (function(){
   'use strict';
-  const current=(location.pathname.split('/').pop()||'index.html').toLowerCase();
+  const current=(()=>{const f=(location.pathname.split('/').pop()||'app.html').toLowerCase();return f==='app.html'?String(new URLSearchParams(location.search).get('page')||'index').toLowerCase():f})()
 
   function init(){
     // Make the actual current page visibly active.
@@ -236,8 +236,10 @@ const NAV_SVG={
  standard:'<path d="M4 5h12M4 10h12M4 15h12"/>'
 };
 function icon(x){const key=({'⌂':'home','◎':'cx','↔':'journey','✈':'network','⌾':'station','⚙':'initiative','✧':'opportunity','◇':'scenario','▦':'calendar','▣':'budget','◉':'budget','✓':'readiness','▤':'document','≡':'standard','⬡':'data','◫':'data','♙':'user','◷':'history','☎':'support','⇧':'data','◈':'station'})[x]||'standard';return `<span class="ni" aria-hidden="true"><svg viewBox="0 0 20 20">${NAV_SVG[key]}</svg></span>`;}
-const path=()=>{const file=(location.pathname.split('/').pop()||'app.html').toLowerCase();if(file==='app.html'){const route=(new URLSearchParams(location.search).get('page')||'index').trim().toLowerCase();return `${route||'index'}.html`;}return file;} ;
-const item=(href,label,i,sub=false)=>`<a class="ge-nav-link ${sub?'ge-nav-sub':''} ${path()===href?'active':''}" href="${href}" title="${label}">${icon(i)}<span>${label}</span></a>`;
+const path=()=>location.pathname.split('/').pop()||'app.html';
+const routeKey=()=>{const file=path().toLowerCase();if(file==='app.html')return String(new URLSearchParams(location.search).get('page')||'index').split('&')[0].toLowerCase();return file.replace(/\.html$/,'')};
+const canonicalRoute=href=>{const raw=String(href||'').trim();if(!raw||raw.startsWith('#')||/^(?:https?:|mailto:|tel:|javascript:)/i.test(raw))return raw;const u=new URL(raw,location.href);const file=(u.pathname.split('/').pop()||'').toLowerCase();if(file==='login.html')return raw;const aliases={'e1-inisiatif':'inisiatif','e1-calendar':'calendar','e1-standar':'standar','e1-service-planning':'service-planning','e1-planning-documents':'planning-documents','e1-data':'data','e1-admin':'admin','e1-berita':'berita','e1-kontak':'kontak','e1-lounge-list':'lounge-list','e1-branch-office-planning':'branch-office-planning','e1-gaso-planning':'gaso-planning'};const page=aliases[file.replace(/\.html$/,'')]||file.replace(/\.html$/,'');const q=u.searchParams.toString();return `app.html?page=${encodeURIComponent(page)}${q?'&'+q:''}`};
+const item=(href,label,i,sub=false)=>{const target=canonicalRoute(href);return `<a class="ge-nav-link ${sub?'ge-nav-sub':''} ${routeKey()===(String(href).replace(/\.html$/,'').toLowerCase())?'active':''}" href="${target}" title="${label}">${icon(i)}<span>${label}</span></a>`};
 function group(title,items){return `<div class="ge-nav-section">${title}</div>${items.join('')}`}
 function dashboardPOV(s){
  const r=String(s?.role||'').trim().toLowerCase().replace(/[\s_-]+/g,' ');
@@ -254,7 +256,8 @@ function navFor(s){
  const planning=[
    item('service-planning.html','Planning Overview','≡'),
    item('planning-workspace.html','Planning Workspace','◇'),
-   item('planning-documents.html','Planning Documents','▤')
+   item('planning-documents.html','Planning Documents','▤'),
+   item('calendar.html','Calendar & Project Tracking','▦')
  ];
  const commonSupport=group('SUPPORT',[item('berita.html','Berita & Informasi','▣'),item('kontak.html','Contact Support','☎')]);
  if(['Lounge Staff','Lounge Luar Biasa'].includes(s?.role)) return [
@@ -294,22 +297,22 @@ function navFor(s){
  return [group('DASHBOARD',[item('index.html','Dashboard','⌂')]),commonSupport].join('');
 }
 
-const finalUserPages=new Set(['index.html','customer-experience.html','cx-import.html','touchpoint.html','network-stations.html','station-360.html','inisiatif.html','improvement-intake.html','action-scenario.html','calendar.html','budget-cost.html','program-kerja.html','cost-intelligence.html','readiness.html','agreement-service.html','standar.html','data.html','master-data.html','admin.html','portal-management.html','audit-log.html','service-capability.html','service-locations.html','berita.html','kontak.html','management-outcome.html','airport-experience-map.html','map.html','profile.html','service-planning.html','planning-workspace.html','lounge-list.html','branch-office-planning.html','gaso-planning.html','planning-documents.html']);
-const PLANNING_PAGES=new Set(['service-planning.html','planning-workspace.html','lounge-list.html','branch-office-planning.html','gaso-planning.html','planning-documents.html']);
+const finalUserPages=new Set(['index','customer-experience','cx-import','touchpoint','network-stations','station-360','inisiatif','improvement-intake','action-scenario','calendar','budget-cost','program-kerja','cost-intelligence','readiness','agreement-service','standar','data','master-data','admin','portal-management','audit-log','service-capability','service-locations','berita','kontak','management-outcome','airport-experience-map','map','profile','service-planning','planning-workspace','lounge-list','branch-office-planning','gaso-planning','planning-documents']);
+const PLANNING_PAGES=new Set(['service-planning','planning-workspace','lounge-list','branch-office-planning','gaso-planning','planning-documents']);
 const PLANNING_TABS=[
   ['lounge-list.html','Lounge / Tenant','lounge'],
   ['branch-office-planning.html','Branch Office','branch'],
   ['gaso-planning.html','GASO','gaso']
 ];
 function planningContext(){
- const p=path();
- if(p==='lounge-list.html')return'lounge';
- if(p==='branch-office-planning.html')return'branch';
- if(p==='gaso-planning.html')return'gaso';
+ const p=routeKey();
+ if(p==='lounge-list')return'lounge';
+ if(p==='branch-office-planning')return'branch';
+ if(p==='gaso-planning')return'gaso';
  return'';
 }
 function planningTabs(){
- if(!PLANNING_PAGES.has(path()))return;
+ if(!PLANNING_PAGES.has(routeKey()))return;
  const main=document.querySelector('body > .shell > .main');if(!main||main.querySelector('.ge-planning-tabs'))return;
  const context=planningContext();
  const wrap=document.createElement('nav');wrap.className='ge-planning-tabs';wrap.setAttribute('aria-label','Planning Workspace');
@@ -317,7 +320,7 @@ function planningTabs(){
  const target=main.querySelector('.hero,.ge-page-head,.title');
  if(target)target.insertAdjacentElement('afterend',wrap);else main.prepend(wrap);
  const title=main.querySelector('.hero h2,.ge-page-head h1');
- if(title&&path()!=='planning-workspace.html')title.dataset.gePlanningTitle=title.textContent.trim();
+ if(title&&routeKey()!=='planning-workspace')title.dataset.gePlanningTitle=title.textContent.trim();
 }
 function cleanNavigation(){
  const side=document.querySelector('body > .shell > .side');if(!side)return;
@@ -329,10 +332,10 @@ function cleanNavigation(){
    }
    section.style.display=has?'':'none';
  });
- side.querySelectorAll('.ge-nav-link[href]').forEach(a=>a.classList.toggle('active',path()===(a.getAttribute('href')||'').split('?')[0].split('#')[0]));
+ side.querySelectorAll('.ge-nav-link[href]').forEach(a=>{const u=new URL(a.getAttribute('href')||'',location.href);const k=u.pathname.endsWith('/app.html')?(u.searchParams.get('page')||'index').toLowerCase():(u.pathname.split('/').pop()||'').replace(/\.html$/,'').toLowerCase();a.classList.toggle('active',routeKey()===k)});
 }
 function ensureShell(){
- if(path()==='login.html'||!finalUserPages.has(path())) return null;
+ if(path()==='login.html'||!finalUserPages.has(routeKey())) return null;
  const top=document.querySelector('body > .top');
  const shell=document.querySelector('body > .shell');
  const side=shell&&shell.querySelector(':scope > .side');
@@ -355,11 +358,13 @@ function sidebarToggle(){
  let saved=false;try{saved=localStorage.getItem('GE_V257_SIDEBAR_COLLAPSED')==='1'}catch(e){}
  applyCollapsed(saved);
 }
+function canonicalizeLinks(root=document){root.querySelectorAll('a[href]').forEach(a=>{const h=a.getAttribute('href')||'';if(h&&!h.startsWith('app.html?page=')&&!h.startsWith('login.html'))a.setAttribute('href',canonicalRoute(h));});}
 function shell(){
- if(path()==='login.html'||!finalUserPages.has(path()))return;
+ if(path()==='login.html'||!finalUserPages.has(routeKey()))return;
  const refs=ensureShell();
  if(!refs)return;
  document.body.classList.add('final-v257','final-shell-r5');
+ canonicalizeLinks(document);
  const s=window.gxGetSession?gxGetSession():window.GX_CURRENT_USER||{};
  const pov=dashboardPOV(s);
  const initials=(s.name||s.username||'GE').split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
@@ -377,8 +382,6 @@ function shell(){
  const mt=document.getElementById('mobileNavTriggerV233'); if(mt)mt.onclick=()=>document.body.classList.toggle('nav-open');
  setupAccountControls(s);
  setupPeriodControl();
- document.body.classList.remove('clean-shell-boot');
- document.body.classList.add('clean-shell-ready');
 }
 function setupAccountControls(s){
  const umb=document.getElementById('geUserMenuBtn'),up=document.getElementById('geUserPop');

@@ -5522,6 +5522,131 @@ html body #readinessTable .bo-a{background:#E7F0F5!important;color:#315E78!impor
 html body #readinessTable .bo-b{background:#FFF3DD!important;color:#8A5E18!important}
 html body #readinessTable .bo-c{background:#FCE9E6!important;color:#A6463E!important}
 
+/* 6) Login R4: compact premium shell, same design language as portal. */
+html body .login-page{
+  min-height:100vh!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:32px 20px!important;
+  background:
+    radial-gradient(circle at 20% 15%,rgba(73,111,136,.16),transparent 28%),
+    radial-gradient(circle at 82% 82%,rgba(47,119,120,.09),transparent 30%),
+    linear-gradient(145deg,#0B2A3C 0%,#113A55 55%,#173F58 100%)!important;
+}
+html body .login-card{
+  width:min(510px,94vw)!important;
+  padding:0 30px 27px!important;
+  overflow:hidden!important;
+  border:1px solid rgba(255,255,255,.7)!important;
+  border-radius:18px!important;
+  background:#fff!important;
+  box-shadow:0 28px 75px rgba(0,0,0,.28)!important;
+}
+html body .login-brand{
+  margin:0 -30px 22px!important;
+  padding:21px 30px 18px!important;
+  text-align:center!important;
+  background:#F7F9FA!important;
+  border-bottom:1px solid #E1E9EC!important;
+}
+html body .login-logos{
+  position:relative!important;
+  min-height:58px!important;
+  margin:0 auto 14px!important;
+  gap:24px!important;
+}
+html body .login-logos:after{
+  content:""!important;
+  position:absolute!important;
+  left:50%!important;
+  top:8px!important;
+  width:1px!important;
+  height:42px!important;
+  background:#D9E2E6!important;
+}
+html body .login-logos .garuda-logo{width:145px!important;max-height:52px!important}
+html body .login-logos .danantara-logo{width:82px!important;max-height:50px!important}
+html body .login-brand h1{
+  margin:0!important;
+  color:#15394D!important;
+  font-size:25px!important;
+  line-height:1.15!important;
+  font-weight:600!important;
+  letter-spacing:-.25px!important;
+}
+html body .login-brand p{
+  margin:6px 0 0!important;
+  color:#748B96!important;
+  font-size:11px!important;
+}
+html body .login-form label{
+  margin:12px 0 6px!important;
+  color:#506B78!important;
+  font-size:11px!important;
+  font-weight:600!important;
+}
+html body .login-form input,
+html body .login-form select{
+  min-height:43px!important;
+  width:100%!important;
+  padding:10px 12px!important;
+  border:1px solid #CBDCE2!important;
+  border-radius:9px!important;
+  background:#fff!important;
+  color:#15394D!important;
+  font-size:12px!important;
+}
+html body .login-form input:focus{
+  border-color:#7599AA!important;
+  box-shadow:0 0 0 3px rgba(17,58,85,.07)!important;
+}
+html body .login-submit{
+  width:100%!important;
+  min-height:42px!important;
+  margin-top:18px!important;
+  padding:10px 14px!important;
+  border:1px solid #113A55!important;
+  border-radius:9px!important;
+  background:#113A55!important;
+  background-image:none!important;
+  color:#fff!important;
+  font-size:12px!important;
+  font-weight:600!important;
+  cursor:pointer!important;
+  box-shadow:none!important;
+  transition:background .16s ease,box-shadow .16s ease,transform .16s ease!important;
+}
+html body .login-submit:hover{
+  background:#1B4D68!important;
+  box-shadow:0 7px 16px rgba(17,58,85,.15)!important;
+  transform:translateY(-1px)!important;
+}
+html body .login-note{
+  margin-top:13px!important;
+  padding:10px 11px!important;
+  border:1px solid #E0E9EC!important;
+  border-left:3px solid #496F88!important;
+  border-radius:8px!important;
+  background:#F5F8F9!important;
+  color:#71858E!important;
+  font-size:9.5px!important;
+  line-height:1.45!important;
+}
+html body .login-note b{color:#315E78!important}
+html body .login-error{
+  border:1px solid #E7BBB6!important;
+  background:#FCE9E6!important;
+  color:#A6463E!important;
+}
+
+/* Mobile login */
+@media(max-width:520px){
+  html body .login-card{padding-left:20px!important;padding-right:20px!important}
+  html body .login-brand{margin-left:-20px!important;margin-right:-20px!important;padding-left:20px!important;padding-right:20px!important}
+  html body .login-logos .garuda-logo{width:125px!important}
+  html body .login-brand h1{font-size:22px!important}
+}
+
 /* v257-final-consolidation.css */
 .final-dashboard-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:26px 28px;background:linear-gradient(135deg,#113a55,#315e78);color:#fff;border-radius:18px;margin-bottom:18px}.final-dashboard-hero h2{margin:0 0 6px;font-size:30px}.final-dashboard-hero p{margin:0;opacity:.84}.final-dashboard-hero .hero-tag{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.78}.fd-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}.fd-card{background:#fff;border:1px solid #d9e3e9;border-radius:15px;padding:18px;min-height:120px;display:flex;flex-direction:column;text-decoration:none;color:#17384c;box-shadow:0 5px 18px rgba(17,58,85,.05);transition:.18s ease}.fd-card:hover{transform:translateY(-2px);box-shadow:0 9px 24px rgba(17,58,85,.10);border-color:#9eb4c1}.fd-card .fd-label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#6d8390}.fd-card strong{font-size:28px;margin:9px 0 5px;color:#113a55}.fd-card small{color:#718590;line-height:1.35}.fd-section{background:#fff;border:1px solid #d9e3e9;border-radius:15px;padding:20px;margin-bottom:18px}.fd-section-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}.fd-section h3{margin:0;color:#17384c}.fd-station-launch{display:grid;grid-template-columns:1fr auto;gap:10px}.fd-station-launch select{min-height:42px}.fd-btn{border:0;border-radius:10px;padding:10px 16px;background:#315e78;color:#fff;font-weight:700;cursor:pointer}.fd-btn:hover{background:#113a55}.fd-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.fd-link{border:1px solid #d9e3e9;border-radius:12px;padding:14px;text-decoration:none;color:#17384c;background:#f9fbfc}.fd-link:hover{background:#f1f6f8}.fd-attention{margin:0;padding-left:20px;color:#566f7d}.final-nav-group{border-top:1px solid rgba(255,255,255,.12);margin-top:8px;padding-top:8px}.final-nav-label{padding:8px 14px 5px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;opacity:.58}.touch-v251{cursor:pointer}.ge-pencil-v251{z-index:3}.ge-photo-count-v251c1{display:block;margin-top:8px;color:#718590}.station360-launch-note{font-size:12px;color:#718590;margin-top:8px}@media(max-width:1100px){.fd-grid{grid-template-columns:repeat(2,1fr)}.fd-links{grid-template-columns:1fr 1fr}}@media(max-width:680px){.final-dashboard-hero{align-items:flex-start;flex-direction:column}.fd-grid,.fd-links{grid-template-columns:1fr}.fd-station-launch{grid-template-columns:1fr}.final-dashboard-hero h2{font-size:24px}}
 
@@ -6286,7 +6411,7 @@ html body.final-v257.final-shell-r5 .ge-user-menu .avatar{width:34px!important;h
 html body.final-v257.final-shell-r5 .ge-user-menu .who{display:flex!important;flex-direction:column!important;gap:1px!important;min-width:0!important}
 html body.final-v257.final-shell-r5 .ge-user-menu .who b{font-size:9px!important;color:#fff!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:140px!important}
 html body.final-v257.final-shell-r5 .ge-user-menu .who span{font-size:7px!important;color:#dbe8f7!important;white-space:nowrap!important}
-html body.final-v257.final-shell-r5 .ge-user-menu .chev{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:14px!important;height:14px!important;font-size:11px!important;color:#dbe8f7!important;transition:transform .16s ease!important}.final-v257.final-shell-r5 .ge-user-menu[aria-expanded="true"] .chev{transform:rotate(180deg)!important}
+html body.final-v257.final-shell-r5 .ge-user-menu .chev{display:none!important}
 html body.final-v257.final-shell-r5 .ge-user-pop{display:none!important;position:absolute!important;right:0!important;top:48px!important;width:170px!important;padding:6px!important;background:#fff!important;color:#17375e!important;border:1px solid #d8e3ee!important;border-radius:8px!important;box-shadow:0 12px 28px rgba(0,18,49,.22)!important;z-index:90000!important;opacity:1!important;visibility:visible!important}
 html body.final-v257.final-shell-r5 .ge-user-pop.open{display:block!important}
 html body.final-v257.final-shell-r5 .ge-user-pop a,html body.final-v257.final-shell-r5 .ge-user-pop button{display:block!important;width:100%!important;min-height:34px!important;padding:8px 9px!important;border:0!important;border-radius:6px!important;background:transparent!important;color:#17375e!important;font:600 10px/1.2 inherit!important;text-align:left!important;cursor:pointer!important}
