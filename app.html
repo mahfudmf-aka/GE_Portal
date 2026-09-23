@@ -1,16 +1,17 @@
 <!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ground Experience Portal</title>
-<link rel="stylesheet" href="assets/portal.css?v=clean01"><link rel="stylesheet" href="assets/edition1-pages.css?v=clean01"><link rel="stylesheet" href="assets/e1-canonical.css?v=clean01"><link rel="stylesheet" href="assets/clean-shell.css?v=clean01">
-<script src="assets/clean-page-registry.js?v=clean01"></script><script src="assets/portal-shell.js?v=10.5"></script></head><body id="top" class="e1-page"><header class="top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet"><div class="clean-page-loading">Memuat halaman…</div></main></div><footer class="footer"><b>GROUND EXPERIENCE — GARUDA INDONESIA</b><br>Portal Service Experience</footer><button aria-label="Kembali ke atas" class="back-to-top" id="backToTop">↑</button>
+<link rel="stylesheet" href="assets/portal.css?v=clean01"><link rel="stylesheet" href="assets/clean-shell.css?v=clean01">
+<script src="assets/auth.js?v=clean01"></script><script src="assets/portal-shell.js?v=clean01"></script><script src="assets/clean-page-registry.js?v=clean01"></script></head><body id="top"><header class="top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet"><div class="clean-page-loading">Memuat halaman…</div></main></div><footer class="footer"><b>GROUND EXPERIENCE — GARUDA INDONESIA</b><br>Portal Service Experience</footer><button aria-label="Kembali ke atas" class="back-to-top" id="backToTop">↑</button>
 <script src="assets/clean-route-adapter.js?v=clean01"></script><script>
 (async function(){
- const params=new URLSearchParams(location.search); const aliases={'e1-inisiatif':'inisiatif','e1-calendar':'calendar','e1-standar':'standar','e1-service-planning':'service-planning','e1-planning-documents':'planning-documents','e1-data':'data','e1-admin':'admin','e1-berita':'berita','e1-kontak':'kontak','e1-lounge-list':'lounge-list','e1-branch-office-planning':'branch-office-planning','e1-gaso-planning':'gaso-planning'}; const route=aliases[String(params.get('page')||'index').trim().toLowerCase()]||String(params.get('page')||'index').trim().toLowerCase(); const def=window.P40_CLEAN_PAGES[route]; const outlet=document.getElementById('cleanPageOutlet');
+ const params=new URLSearchParams(location.search); const route=params.get('page')||'index'; const def=window.P40_CLEAN_PAGES[route]; const outlet=document.getElementById('cleanPageOutlet');
  if(!def){outlet.innerHTML='<div class="clean-page-error"><h2>Page tidak ditemukan</h2><p>'+route+'</p></div>';return;}
  document.title=def.title+' — Ground Experience Portal'; outlet.innerHTML=def.html;
+ if(typeof window.GXPortalShellMount==='function') window.GXPortalShellMount();
  // Route-specific styles not already in the canonical shell.
  for(const href of def.styles||[]){ if([...document.styleSheets].some(x=>x.href&&x.href.includes(href.split('?')[0]))) continue; const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l); }
  function loadSrc(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Gagal memuat '+src));document.body.appendChild(s);});}
  try{
-  for(const item of def.scripts||[]){ if(item.src&&item.src.split('?')[0]==='assets/portal-shell.js') continue; if(item.src){await loadSrc(item.src);} else if(item.code){(0,eval)(item.code);} }
+  for(const item of def.scripts||[]){ if(item.src){await loadSrc(item.src);} else if(item.code){(0,eval)(item.code);} }
   // Historical page runtimes frequently register DOMContentLoaded handlers. Trigger once after canonical content + dependencies exist.
   document.dispatchEvent(new Event('DOMContentLoaded',{bubbles:true}));
   window.dispatchEvent(new Event('load'));
