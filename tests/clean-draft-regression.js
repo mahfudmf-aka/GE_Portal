@@ -26,6 +26,15 @@ assert(registry.includes('"calendar": {"title": "Kalender & Project Tracking"'),
 assert(shell.includes('href="${target}"'),'Navigation items must emit the canonicalized target URL.');
 
 assert(shell.includes("file==='app.html'"),'Canonical shell must resolve app.html?page=... as its logical page.');
+assert(shell.includes('window.__GX_PORTAL_SHELL_BOOTED'),'Portal shell must have a singleton boot guard.');
+assert(shell.includes('class=\"chev\"'),'User menu must own the dropdown triangle control.');
+assert(app.includes('final-v257 final-shell-r5'),'Canonical app must paint the final shell class before runtime hydration to prevent shell-size flash.');
+assert((app.match(/<header class=\"top\"/g)||[]).length===1,'Canonical app must contain exactly one header shell.');
+assert((app.match(/<aside class=\"side\"/g)||[]).length===1,'Canonical app must contain exactly one sidebar shell.');
+assert(login.includes('class="login-page"')&&login.includes('class="login-card"'),'Canonical login markup missing.');
+const css=read('assets/portal.css');
+assert(css.includes('.login-card{\n  width:min(510px,94vw);'),'Login baseline width must remain the original 510px proportional layout.');
+assert(!css.includes('Login R4: compact premium shell'),'Unrequested R4 login visual override must be absent.');
 const auth=read('assets/auth.js');
 assert(auth.includes('function gxCurrentPageKey()'),'Auth must resolve canonical app.html?page=... routes for access control.');
 assert(auth.includes("return'app.html?page=index'"),'Auth default route must target canonical app route.');
