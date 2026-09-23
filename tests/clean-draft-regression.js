@@ -4,8 +4,13 @@ const fs=require('fs'); const path=require('path');
 const root=path.resolve(__dirname,'..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const assert=(c,m)=>{if(!c)throw new Error(m)};
-const html=fs.readdirSync(root).filter(x=>x.endsWith('.html')).sort();
-assert(JSON.stringify(html)==JSON.stringify(['app.html','login.html']),`Clean architecture must remain 2 HTML files; found: ${html.join(', ')}`);
+const html=[];
+function walkHtml(dir,rel=''){for(const name of fs.readdirSync(dir)){const full=path.join(dir,name),r=rel?path.join(rel,name):name;const st=fs.statSync(full);if(st.isDirectory())walkHtml(full,r);else if(name.endsWith('.html'))html.push(r.replace(/\\/g,'/'));}}
+walkHtml(root);
+html.sort();
+assert(JSON.stringify(html)==JSON.stringify(['app.html','login.html']),`Clean architecture must contain only canonical HTML files; found: ${html.join(', ')}`);
+const legacyHtml=['calendar.html','inisiatif.html','standar.html','service-planning.html','planning-workspace.html','planning-documents.html','lounge-list.html','branch-office-planning.html','gaso-planning.html','station-material.html','bo-space.html','airport-systems.html','network-stations.html','map.html','e1-calendar.html','e1-inisiatif.html','e1-standar.html','e1-service-planning.html','e1-planning-documents.html','e1-lounge-list.html','e1-branch-office-planning.html'];
+for(const legacy of legacyHtml) assert(!html.includes(legacy),`Legacy runtime page must be physically absent: ${legacy}`);
 const app=read('app.html'), login=read('login.html'), registry=read('assets/clean-page-registry.js'), adapter=read('assets/clean-route-adapter.js');
 assert(registry.includes('dashboardRoot'),'Canonical index page must provide dashboardRoot mount point.');
 
