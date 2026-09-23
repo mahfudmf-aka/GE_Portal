@@ -334,7 +334,7 @@ function cleanNavigation(){
  side.querySelectorAll('.ge-nav-link[href]').forEach(a=>a.classList.toggle('active',path()===(a.getAttribute('href')||'').split('?')[0].split('#')[0]));
 }
 function ensureShell(){
- if(path()==='login.html'||!finalUserPages.has(path())) return null;
+ if(path()==='login.html'||!isCanonicalPage()) return null;
  const top=document.querySelector('body > .top');
  const shell=document.querySelector('body > .shell');
  const side=shell&&shell.querySelector(':scope > .side');
