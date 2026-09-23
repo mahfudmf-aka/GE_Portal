@@ -1,0 +1,7 @@
+# Physical deletions required by the canonical contract
+assets/edition1-pages.css
+assets/e1-canonical.css
+assets/edition1-canonical-shell.js
+assets/edition1-portal-shell-entry.js
+assets/edition1-portal-route-adapter.js
+tests/p40-firebase-edition1.js
