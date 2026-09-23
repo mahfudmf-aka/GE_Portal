@@ -1,12 +1,221 @@
-const current=(location.pathname.split('/').pop()||'index.html').toLowerCase();
-  const navKey=value=>{const u=new URL(value,location.href),file=(u.pathname.split('/').pop()||'index.html').toLowerCase();return file==='app.html'?`app:${u.searchParams.get('page')||'index'}`:`file:${file}`};
-  const currentNavKey=navKey(location.href);
+/* r4-implementation-preview-r2.js */
+
+/* R4 Implementation Preview R2 — active/hover/navigation state only.
+   No business data or page CRUD logic is changed. */
+(function(){
+  'use strict';
+  const current=(location.pathname.split('/').pop()||'index.html').toLowerCase();
+
+  function init(){
+    // Make the actual current page visibly active.
+    document.querySelectorAll('.side a[href]').forEach(a=>{
+      const href=(a.getAttribute('href')||'').split('?')[0].split('#')[0].toLowerCase();
+      a.classList.toggle('active', href===current);
+      if(href===current){
+        const parent=a.closest('.service-nav,.initiative-nav,.planning-nav');
+        if(parent){
+          parent.classList.remove('collapsed');
+          const toggle=parent.querySelector('[data-nav-toggle]');
+          toggle?.setAttribute('aria-expanded','true');
+        }
+      }
+    });
+
+    // Header wording follows the locked R4 prototype.
+    const title=document.querySelector('.brand h1');
+    const sub=document.querySelector('.brand p');
+    if(title) title.textContent='Ground Experience';
+    if(sub) sub.textContent='Service Experience Portal';
+
+    // Hoverable links/buttons should never inherit legacy inline opacity/filter effects.
+    document.querySelectorAll('.side a,.btn,.logout-btn,.r4-link,.r4-tabs button').forEach(el=>{
+      el.style.cursor='pointer';
+    });
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+
+/* r4-implementation-preview-r3.js */
+
+/* R4 Implementation Preview R3 */
+(function(){
+'use strict';
+
+function smoothTo(id){
+  const el=document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function init(){
+  // Overview tabs:
+  // Overview -> top of dashboard
+  // Performance -> Experience/Journey section in the same dashboard
+  // Initiatives -> initiative management page
+  // Service Planning -> service planning module
+  document.querySelectorAll('[data-r4-scroll]').forEach(a=>{
+    a.addEventListener('click',e=>{
+      e.preventDefault();
+      const id=a.getAttribute('data-r4-scroll');
+      smoothTo(id);
+      document.querySelectorAll('.r4-tabs a').forEach(x=>x.classList.toggle('active',x===a));
+    });
+  });
+
+  // Restore Overview active when user returns to the page top.
+  window.addEventListener('scroll',()=>{
+    if(window.scrollY<220){
+      document.querySelectorAll('.r4-tabs a').forEach(x=>x.classList.toggle('active',x.dataset.r4Scroll==='r4-overview'));
+    }
+  },{passive:true});
+}
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+else init();
+})();
+
+/* r4-implementation-preview-r4.js */
+
+/* R4 Implementation Preview R4 — display-only navigation nomenclature */
+(function(){
+'use strict';
+const replacements = new Map([
+  ['Touch Point Garuda Indonesia','Touch Point'],
+  ['Standar Layanan Garuda Indonesia','Standard Layanan'],
+  ['Peta Airport Penerbangan','Peta Airport'],
+  ['Calendar & Project Tracking','Calendar & Project'],
+  ['Service Planning Garuda Indonesia','Service Planning'],
+  ['Lounge / Tenant Garuda Indonesia','Lounge / Tenant'],
+  ['Lounge & Tenant Garuda Indonesia','Lounge & Tenant']
+]);
+
+function cleanTextNode(el){
+  const text=(el.textContent||'').trim().replace(/\s+/g,' ');
+  if(replacements.has(text)){
+    // Preserve any nested badge/chevron if present.
+    const nested=[...el.children];
+    el.childNodes.forEach(n=>{ if(n.nodeType===3) n.textContent=''; });
+    if(nested.length){
+      el.insertBefore(document.createTextNode(replacements.get(text)+' '),nested[0]);
+    } else {
+      el.textContent=replacements.get(text);
+    }
+  }
+}
+
+function init(){
+  document.querySelectorAll('.side a').forEach(cleanTextNode);
+  document.querySelectorAll('.service-toggle span:first-child,.initiative-toggle span:first-child,.planning-toggle span:first-child').forEach(el=>{
+    const s=(el.textContent||'').trim().toUpperCase();
+    if(s.includes('LAYANAN GARUDA')) el.textContent='SERVICE EXPERIENCE';
+    if(s.includes('KEGIATAN')||s.includes('INISIATIF')) el.textContent='MANAGEMENT';
+    if(s.includes('SERVICE PLANNING')) el.textContent='PLANNING';
+  });
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+
+/* r4-implementation-preview-r5.js */
+
+/* R4 Implementation Preview R5 */
+(function(){
+'use strict';
+
+function r5Rows(){
+  if(typeof currentInitiativeRows!=='function')return [];
+  let rows=currentInitiativeRows();
+  const p=document.getElementById('r5InitiativePriority')?.value||'';
+  if(p)rows=rows.filter(x=>String(x.priority||'Normal')===p);
+  return rows;
+}
+window.r5RenderAllInitiatives=function(){
+  if(!document.body.contains(document.getElementById('r5InitiativePriority')))return;
+  if(typeof refreshInitiativeFilters==='function')refreshInitiativeFilters();
+  const rows=r5Rows().filter(x=>typeof geInitiativeScopedV224==='function'?geInitiativeScopedV224(x):true);
+  const target=document.getElementById('initRows');
+  if(target){
+    target.innerHTML=rows.length
+      ? rows.map((x,i)=>typeof geInitiativeCardV251==='function'?geInitiativeCardV251(x,i):'').join('')
+      : '<div class="initiative-empty-v246">Belum ada inisiatif pada filter ini.</div>';
+  }
+  if(typeof renderInitiativeCharts==='function')renderInitiativeCharts(rows);
+};
+
+function initAllInitiativeGrid(){
+  if(!document.getElementById('r5InitiativePriority'))return;
+  // Override only this page's renderer; journey-specific initiative pages remain locked.
+  window.renderInitiatives=window.r5RenderAllInitiatives;
+  r5RenderAllInitiatives();
+}
+
+function init(){
+  initAllInitiativeGrid();
+
+  // Use the same management-attention interaction language on lounge notices.
+  document.querySelectorAll('.lounge-note-v236').forEach(n=>{
+    n.setAttribute('data-r4-warning','true');
+  });
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,80));
+else setTimeout(init,80);
+})();
+
+/* r4-implementation-preview-r6.js */
+
+/* R4 Implementation Preview R6 */
+(function(){
+'use strict';
+
+const utilityFiles = new Set(['data.html','berita.html','kontak.html','admin.html']);
+
+function buildSupportGroup(){
+  const side=document.querySelector('.side');
+  if(!side || side.querySelector('.r6-support-nav')) return;
+
+  const links=[...side.querySelectorAll(':scope > a[href]')].filter(a=>{
+    const href=(a.getAttribute('href')||'').split('?')[0].split('#')[0].toLowerCase();
+    return utilityFiles.has(href);
+  });
+  if(!links.length)return;
+
+  const wrap=document.createElement('div');
+  wrap.className='r6-support-nav';
+  const title=document.createElement('div');
+  title.className='r6-support-title';
+  title.textContent='System & Support';
+  wrap.appendChild(title);
+
+  links[0].parentNode.insertBefore(wrap,links[0]);
+  links.forEach(a=>wrap.appendChild(a));
+
+  // Reapply active state to moved items.
+  const current=(location.pathname.split('/').pop()||'index.html').toLowerCase();
+  wrap.querySelectorAll('a[href]').forEach(a=>{
+    const href=(a.getAttribute('href')||'').split('?')[0].split('#')[0].toLowerCase();
+    a.classList.toggle('active',href===current);
+  });
+}
+
+function normalizeLogin(){
+  if(!document.querySelector('.login-page'))return;
+  const h=document.querySelector('.login-brand h1');
+  const p=document.querySelector('.login-brand p');
+  if(h)h.textContent='Ground Experience';
+  if(p)p.textContent='Service Experience Portal';
+}
+
+function init(){
+  buildSupportGroup();
+  normalizeLogin();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+else init();
+})();
 
 /* v257-screenmap-final.js */
 (function(){
 'use strict';
-if(window.__GX_PORTAL_SHELL_BOOTED)return;
-window.__GX_PORTAL_SHELL_BOOTED=true;
 const NAV_SVG={
  home:'<path d="M3 10.5 10 4l7 6.5V18H6v-7.5"/><path d="M8.5 18v-5h3v5"/>',
  cx:'<circle cx="10" cy="10" r="7"/><path d="M7 11c1.8 2 4.2 2 6 0"/><path d="M7.5 8h.01M12.5 8h.01"/>',
@@ -27,9 +236,8 @@ const NAV_SVG={
  standard:'<path d="M4 5h12M4 10h12M4 15h12"/>'
 };
 function icon(x){const key=({'⌂':'home','◎':'cx','↔':'journey','✈':'network','⌾':'station','⚙':'initiative','✧':'opportunity','◇':'scenario','▦':'calendar','▣':'budget','◉':'budget','✓':'readiness','▤':'document','≡':'standard','⬡':'data','◫':'data','♙':'user','◷':'history','☎':'support','⇧':'data','◈':'station'})[x]||'standard';return `<span class="ni" aria-hidden="true"><svg viewBox="0 0 20 20">${NAV_SVG[key]}</svg></span>`;}
-const path=()=>{const file=(location.pathname.split('/').pop()||'index.html').toLowerCase();if(file==='app.html')return `${new URLSearchParams(location.search).get('page')||'index'}.html`;return file};
-const canonicalHref=href=>{const raw=String(href||'');if(!/^[a-z0-9-]+\\.html(?:[?#].*)?$/i.test(raw))return raw;const u=new URL(raw,location.href);const file=(u.pathname.split('/').pop()||'').toLowerCase();if(file==='app.html')return raw;const page=file.replace(/\\.html$/,'');const q=u.searchParams.toString();return `app.html?page=${encodeURIComponent(page)}${q?'&'+q:''}`};
-const item=(href,label,i,sub=false)=>{const target=canonicalHref(href);return `<a class="ge-nav-link ${sub?'ge-nav-sub':''} ${path()===href?'active':''}" href="${target}" title="${label}">${icon(i)}<span>${label}</span></a>`};
+const path=()=>{const file=(location.pathname.split('/').pop()||'app.html').toLowerCase();if(file==='app.html'){const route=(new URLSearchParams(location.search).get('page')||'index').trim().toLowerCase();return `${route||'index'}.html`;}return file;} ;
+const item=(href,label,i,sub=false)=>`<a class="ge-nav-link ${sub?'ge-nav-sub':''} ${path()===href?'active':''}" href="${href}" title="${label}">${icon(i)}<span>${label}</span></a>`;
 function group(title,items){return `<div class="ge-nav-section">${title}</div>${items.join('')}`}
 function dashboardPOV(s){
  const r=String(s?.role||'').trim().toLowerCase().replace(/[\s_-]+/g,' ');
@@ -46,8 +254,7 @@ function navFor(s){
  const planning=[
    item('service-planning.html','Planning Overview','≡'),
    item('planning-workspace.html','Planning Workspace','◇'),
-   item('planning-documents.html','Planning Documents','▤'),
-   item('calendar.html','Calendar & Project Tracking','▦')
+   item('planning-documents.html','Planning Documents','▤')
  ];
  const commonSupport=group('SUPPORT',[item('berita.html','Berita & Informasi','▣'),item('kontak.html','Contact Support','☎')]);
  if(['Lounge Staff','Lounge Luar Biasa'].includes(s?.role)) return [
@@ -122,7 +329,7 @@ function cleanNavigation(){
    }
    section.style.display=has?'':'none';
  });
- side.querySelectorAll('.ge-nav-link[href]').forEach(a=>a.classList.toggle('active',navKey(a.getAttribute('href')||'')===currentNavKey));
+ side.querySelectorAll('.ge-nav-link[href]').forEach(a=>a.classList.toggle('active',path()===(a.getAttribute('href')||'').split('?')[0].split('#')[0]));
 }
 function ensureShell(){
  if(path()==='login.html'||!finalUserPages.has(path())) return null;
@@ -161,7 +368,7 @@ function shell(){
  refs.top.innerHTML=`<button id="mobileNavTriggerV233" class="mobile-nav-trigger-v233 ge-iconbtn" type="button" aria-label="Menu">☰</button>
  <div class="ge-brand-logos"><img class="garuda" src="assets/garuda-horizontal-white.png" alt="Garuda Indonesia"><img class="danantara" src="assets/danantara-white-user.png" alt="Danantara Indonesia"></div>
  <div class="ge-title"><strong>GROUND EXPERIENCE PORTAL</strong><span>${context}</span></div>
- <div class="ge-session"><label class="filter"><span>Period</span><select id="gePeriodSelect" aria-label="Period"></select></label><button class="ge-top-action ge-notify" id="geNotifyBtn" type="button" title="Notifications" aria-label="Notifications"><span class="bell-shape"></span><b class="ge-notify-badge" id="geNotifyBadge" hidden></b></button><a class="ge-top-action ge-help" href="kontak.html" title="Help" aria-label="Help">?</a><button class="ge-user-menu" id="geUserMenuBtn" type="button" aria-expanded="false" aria-haspopup="menu"><span class="avatar">${initials}</span><span class="who"><b>${s.name||s.username||'User'}</b><span>${roleLabel}</span></span><span class="chev" aria-hidden="true">▾</span></button><div class="ge-user-pop" id="geUserPop" role="menu"><a href="profile.html" role="menuitem">Profile</a><button type="button" id="geMenuNotifications" role="menuitem">Notifications</button><button type="button" id="geLogoutBtn" role="menuitem">Sign Out</button></div><div class="ge-notify-pop" id="geNotifyPop" role="dialog" aria-label="Notifications"><div class="ge-pop-head"><b>Notifications</b><button type="button" id="geNotifyClose" aria-label="Close">×</button></div><div id="geNotifyList" class="ge-notify-list"></div></div></div>`;
+ <div class="ge-session"><label class="filter"><span>Period</span><select id="gePeriodSelect" aria-label="Period"></select></label><button class="ge-top-action ge-notify" id="geNotifyBtn" type="button" title="Notifications" aria-label="Notifications"><span class="bell-shape"></span><b class="ge-notify-badge" id="geNotifyBadge" hidden></b></button><a class="ge-top-action ge-help" href="kontak.html" title="Help" aria-label="Help">?</a><button class="ge-user-menu" id="geUserMenuBtn" type="button" aria-expanded="false" aria-haspopup="menu"><span class="avatar">${initials}</span><span class="who"><b>${s.name||s.username||'User'}</b><span>${roleLabel}</span></span></button><div class="ge-user-pop" id="geUserPop" role="menu"><a href="profile.html" role="menuitem">Profile</a><button type="button" id="geMenuNotifications" role="menuitem">Notifications</button><button type="button" id="geLogoutBtn" role="menuitem">Sign Out</button></div><div class="ge-notify-pop" id="geNotifyPop" role="dialog" aria-label="Notifications"><div class="ge-pop-head"><b>Notifications</b><button type="button" id="geNotifyClose" aria-label="Close">×</button></div><div id="geNotifyList" class="ge-notify-list"></div></div></div>`;
  refs.side.innerHTML=navFor(s);
  if(typeof gxApplyNavigation==='function')gxApplyNavigation();
  cleanNavigation();
@@ -170,6 +377,8 @@ function shell(){
  const mt=document.getElementById('mobileNavTriggerV233'); if(mt)mt.onclick=()=>document.body.classList.toggle('nav-open');
  setupAccountControls(s);
  setupPeriodControl();
+ document.body.classList.remove('clean-shell-boot');
+ document.body.classList.add('clean-shell-ready');
 }
 function setupAccountControls(s){
  const umb=document.getElementById('geUserMenuBtn'),up=document.getElementById('geUserPop');
