@@ -1,35 +1,22 @@
-assets/clean-page-registry.js — MANUAL EDITS
+P40 V5 — EXISTING FILE TRANSFORMATION
+=====================================
+Existing file:
+assets/clean-page-registry.js
 
-1) In EVERY page definition, remove only these script objects (keep all other scripts in original order):
-   - {"src":"assets/portal-shell.js?..."}
-   - {"src":"assets/edition1-portal-shell-entry.js?..."}
-   - {"src":"assets/edition1-portal-route-adapter.js?..."}
+Preferred method:
+python tools/apply-p40-clean-registry-v5.py
 
-2) Change the "index" page definition from:
-   "html": ""
-   to:
-   "html": "<div id=\"dashboardRoot\"></div>"
+The transformer makes only these targeted changes:
+1. Removes these legacy shell runtimes from every registry page:
+   - assets/portal-shell.js
+   - assets/edition1-portal-shell-entry.js
+   - assets/edition1-portal-route-adapter.js
+2. Keeps the 56-route registry structure.
+3. Ensures index has <div id="dashboardRoot"></div> for compatibility, although V5 app.html owns index rendering directly.
+4. Converts programmatic Station 360 navigation through window.p40CleanRoute().
+5. Converts index.html#service-experience redirect to app.html?page=index#service-experience.
+6. Does not rewrite page business HTML or Firebase logic.
 
-3) In the Airport Experience page HTML, replace the programmatic station navigation:
-   location.href='station-360.html?stationId=${encodeURIComponent(x.stationId)}'
-   with:
-   location.href=(window.p40CleanRoute?window.p40CleanRoute('station-360.html?stationId='+encodeURIComponent(x.stationId)):'station-360.html?stationId='+encodeURIComponent(x.stationId))
-
-4) In the "service" page code, replace:
-   location.replace('index.html#service-experience')
-   with:
-   location.replace('app.html?page=index#service-experience')
-
-5) DO NOT remove:
-   - firebase-config.js
-   - firebase-client.js
-   - auth.js
-   - edition1-store.js
-   - edition1-business-runtime.js
-   - edition1-page-boot.js
-   - overlay-v30.js
-   - edition1-overlay-manager.js
-   - app.js / data.js / core-v257.js
-   - any page-specific business runtime
-
-6) DO NOT rewrite the registry structure or page HTML beyond these targeted changes.
+After transformation, expected output:
+- routes: 56
+- legacy shell refs remaining: 0

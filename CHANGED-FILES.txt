@@ -1,22 +1,26 @@
-V4 CHANGED FILES
-=================
-UPLOAD/REPLACE:
+P40 V5 CHANGED FILES
+====================
+UPLOAD / REPLACE
 - app.html
 - assets/clean-shell-runtime.js
+- assets/clean-shell.css
+- assets/clean-dashboard-management.js
 - assets/clean-route-adapter.js
 - assets/edition1-page-boot.js
-- tests/clean-flow-regression.js
 
-EDIT:
+TRANSFORM EXISTING FILE
 - assets/clean-page-registry.js
+  using patches/assets/apply-p40-clean-registry-v5.py
 
-PATCH:
-- tests/run-build.mjs
-- tests/clean-draft-regression.js
+TEST PATCHES
+- patches/tests/clean-flow-regression.js
+- patches/tests/run-build.mjs.patch
+- patches/tests/clean-draft-regression.js.patch
 
-NOT CHANGED:
+NOT CHANGED
 - assets/portal.css
-- netlify.toml
 - Firebase rules
-- auth.js
-- edition1-store.js
+- auth architecture
+- business CRUD engines
+- historical source files
+- GitHub branch
