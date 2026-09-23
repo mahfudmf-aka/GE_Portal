@@ -1,0 +1,22 @@
+V4 CHANGED FILES
+=================
+UPLOAD/REPLACE:
+- app.html
+- assets/clean-shell-runtime.js
+- assets/clean-route-adapter.js
+- assets/edition1-page-boot.js
+- tests/clean-flow-regression.js
+
+EDIT:
+- assets/clean-page-registry.js
+
+PATCH:
+- tests/run-build.mjs
+- tests/clean-draft-regression.js
+
+NOT CHANGED:
+- assets/portal.css
+- netlify.toml
+- Firebase rules
+- auth.js
+- edition1-store.js

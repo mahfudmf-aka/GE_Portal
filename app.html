@@ -1,17 +1,15 @@
 <!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ground Experience Portal</title>
-<link rel="stylesheet" href="assets/portal.css?v=clean01"><link rel="stylesheet" href="assets/edition1-pages.css?v=clean01"><link rel="stylesheet" href="assets/e1-canonical.css?v=clean01"><link rel="stylesheet" href="assets/clean-shell.css?v=clean01">
-<script src="assets/clean-page-registry.js?v=clean01"></script></head><body id="top" class="e1-page"><header class="top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet"><div class="clean-page-loading">Memuat halaman…</div></main></div><footer class="footer"><b>GROUND EXPERIENCE — GARUDA INDONESIA</b><br>Portal Service Experience</footer><button aria-label="Kembali ke atas" class="back-to-top" id="backToTop">↑</button>
-<script src="assets/clean-route-adapter.js?v=clean01"></script><script>
+<link rel="stylesheet" href="assets/portal.css?v=clean02"><link rel="stylesheet" href="assets/edition1-pages.css?v=clean02"><link rel="stylesheet" href="assets/e1-canonical.css?v=clean02"><link rel="stylesheet" href="assets/clean-shell.css?v=clean02">
+<script src="assets/clean-page-registry.js?v=clean02"></script></head><body id="top" class="e1-page e1-modern"><header class="e1-top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet"><div class="clean-page-loading">Memuat halaman…</div></main></div><footer class="footer"><b>GROUND EXPERIENCE — GARUDA INDONESIA</b><br>Portal Service Experience</footer><button aria-label="Kembali ke atas" class="back-to-top" id="backToTop">↑</button>
+<script src="assets/clean-route-adapter.js?v=clean02"></script><script src="assets/clean-shell-runtime.js?v=clean02"></script><script>
 (async function(){
  const params=new URLSearchParams(location.search); const route=params.get('page')||'index'; const def=window.P40_CLEAN_PAGES[route]; const outlet=document.getElementById('cleanPageOutlet');
  if(!def){outlet.innerHTML='<div class="clean-page-error"><h2>Page tidak ditemukan</h2><p>'+route+'</p></div>';return;}
  document.title=def.title+' — Ground Experience Portal'; outlet.innerHTML=def.html;
- // Route-specific styles not already in the canonical shell.
  for(const href of def.styles||[]){ if([...document.styleSheets].some(x=>x.href&&x.href.includes(href.split('?')[0]))) continue; const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l); }
  function loadSrc(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Gagal memuat '+src));document.body.appendChild(s);});}
  try{
   for(const item of def.scripts||[]){ if(item.src){await loadSrc(item.src);} else if(item.code){(0,eval)(item.code);} }
-  // Historical page runtimes frequently register DOMContentLoaded handlers. Trigger once after canonical content + dependencies exist.
   document.dispatchEvent(new Event('DOMContentLoaded',{bubbles:true}));
   window.dispatchEvent(new Event('load'));
  }catch(err){console.error('[P40 Clean]',err); const n=document.createElement('div');n.className='clean-page-error';n.innerHTML='<b>Runtime halaman gagal dimuat.</b><br><small>'+String(err.message||err)+'</small>';outlet.prepend(n);}

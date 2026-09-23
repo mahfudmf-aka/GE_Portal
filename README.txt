@@ -1,32 +1,51 @@
-P40 CLEAN BOOTSTRAP RECONSTRUCTION v3
+P40 CLEAN FLOW AUDIT + MANUAL PATCH V4
 ========================================
 
-Basis:
-- Audited exact test-1 source on 2026-09-23.
-- No GitHub files were changed.
-- This is a surgical patch, not a replacement/rebuild.
+Repository: mahfudmf-aka/GE_Portal
+Branch audited: test-1
 
-Confirmed root causes:
-1. app.html loads clean-page-registry.js but does NOT load edition1-canonical-shell.js.
-2. The index registry entry has html:"", while dashboard-firestore.js requires #dashboardRoot.
-3. clean-page-registry.js still injects legacy portal-shell.js into 43 routes.
-4. Edition 1 routes also inject edition1-portal-shell-entry.js and edition1-portal-route-adapter.js.
-5. edition1-page-boot.js is pathname-only, so /app.html?page=inisiatif does not match e1-inisiatif.html.
-6. clean-route-adapter.js drops URL hashes during conversion.
-7. The registry contains programmatic legacy navigation such as station-360.html and index.html#service-experience, which click interception cannot repair.
+IMPORTANT:
+- This package does NOT write to GitHub.
+- User applies/uploads changes manually.
+- Do not upload the files under `patches/` as if they were application assets.
+- `app.html` and the files under `assets/` are the actual replacement files.
+- Registry changes are intentionally provided as a deterministic script + manual edit instructions because clean-page-registry.js is a 327 KB one-line generated registry.
 
-What this patch does:
-- Bootstraps ONE canonical shell from app.html.
-- Gives index a real dashboard mount point.
-- Removes legacy shell entry scripts from the Clean Draft registry.
-- Makes Edition 1 page boot query-route aware.
-- Preserves hashes when normalizing routes.
-- Repairs known programmatic Clean Draft route escapes.
-- Does NOT alter Firebase rules, business data schema, authentication contract, or page HTML content.
-- Does NOT delete historical source files from the repository; it only stops the old shell runtime from being loaded by Clean Draft.
+ACTUAL FILES TO UPLOAD
+----------------------
+1. app.html
+2. assets/clean-shell-runtime.js
+3. assets/clean-route-adapter.js
+4. assets/edition1-page-boot.js
+5. tests/clean-flow-regression.js
 
-Important:
-- The apply script is fail-closed. It refuses to modify a file if its expected source anchor is missing.
-- Run from the repository root on branch test-1.
-- Do not apply this to main.
-- After applying, run npm run test before deployment.
+MANUAL/TRANSFORMED EXISTING FILE
+--------------------------------
+6. assets/clean-page-registry.js
+   Use either:
+   - patches/REGISTRY-MANUAL-EDIT.txt
+   - patches/assets/apply-p40-clean-registry-v4.py
+
+TEST SEQUENCE
+-------------
+7. Apply patches/tests/run-build.mjs.patch
+8. Apply patches/tests/clean-draft-regression.js.patch
+9. Run: npm run test
+
+DO NOT CHANGE IN THIS V4
+------------------------
+- assets/portal.css
+- Firebase rules
+- Firebase auth architecture
+- business CRUD logic
+- historical source deletion
+
+Reason:
+portal.css is mixed old-theme + functional + final-v257 CSS. A blind purge would break active page engines.
+
+EXPECTED FIRST RESULT
+---------------------
+`/app.html?page=index` should no longer show the old blank `.top/.side` shell.
+The canonical Clean shell should mount into `.e1-top`, and the dashboard registry should provide `#dashboardRoot`.
+
+Only after `npm run test` passes should the changed files be pushed to the test branch and checked in Netlify.

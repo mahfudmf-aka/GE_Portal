@@ -1,0 +1,13 @@
+diff --git a/tests/run-build.mjs b/tests/run-build.mjs
+--- a/tests/run-build.mjs
++++ b/tests/run-build.mjs
+@@
+ const tests = [
+   'tests/clean-draft-regression.js',
++  'tests/clean-flow-regression.js',
+   'tests/firebase-rules-contract.js',
+   'tests/p29-lounge-planning.js',
+   'tests/p31-auth-role-runtime.js',
+   'tests/p31b-login-access-assistance.js',
+   'tests/p32-access-assistance-runtime.js'
+ ];

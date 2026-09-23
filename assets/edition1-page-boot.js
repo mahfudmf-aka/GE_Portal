@@ -1,10 +1,26 @@
 /* P40 Edition 1 canonical page boot.
- * Shell ownership: assets/portal-shell.js (same shell as the production dashboard).
+ * Clean Draft route ownership: app.html?page=<route>.
  * Business-data ownership: Firebase/Firestore through /api/edition1-data.
  */
 (function(){
 'use strict';
-const page=(location.pathname.split('/').pop()||'').toLowerCase();
+const legacyByClean={
+ 'standar':'e1-standar.html',
+ 'inisiatif':'e1-inisiatif.html',
+ 'service-planning':'e1-service-planning.html',
+ 'calendar':'e1-calendar.html',
+ 'planning-documents':'e1-planning-documents.html',
+ 'data':'e1-data.html',
+ 'admin':'e1-admin.html',
+ 'berita':'e1-berita.html',
+ 'kontak':'e1-kontak.html',
+ 'lounge-list':'e1-lounge-list.html',
+ 'branch-office-planning':'e1-branch-office-planning.html',
+ 'gaso-planning':'e1-gaso-planning.html'
+};
+const cleanRoute=(new URLSearchParams(location.search).get('page')||'').toLowerCase();
+const pathname=(location.pathname.split('/').pop()||'').toLowerCase();
+const page=legacyByClean[cleanRoute]||pathname;
 const config={
  'e1-standar.html':{perm:'services',collections:['airports','personnel','touchpointStandards','skyPriority','announcements','standardContent']},
  'e1-inisiatif.html':{perm:'initiatives',collections:['initiatives','touchpoints','documents']},
@@ -50,7 +66,12 @@ async function boot(){
   showStatus('Menghubungkan ke Firebase / Firestore…');
   await window.GEStore.waitAuth();
   await waitFirebase();
-  if(!hasAccess()){const target=typeof gxDefaultPage==='function'?gxDefaultPage():'index.html';if(target!==page)location.replace(target);return}
+  if(!hasAccess()){
+   const fallback=typeof gxDefaultPage==='function'?gxDefaultPage():'index.html';
+   const target=typeof window.p40CleanRoute==='function'?window.p40CleanRoute(fallback):fallback;
+   if(target!==location.href)location.replace(target);
+   return;
+  }
   showStatus('Mengambil data dari Firebase / Firestore…');
   await window.GEStore.hydrate(cfg.collections);
   rerender();
