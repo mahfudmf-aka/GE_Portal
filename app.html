@@ -3,7 +3,7 @@
 <script src="assets/clean-page-registry.js?v=clean03"></script></head><body id="top"><header class="top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet"><div class="clean-page-loading">Memuat halaman…</div></main></div>
 <script src="assets/clean-route-adapter.js?v=clean03"></script><script src="assets/clean-shell-runtime.js?v=clean03"></script><script>
 (async function(){
- const params=new URLSearchParams(location.search); const route=params.get('page')||'index'; const def=window.P40_CLEAN_PAGES?.[route]; const outlet=document.getElementById('cleanPageOutlet');
+ const params=new URLSearchParams(location.search); let route=params.get('page')||'index'; if(route==='app'){params.set('page','index'); history.replaceState(null,'','app.html?'+params.toString()); route='index';} const def=window.P40_CLEAN_PAGES?.[route]; const outlet=document.getElementById('cleanPageOutlet');
  if(!def && route!=='index'){outlet.innerHTML='<div class="clean-page-error"><h2>Page tidak ditemukan</h2><p>'+route+'</p></div>';return;}
  const indexMode=route==='index';
  if(indexMode){
