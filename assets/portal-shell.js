@@ -335,7 +335,7 @@ function cleanNavigation(){
  side.querySelectorAll('.ge-nav-link[href]').forEach(a=>{const u=new URL(a.getAttribute('href')||'',location.href);const k=u.pathname.endsWith('/app.html')?(u.searchParams.get('page')||'index').toLowerCase():(u.pathname.split('/').pop()||'').replace(/\.html$/,'').toLowerCase();a.classList.toggle('active',routeKey()===k)});
 }
 function ensureShell(){
- if(path()==='login.html'||!finalUserPages.has(routeKey())) return null;
+ if(path()==='login.html'||path()!=='app.html') return null;
  const top=document.querySelector('body > .top');
  const shell=document.querySelector('body > .shell');
  const side=shell&&shell.querySelector(':scope > .side');
@@ -360,7 +360,7 @@ function sidebarToggle(){
 }
 function canonicalizeLinks(root=document){root.querySelectorAll('a[href]').forEach(a=>{const h=a.getAttribute('href')||'';if(h&&!h.startsWith('app.html?page=')&&!h.startsWith('login.html'))a.setAttribute('href',canonicalRoute(h));});}
 function shell(){
- if(path()==='login.html'||!finalUserPages.has(routeKey()))return;
+ if(path()==='login.html'||path()!=='app.html')return;
  const refs=ensureShell();
  if(!refs)return;
  document.body.classList.add('final-v257','final-shell-r5');
