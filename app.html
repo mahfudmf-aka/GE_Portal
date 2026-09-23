@@ -1,9 +1,20 @@
 <!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ground Experience Portal</title>
 <link rel="stylesheet" href="assets/portal.css?v=clean01"><link rel="stylesheet" href="assets/clean-shell.css?v=clean01">
 <script src="assets/clean-page-registry.js?v=clean01"></script></head><body id="top" class="e1-page"><header class="top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet"><div class="clean-page-loading">Memuat halaman…</div></main></div><footer class="footer"><b>GROUND EXPERIENCE — GARUDA INDONESIA</b><br>Portal Service Experience</footer><button aria-label="Kembali ke atas" class="back-to-top" id="backToTop">↑</button>
-<script src="assets/clean-route-adapter.js?v=clean01"></script><script>
+<script>
 (async function(){
- const params=new URLSearchParams(location.search); const route=params.get('page')||'index'; const def=window.P40_CLEAN_PAGES[route]; const outlet=document.getElementById('cleanPageOutlet');
+ const params=new URLSearchParams(location.search);
+ const requested=params.get('page');
+ // Legacy/invalid app route: never render it as a page name.
+ // Before authentication, return to the real entry page; after authentication, normalize to the dashboard.
+ if(requested==='app'){
+   const hasSession=!!(localStorage.getItem('GXP_SESSION_V24_SHARED')||sessionStorage.getItem('GXP_SESSION_V24'));
+   if(!hasSession){location.replace('login.html');return;}
+   params.set('page','index');
+   const normalized=`${location.pathname}?${params.toString()}${location.hash||''}`;
+   history.replaceState(null,'',normalized);
+ }
+ const route=params.get('page')||'index'; const def=window.P40_CLEAN_PAGES[route]; const outlet=document.getElementById('cleanPageOutlet');
  if(!def){outlet.innerHTML='<div class="clean-page-error"><h2>Page tidak ditemukan</h2><p>'+route+'</p></div>';return;}
  document.title=def.title+' — Ground Experience Portal'; outlet.innerHTML=def.html;
  // Route-specific styles not already in the canonical shell.
