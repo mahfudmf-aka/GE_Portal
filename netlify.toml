@@ -31,12 +31,12 @@
 [[headers]]
   for = "/assets/*.js"
   [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
+    Cache-Control = "public, max-age=3600, stale-while-revalidate=86400"
 
 [[headers]]
   for = "/assets/*.css"
   [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
+    Cache-Control = "public, max-age=3600, stale-while-revalidate=86400"
 
 [[headers]]
   for = "/*"
@@ -49,12 +49,6 @@
   from = "/"
   to = "/login.html"
   status = 200
-  force = true
-
-[[redirects]]
-  from = "/index.html"
-  to = "/app.html?page=index"
-  status = 302
   force = true
 
 [[redirects]]

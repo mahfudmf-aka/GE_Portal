@@ -624,6 +624,31 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 
+/* P40 visual runtime — shared modal root normalization for the clean app shell. */
+(function(){
+  'use strict';
+  const selectors=['.initiative-dialog','.modal-backdrop','.tp-modal-backdrop','.map-move-modal-backdrop','.r9-portal-dialog','.modal.open','dialog[open]'];
+  const selector=selectors.join(',');
+  function promote(modal){
+    if(!modal||modal.nodeType!==1)return;
+    modal.classList.add('ge-viewport-overlay');
+    if(modal.parentElement!==document.body)document.body.appendChild(modal);
+    const card=modal.querySelector('.initiative-dialog-card,.modal-card,.tp-modal,.map-move-modal-card,.r8-modal-card,.r9-dialog-card,.box,[role="dialog"]');
+    if(card)card.scrollTop=0;
+  }
+  function scan(root){
+    if(root.matches&&root.matches(selector))promote(root);
+    if(root.querySelectorAll)root.querySelectorAll(selector).forEach(promote);
+  }
+  function init(){
+    scan(document);
+    const observer=new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType===1)scan(node)})));
+    if(document.body)observer.observe(document.body,{childList:true,subtree:true});
+    document.addEventListener('click',()=>setTimeout(()=>scan(document),0),true);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+
 /* R10.13: canonical R10.3 Journey filter for both progress summary and list. */
 (function(){
   'use strict';

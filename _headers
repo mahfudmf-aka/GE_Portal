@@ -8,10 +8,10 @@
   Cache-Control: no-cache, no-store, must-revalidate
 
 /assets/*.js
-  Cache-Control: no-cache, no-store, must-revalidate
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
 
 /assets/*.css
-  Cache-Control: no-cache, no-store, must-revalidate
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
 
 /assets/*.png
   Cache-Control: public, max-age=86400

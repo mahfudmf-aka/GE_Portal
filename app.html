@@ -1,23 +1,19 @@
 <!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ground Experience Portal</title>
-<link rel="stylesheet" href="assets/portal.css?v=clean03"><link rel="stylesheet" href="assets/edition1-pages.css?v=clean03"><link rel="stylesheet" href="assets/clean-shell.css?v=clean03">
-<script src="assets/clean-page-registry.js?v=clean03"></script></head><body id="top"><header class="top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet"><div class="clean-page-loading">Memuat halaman…</div></main></div>
-<script src="assets/clean-route-adapter.js?v=clean03"></script><script src="assets/clean-shell-runtime.js?v=clean03"></script><script>
+<link rel="stylesheet" href="assets/portal.css?v=clean02"><link rel="stylesheet" href="assets/clean-shell.css?v=clean02">
+<script src="assets/clean-page-registry.js?v=clean02"></script></head><body id="top" class="e1-page"><header class="top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet"><div class="clean-page-loading">Memuat halaman…</div></main></div><footer class="footer"><b>GROUND EXPERIENCE — GARUDA INDONESIA</b><br>Portal Service Experience</footer><button aria-label="Kembali ke atas" class="back-to-top" id="backToTop">↑</button>
+<script src="assets/clean-route-adapter.js?v=clean02"></script><script>
 (async function(){
- const params=new URLSearchParams(location.search); let route=params.get('page')||'index'; if(route==='app'){params.set('page','index'); history.replaceState(null,'','app.html?'+params.toString()); route='index';} const def=window.P40_CLEAN_PAGES?.[route]; const outlet=document.getElementById('cleanPageOutlet');
- if(!def && route!=='index'){outlet.innerHTML='<div class="clean-page-error"><h2>Page tidak ditemukan</h2><p>'+route+'</p></div>';return;}
- const indexMode=route==='index';
- if(indexMode){
-  document.title='Management Dashboard — Ground Experience Portal';
-  outlet.innerHTML='<div id="dashboardRoot"></div>';
-  const deps=['assets/firebase-config.js?v=e1','assets/firebase-client.js?v=e1','assets/auth.js?v=e1','assets/edition1-store.js?v=1','assets/data.js?v=2.57','assets/core-v257.js?v=2.57','assets/relationships-v257.js?v=2.57','assets/network-v257.js?v=2.57','assets/readiness-v257.js?v=2.57','assets/customer-experience-v257.js?v=2.57','assets/improvement-v257.js?v=2.57','assets/budget-cost-v257.js?v=2.57','assets/management-outcome-v257.js?v=2.57','assets/access-assistance-p32.js?v=32.1','assets/clean-dashboard-management.js?v=clean03'];
-  const loadSrc=src=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Gagal memuat '+src));document.body.appendChild(s)});
-  try{for(const src of deps)await loadSrc(src);}catch(err){console.error('[P40 Clean index]',err);outlet.innerHTML='<section class="ge-panel"><h3>Runtime halaman gagal dimuat.</h3><p class="ge-muted">'+String(err.message||err)+'</p></section>';}
-  return;
- }
+ const params=new URLSearchParams(location.search); const route=params.get('page')||'index'; const def=window.P40_CLEAN_PAGES[route]; const outlet=document.getElementById('cleanPageOutlet');
+ if(!def){outlet.innerHTML='<div class="clean-page-error"><h2>Page tidak ditemukan</h2><p>'+route+'</p></div>';return;}
  document.title=def.title+' — Ground Experience Portal'; outlet.innerHTML=def.html;
- for(const href of def.styles||[]){if([...document.styleSheets].some(x=>x.href&&x.href.includes(href.split('?')[0])))continue;const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l)}
- function loadSrc(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Gagal memuat '+src));document.body.appendChild(s)})}
- try{for(const item of def.scripts||[]){if(item.src)await loadSrc(item.src);else if(item.code)(0,eval)(item.code)}document.dispatchEvent(new Event('DOMContentLoaded',{bubbles:true}));window.dispatchEvent(new Event('load'));}
- catch(err){console.error('[P40 Clean]',err);const n=document.createElement('div');n.className='clean-page-error';n.innerHTML='<b>Runtime halaman gagal dimuat.</b><br><small>'+String(err.message||err)+'</small>';outlet.prepend(n)}
+ // Route-specific styles not already in the canonical shell.
+ for(const href of def.styles||[]){ if([...document.styleSheets].some(x=>x.href&&x.href.includes(href.split('?')[0]))) continue; const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l); }
+ function loadSrc(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Gagal memuat '+src));document.body.appendChild(s);});}
+ try{
+  for(const item of def.scripts||[]){ if(item.src){await loadSrc(item.src);} else if(item.code){(0,eval)(item.code);} }
+  // Historical page runtimes frequently register DOMContentLoaded handlers. Trigger once after canonical content + dependencies exist.
+  document.dispatchEvent(new Event('DOMContentLoaded',{bubbles:true}));
+  window.dispatchEvent(new Event('load'));
+ }catch(err){console.error('[P40 Clean]',err); const n=document.createElement('div');n.className='clean-page-error';n.innerHTML='<b>Runtime halaman gagal dimuat.</b><br><small>'+String(err.message||err)+'</small>';outlet.prepend(n);}
 })();
 </script></body></html>
