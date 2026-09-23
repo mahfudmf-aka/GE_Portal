@@ -5,7 +5,7 @@ const root=path.resolve(__dirname,'..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const assert=(c,m)=>{if(!c)throw new Error(m)};
 const html=[];
-function walkHtml(dir,rel=''){for(const name of fs.readdirSync(dir)){const full=path.join(dir,name),r=rel?path.join(rel,name):name;const st=fs.statSync(full);if(st.isDirectory())walkHtml(full,r);else if(name.endsWith('.html'))html.push(r.replace(/\\/g,'/'));}}
+function walkHtml(dir,rel=''){for(const name of fs.readdirSync(dir)){if(name==='node_modules'||name==='.git'||name==='.netlify')continue;const full=path.join(dir,name),r=rel?path.join(rel,name):name;const st=fs.statSync(full);if(st.isDirectory())walkHtml(full,r);else if(name.endsWith('.html'))html.push(r.replace(/\\/g,'/'));}}
 walkHtml(root);
 html.sort();
 assert(JSON.stringify(html)==JSON.stringify(['app.html','login.html']),`Clean architecture must contain only canonical HTML files; found: ${html.join(', ')}`);
