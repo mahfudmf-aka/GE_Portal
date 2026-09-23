@@ -5,13 +5,15 @@
 (function(){
   'use strict';
   const current=(location.pathname.split('/').pop()||'index.html').toLowerCase();
+  const navKey=value=>{const u=new URL(value,location.href),file=(u.pathname.split('/').pop()||'index.html').toLowerCase();return file==='app.html'?`app:${u.searchParams.get('page')||'index'}`:`file:${file}`};
+  const currentNavKey=navKey(location.href);
 
   function init(){
     // Make the actual current page visibly active.
     document.querySelectorAll('.side a[href]').forEach(a=>{
       const href=(a.getAttribute('href')||'').split('?')[0].split('#')[0].toLowerCase();
-      a.classList.toggle('active', href===current);
-      if(href===current){
+      a.classList.toggle('active', navKey(href)===currentNavKey);
+      if(navKey(href)===currentNavKey){
         const parent=a.closest('.service-nav,.initiative-nav,.planning-nav');
         if(parent){
           parent.classList.remove('collapsed');
@@ -193,7 +195,7 @@ function buildSupportGroup(){
   const current=(location.pathname.split('/').pop()||'index.html').toLowerCase();
   wrap.querySelectorAll('a[href]').forEach(a=>{
     const href=(a.getAttribute('href')||'').split('?')[0].split('#')[0].toLowerCase();
-    a.classList.toggle('active',href===current);
+    a.classList.toggle('active',navKey(href)===currentNavKey);
   });
 }
 
@@ -329,7 +331,7 @@ function cleanNavigation(){
    }
    section.style.display=has?'':'none';
  });
- side.querySelectorAll('.ge-nav-link[href]').forEach(a=>a.classList.toggle('active',path()===(a.getAttribute('href')||'').split('?')[0].split('#')[0]));
+ side.querySelectorAll('.ge-nav-link[href]').forEach(a=>a.classList.toggle('active',navKey(a.getAttribute('href')||'')===currentNavKey));
 }
 function ensureShell(){
  if(path()==='login.html'||!finalUserPages.has(path())) return null;

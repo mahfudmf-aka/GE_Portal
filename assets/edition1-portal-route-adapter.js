@@ -18,12 +18,14 @@ const MAP={
   'gaso-planning.html':'e1-gaso-planning.html'
 };
 const current=()=>location.pathname.split('/').pop()||'index.html';
+const navKey=value=>{const u=new URL(value,location.href),file=(u.pathname.split('/').pop()||'index.html').toLowerCase();return file==='app.html'?`app:${u.searchParams.get('page')||'index'}`:`file:${file}`};
+const currentNavKey=()=>navKey(location.href);
 function remap(){
   document.querySelectorAll('body > .shell > .side a.ge-nav-link[href]').forEach(a=>{
     const raw=(a.getAttribute('href')||'').split('?')[0].split('#')[0];
     const target=MAP[raw]||raw;
     if(MAP[raw])a.setAttribute('href',target);
-    a.classList.toggle('active',target===current());
+    a.classList.toggle('active',navKey(target)===currentNavKey());
   });
   const side=document.querySelector('body > .shell > .side');
   const section=[...side?.querySelectorAll('.ge-nav-section')||[]].find(x=>String(x.textContent||'').trim()==='IMPROVEMENT & PLANNING');
@@ -39,7 +41,7 @@ function remap(){
       opportunity.insertAdjacentElement('afterend',a);
     }
   }
-  side?.querySelectorAll('.ge-nav-link[href]').forEach(a=>a.classList.toggle('active',(a.getAttribute('href')||'').split('?')[0]===current()));
+  side?.querySelectorAll('.ge-nav-link[href]').forEach(a=>a.classList.toggle('active',navKey(a.getAttribute('href')||'')===currentNavKey()));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(remap,0));else setTimeout(remap,0);
 })();

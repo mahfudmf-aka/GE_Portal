@@ -1330,7 +1330,7 @@ function prepareEligibleConfirmation(parsed){
         </label>
         <label id="eligibilityReferenceWrap" style="display:none">
           <span id="eligibilityReferenceLabel">Referensi Eligibility</span>
-          <input id="eligibilityReference" autocomplete="off">
+          <input id="eligibilityReference" autocomplete="off" placeholder="Contoh: Nama: BUDI SANTOSO | Flight: GA204 | Sequence: 037 | Eligible: Y">
           <small>Wajib diisi untuk kategori yang memerlukan validasi membership, partnership, atau EMD.</small>
         </label>
         <div class="confirm-actions">
@@ -5945,10 +5945,10 @@ function geManualFallbackMarkupV238(){
   return `<div id="manualEntry" class="manual-entry lounge-manual-v236 lounge-manual-right-v238 show">
     <div class="lounge-section-head-v236"><div><span class="lounge-kicker-v236">FALLBACK</span><h3>Input Manual</h3><p>Digunakan bila barcode/string tidak dapat dibaca. Eligibility dihitung otomatis.</p></div></div>
     <div class="formgrid">
-      <label>Nama Penumpang<input id="manualName" placeholder="Nama Penumpang"></label><label>Flight Number<input id="manualFlight" placeholder="GA127"></label>
-      <label>From<input id="manualFrom" maxlength="3" placeholder="DJB"></label><label>To<input id="manualTo" maxlength="3" placeholder="CGK"></label>
-      <label>Cabin<select id="manualCabin"><option value="">Pilih Cabin</option><option value="C">C / Business</option><option value="Y">Y / Economy</option></select></label><label>Seat<input id="manualSeat" placeholder="7A"></label>
-      <label>Sequence Check-in<input id="manualSeq" placeholder="107"></label><label>Ticket Number<input id="manualTicket" placeholder="126xxxxxxxxxxx"></label>
+      <label>Nama Penumpang<input id="manualName" placeholder="Contoh: BUDI SANTOSO"></label><label>Flight Number<input id="manualFlight" placeholder="Contoh: GA204"></label>
+      <label>From<input id="manualFrom" maxlength="3" placeholder="Contoh: CGK"></label><label>To<input id="manualTo" maxlength="3" placeholder="Contoh: DPS"></label>
+      <label>Cabin<select id="manualCabin"><option value="">Pilih Cabin</option><option value="C">C / Business</option><option value="Y">Y / Economy</option></select></label><label>Seat<input id="manualSeat" placeholder="Contoh: 7A"></label>
+      <label>Sequence Check-in<input id="manualSeq" placeholder="Contoh: 037"></label><label>Ticket Number<input id="manualTicket" placeholder="Contoh: 1261234567890"></label>
       <label>Member<select id="manualMember"><option value="">Tidak Ada / Lainnya</option><option>Platinum</option><option>Elite Plus</option></select></label>
     </div><div class="scanner-note lounge-note-v236">Eligibility dihitung otomatis: Cabin C/Business = Eligible. Cabin Y/Economy = Eligible untuk Platinum atau Elite Plus; kombinasi lain = Tidak Eligible.</div>
     <div class="scan-actions"><button class="btn lounge-primary-v236" onclick="verifyManualPassenger()">Verifikasi Data Manual</button><button class="btn secondary" onclick="resetLoungeAccess()">Batal</button></div></div>`;
@@ -9058,7 +9058,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
     const m=model||{};
     return `<div class="formgrid ge-p29-form-grid">
       <label>Region<select id="${prefix}Region"><option value="">Pilih Region</option><option ${m.region==='WEST'?'selected':''}>WEST</option><option ${m.region==='EAST'?'selected':''}>EAST</option><option ${m.region==='INT'?'selected':''}>INT</option></select></label>
-      <label>Station<input id="${prefix}Airport" required value="${esc(m.airport||'')}" placeholder="CGK"></label>
+      <label>Station<input id="${prefix}Airport" required value="${esc(m.airport||'')}" placeholder="Contoh: DPS"></label>
       <label>Nama Layanan / Provider<input id="${prefix}Name" required value="${esc(m.name||'')}"></label>
       <label>Jenis Layanan<select id="${prefix}ServiceType" required><option value="">Pilih Jenis Layanan</option>${TYPES.map(t=>`<option value="${t}" ${m.serviceType===t?'selected':''}>${t}</option>`).join('')}</select></label>
       <label>PIC<input id="${prefix}Pic" value="${esc(m.pic||'')}"></label>
