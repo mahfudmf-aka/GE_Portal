@@ -3,17 +3,22 @@
 <script src="assets/portal-shell.js?v=clean01"></script><script src="assets/firebase-config.js?v=clean01"></script><script src="assets/firebase-client.js?v=clean01"></script><script src="assets/auth.js?v=clean01"></script><script src="assets/clean-page-registry.js?v=clean01"></script></head><body id="top" class="e1-page"><header class="top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet"><div class="clean-page-loading">Memuat halaman…</div></main></div><footer class="footer"><b>GROUND EXPERIENCE — GARUDA INDONESIA</b><br>Portal Service Experience</footer><button aria-label="Kembali ke atas" class="back-to-top" id="backToTop">↑</button>
 <script src="assets/clean-route-adapter.js?v=clean01"></script><script>
 (async function(){
- const params=new URLSearchParams(location.search); const route=params.get('page')||'index'; const def=window.P40_CLEAN_PAGES[route]; const outlet=document.getElementById('cleanPageOutlet');
- if(!def){outlet.innerHTML='<div class="clean-page-error"><h2>Page tidak ditemukan</h2><p>'+route+'</p></div>';return;}
- document.title=def.title+' — Ground Experience Portal'; outlet.innerHTML=def.html;
- // Route-specific styles not already in the canonical shell.
- for(const href of def.styles||[]){ if([...document.styleSheets].some(x=>x.href&&x.href.includes(href.split('?')[0]))) continue; const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l); }
- function loadSrc(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Gagal memuat '+src));document.body.appendChild(s);});}
+ const outlet=document.getElementById('cleanPageOutlet');
  try{
+  // Protected page content must never boot before Firebase auth + authoritative profile/role are resolved.
+  if(!window.GX_AUTH_READY) throw new Error('Authentication bootstrap tidak tersedia.');
+  await window.GX_AUTH_READY;
+  if(!window.gxGetSession?.()) return; // auth bootstrap is redirecting to login or access fallback.
+
+  const params=new URLSearchParams(location.search); const route=params.get('page')||'index'; const def=window.P40_CLEAN_PAGES[route];
+  if(!def){outlet.innerHTML='<div class="clean-page-error"><h2>Page tidak ditemukan</h2><p>'+route+'</p></div>';return;}
+  document.title=def.title+' — Ground Experience Portal'; outlet.innerHTML=def.html;
+  // Route-specific styles not already in the canonical shell.
+  for(const href of def.styles||[]){ if([...document.styleSheets].some(x=>x.href&&x.href.includes(href.split('?')[0]))) continue; const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l); }
+  function loadSrc(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(done)return;done=true;s.remove();reject(new Error('Timeout memuat '+src));},20000);s.src=src;s.onload=()=>{if(done)return;done=true;clearTimeout(timer);resolve();};s.onerror=()=>{if(done)return;done=true;clearTimeout(timer);reject(new Error('Gagal memuat '+src));};document.body.appendChild(s);});}
   for(const item of def.scripts||[]){ if(item.src){await loadSrc(item.src);} else if(item.code){(0,eval)(item.code);} }
-  // Historical page runtimes frequently register DOMContentLoaded handlers. Trigger once after canonical content + dependencies exist.
+  // Legacy page modules register DOMContentLoaded handlers. Global shell/auth listeners have already completed before this synthetic page boot event.
   document.dispatchEvent(new Event('DOMContentLoaded',{bubbles:true}));
-  window.dispatchEvent(new Event('load'));
- }catch(err){console.error('[P40 Clean]',err); const n=document.createElement('div');n.className='clean-page-error';n.innerHTML='<b>Runtime halaman gagal dimuat.</b><br><small>'+String(err.message||err)+'</small>';outlet.prepend(n);}
+ }catch(err){console.error('[P40 Clean]',err); if(!outlet)return; const n=document.createElement('div');n.className='clean-page-error';n.innerHTML='<b>Runtime halaman gagal dimuat.</b><br><small>'+String(err.message||err)+'</small>';outlet.replaceChildren(n);}
 })();
 </script></body></html>

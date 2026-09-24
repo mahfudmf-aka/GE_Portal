@@ -12,6 +12,7 @@
     standardContent:{},portalManagerR2:{},contactMessages:[],guestbook:[]
   };
   const baseline={}; let hydrated=false; let pending=Promise.resolve();
+  function fetchWithTimeout(url,options={},timeoutMs=20000){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),timeoutMs);return fetch(url,{...options,signal:controller.signal}).finally(()=>clearTimeout(timer)).catch(e=>{if(e?.name==='AbortError')throw new Error('Permintaan data timeout setelah 20 detik.');throw e})}
   const MAP={events:'projectEvents',projectEvents:'projectEvents'};
   const clone=x=>x===undefined?undefined:JSON.parse(JSON.stringify(x));
   function collKey(k){if(k==='portalManagerR2')return 'portalManager';return MAP[k]||k}
@@ -32,7 +33,7 @@
   async function apiGet(keys){
     const list=[...new Set(keys.map(collKey))];
     const t=await token();
-    const r=await fetch('/api/edition1-data?collections='+encodeURIComponent(list.join(',')),{headers:{Authorization:'Bearer '+t},cache:'no-store'});
+    const r=await fetchWithTimeout('/api/edition1-data?collections='+encodeURIComponent(list.join(',')),{headers:{Authorization:'Bearer '+t},cache:'no-store'});
     const p=await r.json().catch(()=>({}));
     if(r.ok)return p.collections||{};
     const msg=String(p.message||'');
@@ -56,7 +57,7 @@
   }
   async function apiPost(body){
     const t=await token();
-    const r=await fetch('/api/edition1-data',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const r=await fetchWithTimeout('/api/edition1-data',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});
     const p=await r.json().catch(()=>({})); if(!r.ok)throw new Error(p.message||`Save request failed (${r.status}).`); return p.result;
   }
   function indexById(rows){const m=new Map();(rows||[]).forEach(x=>m.set(String(x.id),x));return m}
@@ -103,17 +104,13 @@
     return state;
   }
   async function waitAuth(){
-    const deadline=Date.now()+15000;
-    while(!window.GXFirebase && Date.now()<deadline) await new Promise(r=>setTimeout(r,50));
-    if(!window.GXFirebase) throw new Error('Firebase runtime unavailable after 15 seconds.');
+    if(window.GX_AUTH_READY) await window.GX_AUTH_READY;
+    if(!window.GXFirebase) throw new Error('Firebase runtime unavailable.');
     const u=await window.GXFirebase.currentUser();
     if(!u) throw new Error('Authentication required.');
-    const sessionDeadline=Date.now()+10000;
-    while(Date.now()<sessionDeadline){
-      const s=typeof window.gxGetSession==='function'?(window.gxGetSession()||{}):window.GX_CURRENT_USER||{};
-      if(s.uid && String(s.uid)===String(u.uid)) return;
-      await new Promise(r=>setTimeout(r,100));
-    }
+    const s=typeof window.gxGetSession==='function'?(window.gxGetSession()||{}):window.GX_CURRENT_USER||{};
+    if(!s.uid || String(s.uid)!==String(u.uid)) throw new Error('Authoritative user profile/session belum siap.');
+    return s;
   }
   window.data=state; window.GEStore={get:()=>state,save,hydrate,waitAuth,isHydrated:()=>hydrated,flush:()=>pending,source:'Firestore',projectId:window.GX_FIREBASE_CONFIG?.projectId||''};
   window.addEventListener('gx-data-save-error',e=>{if(e.detail?.message)console.error('Firestore save failed:',e.detail.message)});
