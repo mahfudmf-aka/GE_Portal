@@ -140,8 +140,12 @@ function sidebarToggle(){
  let saved=false;try{saved=localStorage.getItem('GE_V257_SIDEBAR_COLLAPSED')==='1'}catch(e){}
  applyCollapsed(saved);
 }
-function shell(){
+async function shell(){
  if(path()==='login.html'||!finalUserPages.has(path()))return;
+ if(window.GX_AUTH_READY){
+  try{await window.GX_AUTH_READY}catch(e){return}
+  if(location.pathname.split('/').pop().toLowerCase()==='app.html' && !window.gxGetSession?.())return;
+ }
  const refs=ensureShell();
  if(!refs)return;
  document.body.classList.add('final-v257','final-shell-r5');
@@ -189,6 +193,6 @@ function setupPeriodControl(){
  sel.addEventListener('change',()=>{try{localStorage.setItem('GE_V257_DASHBOARD_PERIOD',sel.value)}catch(e){};document.dispatchEvent(new CustomEvent('ge-dashboard-period-change',{detail:{year:sel.value}}))});
 }
 
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',shell);else shell();
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{shell()}, {once:true});else shell();
 })();
 
