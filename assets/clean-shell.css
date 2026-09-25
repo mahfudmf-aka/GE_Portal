@@ -8,7 +8,18 @@ header.top{z-index:200}.side{z-index:190}.dropdown,.menu-dropdown{z-index:500!im
 /* Ensure modal-like fixed layers are viewport based rather than page-flow children. */
 .initiative-dialog{position:fixed!important;inset:0!important}
 .ge-clean-combined[data-section="map"]{margin-top:18px}
-
-/* Canonical app shell: do not paint the uninitialized header/sidebar before portal-shell mounts. */
-body.clean-shell-boot > .top,body.clean-shell-boot > .shell,body.clean-shell-boot > .footer{visibility:hidden}
-body.clean-shell-ready > .top,body.clean-shell-ready > .shell,body.clean-shell-ready > .footer{visibility:visible}
+/* R2 canonical runtime corrections: shell must never outrank dialogs. */
+html body.final-v257.final-shell-r5 .modal-backdrop,
+html body.final-v257.final-shell-r5 .overlay-backdrop,
+html body.final-v257.final-shell-r5 .tp-modal-backdrop,
+html body.final-v257.final-shell-r5 .map-move-modal-backdrop,
+html body.final-v257.final-shell-r5 .ge-viewport-overlay,
+html body.final-v257.final-shell-r5 [aria-modal="true"]{z-index:100000!important}
+html body.final-v257.final-shell-r5 .modal-backdrop.show,
+html body.final-v257.final-shell-r5 .tp-modal-backdrop.show{display:grid!important;place-items:center!important;position:fixed!important;inset:0!important;padding:20px!important;overflow:auto!important}
+html body.final-v257.final-shell-r5 .modal-backdrop>.modal-card,
+html body.final-v257.final-shell-r5 .tp-modal-backdrop>.tp-modal{position:relative!important;z-index:100001!important;margin:auto!important;max-height:calc(100vh - 40px)!important;overflow:auto!important}
+html body.final-v257.final-shell-r5>.shell>.side{overflow-y:auto!important;overscroll-behavior:contain!important;scrollbar-gutter:stable!important}
+html body.final-v257.final-shell-r5>.shell>.side .ge-sidebar-toggle{position:sticky!important;bottom:-54px!important;margin:12px -8px -54px!important;width:calc(100% + 16px)!important}
+.ge-airport-network-child{margin-top:18px!important}
+html.ge-precollapsed body.final-v257.final-shell-r5>.shell{grid-template-columns:64px minmax(0,1fr)!important}

@@ -22,7 +22,8 @@ const NAV_SVG={
 };
 function icon(x){const key=({'⌂':'home','◎':'cx','↔':'journey','✈':'network','⌾':'station','⚙':'initiative','✧':'opportunity','◇':'scenario','▦':'calendar','▣':'budget','◉':'budget','✓':'readiness','▤':'document','≡':'standard','⬡':'data','◫':'data','♙':'user','◷':'history','☎':'support','⇧':'data','◈':'station'})[x]||'standard';return `<span class="ni" aria-hidden="true"><svg viewBox="0 0 20 20">${NAV_SVG[key]}</svg></span>`;}
 const path=()=>{const file=(location.pathname.split('/').pop()||'app.html').toLowerCase();if(file==='login.html')return'login.html';if(file==='app.html'){const route=String(new URLSearchParams(location.search).get('page')||'index').trim().toLowerCase();const aliases=(window.P40_CLEAN_ALIASES||{});const canonical=(aliases[route]||route).split('?')[0];return `${canonical}.html`;}return file;};
-const item=(href,label,i,sub=false)=>`<a class="ge-nav-link ${sub?'ge-nav-sub':''} ${path()===href?'active':''}" href="${href}" title="${label}">${icon(i)}<span>${label}</span></a>`;
+const cleanHref=(href)=>{const m=String(href||'').match(/^([^?#]+)\.html(?:\?([^#]*))?/);if(!m||m[1]==='login'||m[1]==='change-password')return href;const alias=(window.P40_CLEAN_ALIASES||{})[m[1]]||m[1];const parts=alias.split('?'),q=new URLSearchParams(parts[1]||'');new URLSearchParams(m[2]||'').forEach((v,k)=>q.set(k,v));q.set('page',parts[0]);return 'app.html?'+q.toString()};
+const item=(href,label,i,sub=false)=>`<a class="ge-nav-link ${sub?'ge-nav-sub':''} ${path()===href?'active':''}" href="${cleanHref(href)}" title="${label}">${icon(i)}<span>${label}</span></a>`;
 function group(title,items){return `<div class="ge-nav-section">${title}</div>${items.join('')}`}
 function dashboardPOV(s){
  const r=String(s?.role||'').trim().toLowerCase().replace(/[\s_-]+/g,' ');
@@ -126,7 +127,7 @@ function ensureShell(){
  return {top,shell,side,main};
 }
 function applyCollapsed(on){
- document.body.classList.toggle('sidebar-collapsed',!!on);
+ document.body.classList.toggle('sidebar-collapsed',!!on);document.documentElement.classList.remove('ge-precollapsed');
  try{localStorage.setItem('GE_V257_SIDEBAR_COLLAPSED',on?'1':'0')}catch(e){}
  const btn=document.querySelector('.ge-sidebar-toggle');
  if(btn){btn.setAttribute('aria-expanded',on?'false':'true');const a=btn.querySelector('.toggle-arrow');if(a)a.textContent=on?'»':'«'}

@@ -9,8 +9,7 @@ const selectors=[
   '.initiative-dialog', '.modal-backdrop', '.tp-modal-backdrop',
   '.map-move-modal-backdrop', '#r8InitiativeBackdrop', '#r9InitiativeBackdrop',
   '.r9-portal-dialog', '.ge-viewport-overlay', '#geV251EventModal',
-  '#geV2542DraftModal', '#geCalListModalV2533', '#geV2532ListModal',
-  '.p26-account-modal', '.p26-reset-modal', '.p26-import-modal'
+  '#geV2542DraftModal', '#geCalListModalV2533', '#geV2532ListModal'
 ];
 const matches=()=>document.querySelectorAll(selectors.join(','));
 function promote(){matches().forEach(el=>{if(el.parentElement!==document.body)document.body.appendChild(el)});}
