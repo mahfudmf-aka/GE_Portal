@@ -1,7 +1,7 @@
 <!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ground Experience Portal</title>
-<link rel="stylesheet" href="assets/portal.css?v=r8"><link rel="stylesheet" href="assets/clean-shell.css?v=r8">
-<script>try{if(localStorage.getItem('GE_V257_SIDEBAR_COLLAPSED')==='1')document.documentElement.classList.add('ge-precollapsed')}catch(e){}</script><script src="assets/portal-shell.js?v=r8"></script><script src="assets/firebase-config.js?v=r8"></script><script src="assets/firebase-client.js?v=r8"></script><script src="assets/auth.js?v=r8"></script><script src="assets/clean-page-registry.js?v=r8"></script></head><body id="top" class="e1-page"><header class="top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet"><div class="clean-page-loading">Memuat halaman…</div></main></div><footer class="footer"><b>GROUND EXPERIENCE — GARUDA INDONESIA</b><br>Portal Service Experience</footer><button aria-label="Kembali ke atas" class="back-to-top" id="backToTop">↑</button>
-<script src="assets/clean-route-adapter.js?v=r8"></script><script>
+<link rel="stylesheet" href="assets/portal.css?v=r9"><link rel="stylesheet" href="assets/clean-shell.css?v=r9">
+<script>try{if(localStorage.getItem('GE_V257_SIDEBAR_COLLAPSED')==='1')document.documentElement.classList.add('ge-precollapsed')}catch(e){}</script><script src="assets/portal-shell.js?v=r9"></script><script src="assets/firebase-config.js?v=r9"></script><script src="assets/firebase-client.js?v=r9"></script><script src="assets/auth.js?v=r9"></script><script src="assets/clean-page-registry.js?v=r9"></script></head><body id="top" class="e1-page"><header class="top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet"><div class="clean-page-loading">Memuat halaman…</div></main></div><footer class="footer"><b>GROUND EXPERIENCE — GARUDA INDONESIA</b><br>Portal Service Experience</footer><button aria-label="Kembali ke atas" class="back-to-top" id="backToTop">↑</button>
+<script src="assets/clean-route-adapter.js?v=r9"></script><script>
 (async function(){
  const outlet=document.getElementById('cleanPageOutlet');
  try{
@@ -17,8 +17,10 @@
   for(const href of def.styles||[]){ if([...document.styleSheets].some(x=>x.href&&x.href.includes(href.split('?')[0]))) continue; const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l); }
   function loadSrc(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(done)return;done=true;s.remove();reject(new Error('Timeout memuat '+src));},20000);s.src=src;s.onload=()=>{if(done)return;done=true;clearTimeout(timer);resolve();};s.onerror=()=>{if(done)return;done=true;clearTimeout(timer);reject(new Error('Gagal memuat '+src));};document.body.appendChild(s);});}
   for(const item of def.scripts||[]){ if(item.src){await loadSrc(item.src);} else if(item.code){(0,eval)(item.code);} }
-  // Legacy page modules register DOMContentLoaded handlers. Global shell/auth listeners have already completed before this synthetic page boot event.
-  document.dispatchEvent(new Event('DOMContentLoaded',{bubbles:true}));
+  // Canonical runtime pages are initialized explicitly by edition1-page-boot.
+  // Re-firing DOMContentLoaded here re-runs global legacy listeners and can create duplicate handlers/recursive render chains.
+  const canonicalExplicitBoot=new Set(['index','calendar','airport-experience','inisiatif','lounge-list','standar','admin','berita','service-planning','branch-office-planning','gaso-planning','planning-documents','data']);
+  if(!canonicalExplicitBoot.has(route)) document.dispatchEvent(new Event('DOMContentLoaded',{bubbles:true}));
  }catch(err){console.error('[P40 Clean]',err); if(!outlet)return; const n=document.createElement('div');n.className='clean-page-error';n.innerHTML='<b>Runtime halaman gagal dimuat.</b><br><small>'+String(err.message||err)+'</small>';outlet.replaceChildren(n);}
 })();
 </script></body></html>

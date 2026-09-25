@@ -33,6 +33,14 @@ async function ensureFirebase(){
  return state;
 }
 async function waitFirebase(){const state=await ensureFirebase();const u=await window.GXFirebase.currentUser();if(!u)throw new Error('Authentication required.');return{state,u}}
+async function waitStore(){
+ const deadline=Date.now()+8000;
+ while(Date.now()<deadline){
+  if(window.GEStore&&typeof window.GEStore.hydrate==='function')return window.GEStore;
+  await new Promise(r=>setTimeout(r,40));
+ }
+ throw new Error('Edition1 data store belum siap.');
+}
 function hasAccess(){if(cfg.perm==='admin')return window.gxHasUserManagementPermission?.()||session().role==='Super Admin';return window.gxHasPermission?.(cfg.perm)!==false}
 function rerender(){
  if(page==='standar'){const panel=new URLSearchParams(location.search).get('panel');const panelButton=panel?document.querySelector(`[data-standard-panel="${panel}"]`):null;if(panel&&window.showStandardPanel)window.showStandardPanel(panel,panelButton);window.renderTouchpointStandards?.();window.renderPersonnelReadiness?.();window.renderSkyPriority?.();window.geEnsureStandardModalV248?.();window.geApplyStandardContentV248?.();window.renderAnnouncementLibraryV246?.()}
@@ -51,16 +59,19 @@ function rerender(){
 async function boot(){
  try{
   showStatus('Menghubungkan ke Firebase / Firestore…');
-  await window.GEStore.waitAuth();
+  const store=await waitStore();
+  // Do not assume every deployed store revision exposes waitAuth. Auth/profile is already authoritative via GX_AUTH_READY.
+  if(typeof store.waitAuth==='function') await store.waitAuth();
+  else { if(window.GX_AUTH_READY) await window.GX_AUTH_READY; await waitFirebase(); }
   await waitFirebase();
   if(!hasAccess()){const target=typeof gxDefaultPage==='function'?gxDefaultPage():'app.html?page=index';if(target!==location.pathname+location.search)location.replace(target);return}
   showStatus('Mengambil data dari Firebase / Firestore…');
-  await window.GEStore.hydrate(cfg.collections);
-  if(page==='inisiatif'&&['Super Admin','Admin'].includes(String(session().role||''))) await window.GEStore.hydrate(['users']);
+  await store.hydrate(cfg.collections);
+  if(page==='inisiatif'&&['Super Admin','Admin'].includes(String(session().role||''))) await store.hydrate(['users']);
   rerender();
-  const d=window.GEStore.get();
+  const d=store.get();
   const total=cfg.collections.reduce((n,k)=>{const v=d[k];return n+(Array.isArray(v)?v.length:(v&&typeof v==='object'?1:0))},0);
-  showStatus(`Terhubung • Firestore • ${window.GEStore.projectId||window.GX_FIREBASE_CONFIG?.projectId||'ground-experience-portal'} • ${total} record terhidrasi`);
+  showStatus(`Terhubung • Firestore • ${store.projectId||window.GX_FIREBASE_CONFIG?.projectId||'ground-experience-portal'} • ${total} record terhidrasi`);
  }catch(e){console.error('[P40 Edition1 boot]',e);showStatus(e?.message||'Firebase / Firestore tidak dapat diakses.',true)}
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
