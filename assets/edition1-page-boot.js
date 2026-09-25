@@ -36,9 +36,9 @@ async function waitFirebase(){const state=await ensureFirebase();const u=await w
 function hasAccess(){if(cfg.perm==='admin')return window.gxHasUserManagementPermission?.()||session().role==='Super Admin';return window.gxHasPermission?.(cfg.perm)!==false}
 function rerender(){
  if(page==='standar'){const panel=new URLSearchParams(location.search).get('panel');const panelButton=panel?document.querySelector(`[data-standard-panel="${panel}"]`):null;if(panel&&window.showStandardPanel)window.showStandardPanel(panel,panelButton);window.renderTouchpointStandards?.();window.renderPersonnelReadiness?.();window.renderSkyPriority?.();window.geEnsureStandardModalV248?.();window.geApplyStandardContentV248?.();window.renderAnnouncementLibraryV246?.()}
- else if(page==='inisiatif'){window.renderInitiatives?.();window.geApplyInitiativePresentationV224?.()}
+ else if(page==='inisiatif'){window.installInitiativeControls?.();window.renderInitiatives?.();window.geApplyInitiativePresentationV224?.()}
  else if(page==='service-planning'){window.geRenderPlanningPage?.();window.renderStationMaterials?.()}
- else if(page==='calendar'){window.geV251Ensure?.();window.geV251RenderTouchpointPage?.();window.geV251InitCalendar?.();window.geUpgradeCalendarModalV252?.();window.geAddCalendarFiltersV252?.();window.geUpgradeReminderV253?.();window.geCalBuildFiltersV2533?.();window.geCalRenderV2533?.();window.geCalRenderKPIV2534?.()}
+ else if(page==='calendar'){window.geUpgradeCalendarModalV252?.();window.geUpgradeReminderV253?.();window.geCalBuildFiltersV2533?.();window.geCalRenderV2533?.()}
  else if(page==='planning-documents'){window.renderPlanningDocuments?.()}
  else if(page==='data'){window.renderAirports?.();window.renderPersonnel?.();window.renderDocumentsAdmin?.()}
  else if(page==='admin'){window.renderAdminOverview?.();window.renderAdminInbox?.();window.renderAuditLogs?.();window.p26RenderUsers?.();window.pmLoadPageR2?.()}
@@ -46,7 +46,7 @@ function rerender(){
  else if(page==='lounge-list'){window.renderLounges?.();window.renderLoungeVisitors?.();window.renderLoungePriceSummaryV243?.();window.renderLoungeCardsV237?.()}
  else if(page==='branch-office-planning'){window.geRenderPlanningPage?.();window.renderAirportSystems?.();window.renderLoungeProcurement?.();window.renderBOSpaces?.()}
  else if(page==='gaso-planning'){window.renderGasoAllV231?.()}
- else if(page==='airport-experience'){setTimeout(()=>{window.geInitAirportV214?.();window.geUpdateMapRegionCounts?.();},0);}
+ else if(page==='airport-experience'){window.geInitAirportV214?.();window.geUpdateMapRegionCounts?.();window.geInitAirportNetworkR7?.();}
 }
 async function boot(){
  try{
@@ -56,6 +56,7 @@ async function boot(){
   if(!hasAccess()){const target=typeof gxDefaultPage==='function'?gxDefaultPage():'app.html?page=index';if(target!==location.pathname+location.search)location.replace(target);return}
   showStatus('Mengambil data dari Firebase / Firestore…');
   await window.GEStore.hydrate(cfg.collections);
+  if(page==='inisiatif'&&['Super Admin','Admin'].includes(String(session().role||''))) await window.GEStore.hydrate(['users']);
   rerender();
   const d=window.GEStore.get();
   const total=cfg.collections.reduce((n,k)=>{const v=d[k];return n+(Array.isArray(v)?v.length:(v&&typeof v==='object'?1:0))},0);

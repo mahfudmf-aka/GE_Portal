@@ -964,8 +964,11 @@ body,button,input,select,textarea,table{
 
 /* V2.10.1 — Lounge Provider All BO reference table */
 .lounge-filter-grid-ref{
-  grid-template-columns:.7fr .7fr 1.6fr 1.25fr auto auto!important;
+  grid-template-columns:minmax(150px,.9fr) minmax(150px,.75fr) minmax(190px,1.25fr) minmax(210px,1.35fr) minmax(210px,1.35fr) auto auto!important;
+  align-items:center;
 }
+.lounge-filter-grid-ref>*{min-width:0;width:100%;}
+.lounge-filter-grid-ref>.btn{width:auto;white-space:nowrap;}
 .lounge-reference-table{
   min-width:1900px!important;
   font-size:11.5px!important;
@@ -2997,7 +3000,7 @@ body.lounge-reference-v237 .lounge-kicker-v236{color:#2e6fb8;letter-spacing:.16e
 .lounge-days-pill-v237{display:inline-flex;padding:7px 10px;border-radius:999px;font-size:9px;white-space:nowrap}.lounge-days-pill-v237.good{background:#e4f5ee;color:#2f6b45}.lounge-days-pill-v237.warning{background:#fff0c9;color:#9a6500}.lounge-days-pill-v237.danger{background:#fde7e4;color:#ad3b31}.lounge-days-pill-v237.neutral{background:#eef3f4;color:#718096}
 .lounge-master-card-v237 h3{font-size:17px;line-height:1.4;font-weight:500;color:#06425d;margin:10px 0 22px}
 .lounge-master-card-v237 dl{margin:0;display:grid;gap:8px}.lounge-master-card-v237 dl div{display:grid;gap:3px}.lounge-master-card-v237 dt{font-size:10px;color:#8098a2}.lounge-master-card-v237 dd{margin:0;font-size:11px;font-weight:700;color:#476878}
-.lounge-card-actions-v237{margin-top:16px}.lounge-table-fallback-v237{display:none!important}
+.lounge-card-actions-v237{margin-top:16px}.lounge-table-fallback-v237{display:none!important}.lounge-table-fallback-v237.ge-p29-table-visible{display:block!important}
 .lounge-master-empty-v237{grid-column:1/-1;padding:50px;text-align:center;border:1px dashed #c9dadd;border-radius:18px;color:#78919a;background:#f9fcfc}
 @media(max-width:1200px){.lounge-master-grid-v237{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){
@@ -5085,6 +5088,9 @@ html body.final-v257.final-shell-r5>.footer b{display:inline-block;line-height:1
 .initiative-budget-link-r5 span{flex:1;min-width:260px;color:#6c8498;font-size:13px}
 
 /* R6 canonical controls */
+.searchbar:has(#geInitiativeViewSelectR6){grid-template-columns:minmax(260px,2fr) minmax(180px,1fr) minmax(180px,1fr) minmax(135px,.7fr) auto auto;align-items:center;}
+.searchbar:has(#geInitiativeViewSelectR6)>*{min-width:0;width:100%;}
+.searchbar:has(#geInitiativeViewSelectR6)>.btn{width:auto;white-space:nowrap;}
 .ge-view-select-r6{min-height:42px;border:1px solid #c7d5e3;border-radius:10px;background:#fff;color:#526b82;padding:0 36px 0 12px;font-weight:700}
 .ge-filter-free-r6::placeholder{color:#a8b5c2}
 .snapshot-kpi.ge-clickable{cursor:pointer;text-align:left;width:100%;font:inherit;color:inherit}

@@ -1509,7 +1509,7 @@ async function syncFirebaseUsers(){
    const r=await gxApi('/auth-list-users',{method:'GET'});
    if(Array.isArray(r.users)){
      data.users=geFirebaseUserMap(r.users);
-     if(typeof save==='function')save();
+     save();
      renderUserAccounts();
    }
  }catch(e){
@@ -7551,7 +7551,7 @@ function geAddCalendarFiltersV252(){
  </div>`);
 }
 function geFilteredCalendarEventsV252(){
- const all=geV251AllEvents(),j=document.getElementById('geCalJourneyV252')?.value||'',tp=(document.getElementById('geCalTouchV252')?.value||'').toLowerCase(),st=(document.getElementById('geCalStationV252')?.value||'').toLowerCase(),pic=(document.getElementById('geCalPicV252')?.value||'').toLowerCase(),src=document.getElementById('geCalSourceV252')?.value||'';
+ const all=geOldAllEventsV252?geOldAllEventsV252():[],j=document.getElementById('geCalJourneyV252')?.value||'',tp=(document.getElementById('geCalTouchV252')?.value||'').toLowerCase(),st=(document.getElementById('geCalStationV252')?.value||'').toLowerCase(),pic=(document.getElementById('geCalPicV252')?.value||'').toLowerCase(),src=document.getElementById('geCalSourceV252')?.value||'';
  return all.filter(e=>(!j||geArrV252(e.journeyScopes).includes(j))&&(!tp||geArrV252(e.touchpoints||e.touchpoint).join(' ').toLowerCase().includes(tp))&&(!st||String(e.airport||'').toLowerCase().includes(st))&&(!pic||String(e.pic||'').toLowerCase().includes(pic))&&(!src||e.source===src));
 }
 /* wrap all-events only during calendar rendering so existing renderer gets filtered data */
@@ -8159,7 +8159,7 @@ function geCalSaveActivityV2533(){
     remark:geV251EventRemark.value.trim(),activityType:geCalActivityTypeV2533?.value||'standalone',
     initiativeId:geCalInitiativeV2533?.value||'',journeyScopes:scopes,source:'Manual'};
   if(old)Object.assign(old,obj);else data.events.push(obj);
-  if(typeof save==='function')save();
+  save();
   geV251EventModal.classList.remove('show');
   geCalBuildFiltersV2533();
   geCalRenderV2533();
@@ -8559,7 +8559,7 @@ function geCalSaveActivityV2535(){
   if(old)Object.assign(old,obj);
   else data.events.push(obj);
 
-  if(typeof save==='function')save();
+  save();
 
   geCalElV2535('geV251EventModal')?.classList.remove('show');
   if(typeof geCalBuildFiltersV2533==='function')geCalBuildFiltersV2533();
@@ -8571,7 +8571,7 @@ function geCalDeleteActivityV2535(){
   if(!id)return;
   if(!confirm('Hapus kegiatan ini?'))return;
   data.events=(data.events||[]).filter(x=>String(x.id)!==String(id));
-  if(typeof save==='function')save();
+  save();
   geCalElV2535('geV251EventModal')?.classList.remove('show');
   if(typeof geCalBuildFiltersV2533==='function')geCalBuildFiltersV2533();
   if(typeof geCalRenderV2533==='function')geCalRenderV2533();
@@ -8828,7 +8828,7 @@ function doImport(){
  const mode=$('geV2554Mode').value;data.initiatives=data.initiatives||[];let created=0,updated=0,skipped=0;
  bulk.init.forEach(r=>{const o=r.obj,old=data.initiatives.find(x=>String(x.initiativeCode||'')===String(o.initiativeCode));if(old){if(mode==='create'){skipped++;return}Object.assign(old,o,{id:old.id,workflow:old.workflow||[]});updated++}else{if(mode==='update'){skipped++;return}data.initiatives.push({...o,id:Date.now()+created,workflow:[]});created++}});
  bulk.milestone.forEach(r=>{const x=data.initiatives.find(v=>String(v.initiativeCode||'')===String(r.obj.initiativeCode));if(!x)return;x.workflow=x.workflow||[];const o={...r.obj};delete o.initiativeCode;const old=x.workflow.find(w=>w.title===o.title&&w.dueDate===o.dueDate);if(old)Object.assign(old,o);else x.workflow.push(o)});
- if(typeof save==='function')save();$('geV2554BulkModal').classList.remove('show');if(typeof renderInitiatives==='function')renderInitiatives();notice('Import selesai',`${created} dibuat • ${updated} diperbarui • ${skipped} dilewati.`,'success');
+ save();$('geV2554BulkModal').classList.remove('show');if(typeof renderInitiatives==='function')renderInitiatives();notice('Import selesai',`${created} dibuat • ${updated} diperbarui • ${skipped} dilewati.`,'success');
 }
 
 window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiativeControls();bindCalendar();ensureBulk();window.geV2554BindGantt?.()},80));
@@ -9555,6 +9555,18 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
   if(typeof geCalOpenActivityV2535==='function') window.geCalOpenActivityV2535=geCalOpenActivityV2535;
   if(typeof geCalOpenDetailV2533==='function') window.geCalOpenDetailV2533=geCalOpenDetailV2533;
   if(typeof geRequestNotificationV253==='function') window.geRequestNotificationV253=geRequestNotificationV253;
+  if(typeof openInitiativeTimelineV224==='function') window.openInitiativeTimelineV224=openInitiativeTimelineV224;
+  if(typeof installInitiativeControls==='function') window.installInitiativeControls=installInitiativeControls;
+  if(typeof geInitAirportV214==='function') window.geInitAirportV214=geInitAirportV214;
+  if(typeof renderAirports==='function') window.renderAirports=renderAirports;
+  if(typeof renderAirportMapMarkers==='function') window.renderAirportMapMarkers=renderAirportMapMarkers;
+  if(typeof filterAirportMap==='function') window.filterAirportMap=filterAirportMap;
+  if(typeof showAirportTooltip==='function') window.showAirportTooltip=showAirportTooltip;
+  if(typeof hideAirportTooltip==='function') window.hideAirportTooltip=hideAirportTooltip;
+  if(typeof selectAirport==='function') window.selectAirport=selectAirport;
+  if(typeof geMapZoomStep==='function') window.geMapZoomStep=geMapZoomStep;
+  if(typeof geMapResetView==='function') window.geMapResetView=geMapResetView;
+  if(typeof geUpdateMapRegionCounts==='function') window.geUpdateMapRegionCounts=geUpdateMapRegionCounts;
 
   if(typeof renderStationMaterials==='function') window.renderStationMaterials=renderStationMaterials;
   if(typeof renderAirportSystems==='function') window.renderAirportSystems=renderAirportSystems;
@@ -9565,8 +9577,8 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
 
 /* R4 canonical calendar entry: bypass legacy wrapper chain to prevent recursive stack overflow. */
 function geRenderCalendarCanonicalR4(){
-  if(typeof geCalBuildFiltersV2533==='function')geCalBuildFiltersV2533();
-  if(typeof geCalRenderV2533==='function')return geCalRenderV2533();
+  if(typeof window.geCalBuildFiltersV2533==='function')window.geCalBuildFiltersV2533();
+  if(typeof window.geCalRenderV2533==='function')return window.geCalRenderV2533();
 }
 geV251RenderCalendar=geRenderCalendarCanonicalR4;
 window.geV251RenderCalendar=geRenderCalendarCanonicalR4;
@@ -9578,8 +9590,9 @@ window.geFilterInitiativeTouchpoint=geFilterInitiativeTouchpoint;
 (function(){
  function arr(v){return Array.isArray(v)?v.filter(Boolean):String(v||'').split(/[|,;]/).map(x=>x.trim()).filter(Boolean)}
  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
- function stations(){return [...new Set((data.airports||[]).map(x=>String(x.code||x.airportCode||'').trim().toUpperCase()).filter(Boolean))].sort()}
- function users(){return (data.users||[]).filter(x=>String(x.status||'Active').toLowerCase()==='active')}
+ function r5data(){return window.GEStore?.get?.()||{}}
+ function stations(){return [...new Set((r5data().airports||[]).map(x=>String(x.code||x.airportCode||'').trim().toUpperCase()).filter(Boolean))].sort()}
+ function users(){return (r5data().users||[]).filter(x=>String(x.status||'Active').toLowerCase()==='active')}
  function upgrade(){
    const airport=document.getElementById('initiativeAirportV224');
    if(airport && airport.tagName!=='SELECT'){
@@ -9597,18 +9610,17 @@ window.geFilterInitiativeTouchpoint=geFilterInitiativeTouchpoint;
    }
  }
  const oldOpen=window.openInitiativeModalV224;
- window.openInitiativeModalV224=function(id=null){ if(typeof oldOpen==='function')oldOpen(id); upgrade(); const x=id?(data.initiatives||[]).find(v=>String(v.id)===String(id)):null; const st=document.getElementById('initiativeAirportV224'); if(st?.multiple){const vals=arr(x?.stations||x?.airport);[...st.options].forEach(o=>o.selected=vals.includes(o.value));} const pic=document.getElementById('initiativePicV224');if(pic&&x)pic.value=x.picUserId||x.pic||''; };
+ window.openInitiativeModalV224=function(id=null){ if(typeof oldOpen==='function')oldOpen(id); upgrade(); const x=id?(r5data().initiatives||[]).find(v=>String(v.id)===String(id)):null; const st=document.getElementById('initiativeAirportV224'); if(st?.multiple){const vals=arr(x?.stations||x?.airport);[...st.options].forEach(o=>o.selected=vals.includes(o.value));} const pic=document.getElementById('initiativePicV224');if(pic&&x)pic.value=x.picUserId||x.pic||''; };
  const oldSave=window.saveInitiativeV224;
  window.saveInitiativeV224=function(){
    const st=document.getElementById('initiativeAirportV224'),pic=document.getElementById('initiativePicV224');
    if(!st?.multiple || !pic || typeof oldSave!=='function')return oldSave?.();
    const stations=[...st.selectedOptions].map(o=>o.value); if(!stations.length)return alert('Pilih minimal satu Station / Area.');
-   /* old saver expects scalar .value; preserve first station then enrich record after save */
-   const first=stations[0]; const descriptor=Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value');
-   const beforeIds=new Set((data.initiatives||[]).map(x=>String(x.id))); oldSave();
-   let row=(data.initiatives||[]).find(x=>!beforeIds.has(String(x.id))) || (data.initiatives||[]).find(x=>String(x.id)===String(document.getElementById('initiativeEditIdV224')?.value||''));
-   if(!row)row=(data.initiatives||[]).slice(-1)[0];
-   if(row){row.stations=stations;row.airport=stations.join(', ');row.picUserId=pic.value;const u=users().find(u=>String(u.id||u.uid||u.email||u.username)===String(pic.value));row.pic=u?(u.name||u.employeeName||u.username||u.email):pic.value; if(typeof save==='function')save();}
+   const editId=String(document.getElementById('initiativeEditIdV224')?.value||'');
+   const beforeIds=new Set((r5data().initiatives||[]).map(x=>String(x.id))); oldSave();
+   let row=(editId?(r5data().initiatives||[]).find(x=>String(x.id)===editId):null) || (r5data().initiatives||[]).find(x=>!beforeIds.has(String(x.id)));
+   if(!row)row=(r5data().initiatives||[]).slice(-1)[0];
+   if(row){row.stations=stations;row.airport=stations.join(', ');row.picUserId=pic.value;const u=users().find(u=>String(u.id||u.uid||u.email||u.username)===String(pic.value));row.pic=u?(u.name||u.employeeName||u.username||u.email):pic.value; window.GEStore?.save?.(r5data());}
  };
  function ensureViewControls(){
    if(!document.getElementById('initRows'))return;
@@ -9635,9 +9647,8 @@ window.geFilterInitiativeTouchpoint=geFilterInitiativeTouchpoint;
 /* R6 — canonical runtime corrections verified against current consolidated source. */
 (function(){
   /* Calendar: render must never rebuild/enhance its own filters. Filter construction is a one-time page setup step. */
-  if(typeof geCalRenderV2533==='function'){
-    geV251RenderCalendar=geCalRenderV2533;
-    window.geV251RenderCalendar=geCalRenderV2533;
+  if(typeof window.geCalRenderV2533==='function'){
+    window.geV251RenderCalendar=window.geCalRenderV2533;
   }
 
   /* Lounge pagination must use the same canonical renderer as page 1; legacy lexical renderer changed card fields across pages. */
