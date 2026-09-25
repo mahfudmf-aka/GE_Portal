@@ -8,9 +8,9 @@ const file=(location.pathname.split('/').pop()||'app.html').toLowerCase();
 const page=file==='app.html'?String(new URLSearchParams(location.search).get('page')||'index').trim().toLowerCase():file.replace(/\.html$/,'').replace(/^e1-/,'');
 const config={
  'standar':{perm:'services',collections:['airports','personnel','touchpointStandards','skyPriority','announcements','standardContent']},
- 'inisiatif':{perm:'initiatives',collections:['initiatives','touchpoints','documents']},
+ 'inisiatif':{perm:'initiatives',collections:['initiatives','touchpoints','documents','users','inbox','airports']},
  'service-planning':{perm:'planning',collections:['stationMaterials','lounges','boSpaces','airportSystems','touchpointStandards','documents','serviceProcurement']},
- 'calendar':{perm:'initiatives',collections:['initiatives','projectEvents','touchpoints']},
+ 'calendar':{perm:'initiatives',collections:['initiatives','projectEvents','touchpoints','users','inbox','airports']},
  'planning-documents':{perm:'planning',collections:['documents','initiatives']},
  'data':{perm:'data',collections:['airports','personnel']},
  'admin':{perm:'admin',collections:['users','inbox','auditLogs','portalManagerR2','airports','lounges']},
@@ -36,17 +36,17 @@ async function waitFirebase(){const state=await ensureFirebase();const u=await w
 function hasAccess(){if(cfg.perm==='admin')return window.gxHasUserManagementPermission?.()||session().role==='Super Admin';return window.gxHasPermission?.(cfg.perm)!==false}
 function rerender(){
  if(page==='standar'){const panel=new URLSearchParams(location.search).get('panel');const panelButton=panel?document.querySelector(`[data-standard-panel="${panel}"]`):null;if(panel&&window.showStandardPanel)window.showStandardPanel(panel,panelButton);window.renderTouchpointStandards?.();window.renderPersonnelReadiness?.();window.renderSkyPriority?.();window.geEnsureStandardModalV248?.();window.geApplyStandardContentV248?.();window.renderAnnouncementLibraryV246?.()}
- else if(page==='inisiatif'){window.installInitiativeControls?.();window.renderInitiatives?.();window.geApplyInitiativePresentationV224?.()}
+ else if(page==='inisiatif'){window.installInitiativeControls?.();window.renderInitiatives?.();window.geApplyInitiativePresentationV224?.();window.geInitInitiativeR8?.()}
  else if(page==='service-planning'){window.geRenderPlanningPage?.();window.renderStationMaterials?.()}
- else if(page==='calendar'){window.geUpgradeCalendarModalV252?.();window.geUpgradeReminderV253?.();window.geCalBuildFiltersV2533?.();window.geCalRenderV2533?.()}
+ else if(page==='calendar'){window.geUpgradeCalendarModalV252?.();window.geUpgradeReminderV253?.();window.geCalBuildFiltersV2533?.();window.geCalRenderV2533?.();window.geInitCalendarWorkspaceR8?.()}
  else if(page==='planning-documents'){window.renderPlanningDocuments?.()}
  else if(page==='data'){window.renderAirports?.();window.renderPersonnel?.();window.renderDocumentsAdmin?.()}
  else if(page==='admin'){window.renderAdminOverview?.();window.renderAdminInbox?.();window.renderAuditLogs?.();window.p26RenderUsers?.();window.pmLoadPageR2?.()}
  else if(page==='berita'){window.renderArticles?.();window.renderAnnouncements?.();window.renderFaqs?.();window.renderAnnouncementLibraryV246?.()}
- else if(page==='lounge-list'){window.renderLounges?.();window.renderLoungeVisitors?.();window.renderLoungePriceSummaryV243?.();window.renderLoungeCardsV237?.()}
+ else if(page==='lounge-list'){window.renderLounges?.();window.renderLoungeVisitors?.();window.renderLoungePriceSummaryV243?.();window.renderLoungeCardsV237?.();window.geInitFilterCombosR8?.('lounge')}
  else if(page==='branch-office-planning'){window.geRenderPlanningPage?.();window.renderAirportSystems?.();window.renderLoungeProcurement?.();window.renderBOSpaces?.()}
  else if(page==='gaso-planning'){window.renderGasoAllV231?.()}
- else if(page==='airport-experience'){window.geInitAirportV214?.();window.geUpdateMapRegionCounts?.();window.geInitAirportNetworkR7?.();}
+ else if(page==='airport-experience'){window.geInitAirportR8?.();window.geInitAirportNetworkR8?.();}
 }
 async function boot(){
  try{

@@ -58,7 +58,7 @@ assert(business.includes("window.geInitAirportV214=geInitAirportV214"),'Airport 
 assert(read('assets/edition1-page-boot.js').includes("window.installInitiativeControls?.()"),'Initiative page boot must initialize controls after hydration.');
 assert(read('assets/edition1-page-boot.js').includes("await window.GEStore.hydrate(['users'])"),'Admin Initiative page must hydrate User & Access directory for PIC assignment.');
 assert(business.includes('function r5data(){return window.GEStore?.get?.()||{}}'),'Initiative multi-station/PIC enhancement must use the canonical GEStore outside the legacy IIFE scope.');
-assert(read('assets/edition1-page-boot.js').includes("window.geInitAirportNetworkR7?.()"),'Airport network must initialize after Firestore hydration.');
+assert(read('assets/edition1-page-boot.js').includes("window.geInitAirportNetworkR8?.()"),'Airport network must initialize after Firestore hydration.');
 assert(read('assets/portal.css').includes('.lounge-table-fallback-v237.ge-p29-table-visible{display:block!important}'),'Lounge Details view must have an actual visible CSS state.');
 {const a=registry.indexOf('\"airport-experience\"');const z=registry.indexOf('window.P40_CLEAN_ALIASES');const airportSlice=registry.slice(a,z);assert(!airportSlice.includes('assets/app.js?v=2.54.1'),'Airport canonical route must not reload legacy app.js.');}
 console.log(`CLEAN_DRAFT_REGRESSION_PASS HTML=${html.length}`);
@@ -66,7 +66,7 @@ console.log(`CLEAN_DRAFT_REGRESSION_PASS HTML=${html.length}`);
 {
   const boot=fs.readFileSync('assets/edition1-page-boot.js','utf8');
   assert(boot.includes("'airport-experience':{perm:'services'"),'Airport Experience must hydrate canonical Firestore data');
-  assert(boot.includes("window.geInitAirportV214?.()"),'Airport Experience boot must initialize map exactly through canonical initializer');
+  assert(boot.includes("window.geInitAirportR8?.()"),'Airport Experience boot must initialize hydrated map through canonical initializer');
   const shell=fs.readFileSync('assets/portal-shell.js','utf8');
   assert(shell.includes("u.searchParams.get('page')"),'Sidebar active state must resolve canonical page query');
   const rt=fs.readFileSync('assets/edition1-business-runtime.js','utf8');
@@ -82,8 +82,8 @@ console.log(`CLEAN_DRAFT_REGRESSION_PASS HTML=${html.length}`);
   const registry=fs.readFileSync('assets/clean-page-registry.js','utf8');
   const rt=fs.readFileSync('assets/edition1-business-runtime.js','utf8');
   const css=fs.readFileSync('assets/portal.css','utf8');
-  assert(app.includes('v=r7'),'Canonical root assets must use the current deployment cache identity.');
-  assert(registry.includes('edition1-business-runtime.js?v=r7'),'Page runtime must not reuse stale v=1 browser cache.');
+  assert(app.includes('v=r8'),'Canonical root assets must use the current deployment cache identity.');
+  assert(registry.includes('edition1-business-runtime.js?v=r8'),'Page runtime must not reuse stale v=1 browser cache.');
   assert(registry.includes('geInitiativeViewSelectR6'),'Initiative Grid/List selector must exist in canonical page markup.');
   assert(registry.includes('geLoungeViewSelectR6'),'Lounge/Tenant Grid/Details selector must exist in canonical page markup.');
   assert(registry.includes('loungeFilterTextR6'),'Lounge/Tenant must expose a free-text filter in addition to dropdown filters.');
@@ -94,3 +94,10 @@ console.log(`CLEAN_DRAFT_REGRESSION_PASS HTML=${html.length}`);
   assert(css.includes('.login-brand h1{color:#0d2639!important}'),'Login portal title must retain approved dark title color.');
   assert(css.includes('.login-submit{color:#fff!important}'),'Login Masuk button text must be white.');
 }
+
+// R8 completion guards
+assert(business.includes('geSetCalendarWorkspaceR8'),'Calendar must expose Calendar / Project / Gantt workspace switching.');
+assert(business.includes('PIC (User & Access)'),'Initiative/Milestone PIC must use User & Access directory.');
+assert(business.includes('Station / Area (multi)'),'Initiative station assignment must support multiple stations.');
+assert(business.includes('geInitFilterCombosR8'),'Canonical searchable/dropdown filter initialization must exist.');
+assert(business.includes('geInitAirportR8'),'Airport map must initialize from hydrated canonical airport rows.');
