@@ -34,19 +34,22 @@ async function ensureFirebase(){
 }
 async function waitFirebase(){const state=await ensureFirebase();const u=await window.GXFirebase.currentUser();if(!u)throw new Error('Authentication required.');return{state,u}}
 async function waitStore(){
- const deadline=Date.now()+8000;
- while(Date.now()<deadline){
-  if(window.GEStore&&typeof window.GEStore.hydrate==='function')return window.GEStore;
-  await new Promise(r=>setTimeout(r,40));
+ if(window.GEStore&&typeof window.GEStore.hydrate==='function')return window.GEStore;
+ // Self-heal the canonical dependency instead of waiting for a store that may never have executed.
+ const existing=[...document.scripts].some(s=>String(s.src||'').includes('/assets/edition1-store.js'));
+ if(!existing){
+  await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='assets/edition1-store.js?v=r10';s.onload=resolve;s.onerror=()=>reject(new Error('Edition1 data store gagal dimuat.'));document.body.appendChild(s)});
  }
- throw new Error('Edition1 data store belum siap.');
+ const deadline=Date.now()+3000;
+ while(Date.now()<deadline){if(window.GEStore&&typeof window.GEStore.hydrate==='function')return window.GEStore;await new Promise(r=>setTimeout(r,25));}
+ throw new Error('Edition1 data store gagal diinisialisasi.');
 }
 function hasAccess(){if(cfg.perm==='admin')return window.gxHasUserManagementPermission?.()||session().role==='Super Admin';return window.gxHasPermission?.(cfg.perm)!==false}
 function rerender(){
  if(page==='standar'){const panel=new URLSearchParams(location.search).get('panel');const panelButton=panel?document.querySelector(`[data-standard-panel="${panel}"]`):null;if(panel&&window.showStandardPanel)window.showStandardPanel(panel,panelButton);window.renderTouchpointStandards?.();window.renderPersonnelReadiness?.();window.renderSkyPriority?.();window.geEnsureStandardModalV248?.();window.geApplyStandardContentV248?.();window.renderAnnouncementLibraryV246?.()}
- else if(page==='inisiatif'){window.installInitiativeControls?.();window.renderInitiatives?.();window.geApplyInitiativePresentationV224?.();window.geInitInitiativeR8?.()}
+ else if(page==='inisiatif'){window.geInitInitiativeCanonical?.();window.geApplyInitiativePresentationV224?.()}
  else if(page==='service-planning'){window.geRenderPlanningPage?.();window.renderStationMaterials?.()}
- else if(page==='calendar'){window.geUpgradeCalendarModalV252?.();window.geUpgradeReminderV253?.();window.geCalBuildFiltersV2533?.();window.geCalRenderV2533?.();window.geInitCalendarWorkspaceR8?.()}
+ else if(page==='calendar'){window.geUpgradeCalendarModalV252?.();window.geUpgradeReminderV253?.();window.geCalBuildFiltersV2533?.();window.geCalRenderV2533?.();window.geInitCalendarWorkspaceCanonical?.()}
  else if(page==='planning-documents'){window.renderPlanningDocuments?.()}
  else if(page==='data'){window.renderAirports?.();window.renderPersonnel?.();window.renderDocumentsAdmin?.()}
  else if(page==='admin'){window.renderAdminOverview?.();window.renderAdminInbox?.();window.renderAuditLogs?.();window.p26RenderUsers?.();window.pmLoadPageR2?.()}
@@ -54,7 +57,7 @@ function rerender(){
  else if(page==='lounge-list'){window.renderLounges?.();window.renderLoungeVisitors?.();window.renderLoungePriceSummaryV243?.();window.renderLoungeCardsV237?.();window.geInitFilterCombosR8?.('lounge')}
  else if(page==='branch-office-planning'){window.geRenderPlanningPage?.();window.renderAirportSystems?.();window.renderLoungeProcurement?.();window.renderBOSpaces?.()}
  else if(page==='gaso-planning'){window.renderGasoAllV231?.()}
- else if(page==='airport-experience'){window.geInitAirportR8?.();window.geInitAirportNetworkR8?.();}
+ else if(page==='airport-experience'){window.geInitAirportCanonical?.();}
 }
 async function boot(){
  try{

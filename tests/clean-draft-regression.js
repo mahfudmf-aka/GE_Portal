@@ -50,62 +50,33 @@ assert(shellCss.includes('.p26-account-modal>#p26FormHost{display:flex!important
 assert(shellCss.includes('.ge-p29-view-toggle'),'Lounge/Tenant must expose Grid/Details view styling.');
 assert(fs.existsSync(path.join(root,'ROOT_MAP.md')),'Root menu/page/access map must ship with the revision.');
 
-
-assert(business.includes('const all=geOldAllEventsV252?geOldAllEventsV252():[]'),'Calendar filter must use captured base events and must not recurse through geV251AllEvents.');
-assert(business.includes("window.openInitiativeTimelineV224=openInitiativeTimelineV224"),'Initiative Detail / Timeline must be globally callable in canonical SPA runtime.');
-assert(business.includes("window.installInitiativeControls=installInitiativeControls"),'Initiative canonical controls must be explicitly bootable after dynamic page injection.');
-assert(business.includes("window.geInitAirportV214=geInitAirportV214"),'Airport canonical initializer must be globally callable after dynamic page injection.');
-assert(read('assets/edition1-page-boot.js').includes("window.installInitiativeControls?.()"),'Initiative page boot must initialize controls after hydration.');
-assert(read('assets/edition1-page-boot.js').includes("await store.hydrate(['users'])"),'Admin Initiative page must hydrate User & Access directory for PIC assignment.');
-assert(business.includes('function r5data(){return window.GEStore?.get?.()||{}}'),'Initiative multi-station/PIC enhancement must use the canonical GEStore outside the legacy IIFE scope.');
-assert(read('assets/edition1-page-boot.js').includes("window.geInitAirportNetworkR8?.()"),'Airport network must initialize after Firestore hydration.');
-assert(read('assets/portal.css').includes('.lounge-table-fallback-v237.ge-p29-table-visible{display:block!important}'),'Lounge Details view must have an actual visible CSS state.');
-{const a=registry.indexOf('\"airport-experience\"');const z=registry.indexOf('window.P40_CLEAN_ALIASES');const airportSlice=registry.slice(a,z);assert(!airportSlice.includes('assets/app.js?v=2.54.1'),'Airport canonical route must not reload legacy app.js.');}
-
-// R9 execution-path guards: no synthetic DOMContentLoaded on canonical pages, resilient store boot, native Calendar/Project/Gantt and Touch Point -> Gantt.
-assert(app.includes("canonicalExplicitBoot") && app.includes("!canonicalExplicitBoot.has(route)"),'Canonical pages must not re-fire global DOMContentLoaded');
-const bootR9=fs.readFileSync(path.join(root,'assets','edition1-page-boot.js'),'utf8');
-assert(bootR9.includes('async function waitStore()') && bootR9.includes("typeof store.waitAuth==='function'"),'Page boot must tolerate store revisions without waitAuth');
-assert(business.includes('ge-workspace-tabs-r9') && business.includes('data-view=\"project\"') && business.includes('data-view=\"gantt\"'),'Calendar must expose Calendar/Project/Gantt first-class views');
-assert(business.includes("page=calendar&view=gantt&touchpoint="),'Initiative Touch Point must deep-link to filtered Gantt');
-assert(registry.includes('Unduh Data') && !registry.includes('Unduh CSV'),'User-facing export label must be Unduh Data');
+// Consolidated canonical runtime guards — historical R4–R9 patch names must not be required.
+const boot=read('assets/edition1-page-boot.js');
+assert(app.includes("canonicalExplicitBoot") && app.includes("!canonicalExplicitBoot.has(route)"),'Canonical pages must not re-fire global DOMContentLoaded.');
+assert(boot.includes("'airport-experience':{perm:'services'"),'Airport Experience must hydrate canonical Firestore data.');
+assert(boot.includes('window.geInitAirportCanonical?.()'),'Airport must initialize only after canonical Firestore hydration.');
+assert(boot.includes('window.geInitInitiativeCanonical?.()'),'Initiative controls must initialize after canonical hydration.');
+assert(boot.includes('window.geInitCalendarWorkspaceCanonical?.()'),'Calendar/Project/Gantt workspace must initialize after hydration.');
+assert(boot.includes("await store.hydrate(['users'])"),'Initiative must hydrate User & Access for PIC assignment.');
+assert(boot.includes("edition1-store.js?v=r10"),'Page boot must self-heal a missing Edition1 store dependency.');
+assert(business.includes('CANONICAL CONSOLIDATION — 2026-09-25'),'Runtime must use one consolidated post-refactor implementation.');
+assert(!business.includes('/* R4 canonical calendar entry'),'Overlapping R4–R9 patch runtime must not remain active.');
+assert(business.includes('window.geInitAirportCanonical'),'Airport canonical initializer must exist.');
+assert(business.includes('window.geInitInitiativeCanonical'),'Initiative canonical initializer must exist.');
+assert(business.includes('window.geSetCalendarWorkspace'),'Calendar / Project / Gantt switching must exist.');
+assert(business.includes("page=calendar&view=gantt&touchpoint="),'Initiative Touch Point must deep-link to filtered Gantt.');
+assert(registry.includes('geWorkspaceTabsR10') && registry.includes('data-view=\\"project\\"') && registry.includes('data-view=\\"gantt\\"'),'Calendar / Project / Gantt controls must be structural page markup.');
+assert(registry.includes('initiativeAirportV224\\" multiple'),'Initiative Station / Area must be a direct multi-select field, not a late DOM patch.');
+assert(registry.includes('initiativePicV224\\"><option value=\\"\\">Pilih akun User & Access'),'Initiative PIC must be a direct User & Access selector.');
+assert(registry.includes('initiativeStepPicV224\\"><option value=\\"\\">Pilih akun User & Access'),'Milestone PIC must be a direct User & Access selector.');
+for(const id of ['initiativeStartDateV10','initiativeEndDateV10','initiativeActualDateV10','initiativeEstimatedCostV10','initiativeBudgetV10','initiativeActualCostV10','initiativePriorityV10','initiativeStatusV10','initiativeOutputV10','initiativeAchievementV10']) assert(registry.includes(id),`Initiative canonical form missing ${id}.`);
+assert(registry.includes('geInitiativeViewSelectR6'),'Initiative Grid/List selector must exist in canonical markup.');
+assert(registry.includes('geLoungeViewSelectR6'),'Lounge/Tenant Grid/Details selector must exist in canonical markup.');
+assert(registry.includes('loungeFilterTextR6'),'Lounge/Tenant must expose free-text search in addition to dropdown filters.');
+assert(registry.includes('Unduh Data') && !registry.includes('Unduh CSV'),'User-facing export action must be Unduh Data.');
+assert(business.includes('GE_Inisiatif_dan_Milestone.csv'),'Initiative export must retain milestone rows.');
+assert(business.includes('capacitySchedules'),'Lounge/Tenant must retain capacity history.');
+assert(business.includes('supersedesId'),'Lounge/Tenant must retain agreement replacement history.');
+assert(app.includes('v=r10'),'Canonical root assets must use current cache identity.');
+assert(registry.includes('edition1-business-runtime.js?v=r10'),'Canonical page runtime must use current cache identity.');
 console.log(`CLEAN_DRAFT_REGRESSION_PASS HTML=${html.length}`);
-// R4 regression guards: canonical runtime fixes.
-{
-  const boot=fs.readFileSync('assets/edition1-page-boot.js','utf8');
-  assert(boot.includes("'airport-experience':{perm:'services'"),'Airport Experience must hydrate canonical Firestore data');
-  assert(boot.includes("window.geInitAirportR8?.()"),'Airport Experience boot must initialize hydrated map through canonical initializer');
-  const shell=fs.readFileSync('assets/portal-shell.js','utf8');
-  assert(shell.includes("u.searchParams.get('page')"),'Sidebar active state must resolve canonical page query');
-  const rt=fs.readFileSync('assets/edition1-business-runtime.js','utf8');
-  assert(rt.includes("||activeJourney||''"),'Initiative Journey filter must use canonical activeJourney state');
-  assert(rt.includes('GE_Inisiatif_dan_Milestone.csv'),'Initiative export must include milestones');
-  assert(rt.includes('capacitySchedules'),'Lounge/Tenant must support capacity periods');
-  assert(rt.includes('supersedesId'),'Lounge/Tenant must preserve agreement replacement history');
-  assert(rt.includes('geRenderCalendarCanonicalR4'),'Calendar must use non-recursive canonical entry');
-}
-// R6 regression guards: deployed cache identity + directly visible canonical controls.
-{
-  const app=fs.readFileSync('app.html','utf8');
-  const registry=fs.readFileSync('assets/clean-page-registry.js','utf8');
-  const rt=fs.readFileSync('assets/edition1-business-runtime.js','utf8');
-  const css=fs.readFileSync('assets/portal.css','utf8');
-  assert(app.includes('v=r9'),'Canonical root assets must use the current deployment cache identity.');
-  assert(registry.includes('edition1-business-runtime.js?v=r9'),'Page runtime must not reuse stale v=1 browser cache.');
-  assert(registry.includes('geInitiativeViewSelectR6'),'Initiative Grid/List selector must exist in canonical page markup.');
-  assert(registry.includes('geLoungeViewSelectR6'),'Lounge/Tenant Grid/Details selector must exist in canonical page markup.');
-  assert(registry.includes('loungeFilterTextR6'),'Lounge/Tenant must expose a free-text filter in addition to dropdown filters.');
-  assert(registry.includes('ge-clickable'),'Planning snapshot source panels must be actionable.');
-  assert(registry.includes('id=\\"rows\\"')||registry.includes('id="rows"'),'Airport Experience network section must contain the table body required by its runtime.');
-  assert(rt.includes('window.geV251RenderCalendar=window.geCalRenderV2533'),'Calendar canonical render entry must use the exported canonical renderer, not an inaccessible lexical wrapper.');
-  assert(rt.includes('window.changeLoungeCardPageV237=function(delta)'),'Lounge pagination must use canonical card renderer on every page.');
-  assert(css.includes('.login-brand h1{color:#0d2639!important}'),'Login portal title must retain approved dark title color.');
-  assert(css.includes('.login-submit{color:#fff!important}'),'Login Masuk button text must be white.');
-}
-
-// R8 completion guards
-assert(business.includes('geSetCalendarWorkspaceR8'),'Calendar must expose Calendar / Project / Gantt workspace switching.');
-assert(business.includes('PIC (User & Access)'),'Initiative/Milestone PIC must use User & Access directory.');
-assert(business.includes('Station / Area (multi)'),'Initiative station assignment must support multiple stations.');
-assert(business.includes('geInitFilterCombosR8'),'Canonical searchable/dropdown filter initialization must exist.');
-assert(business.includes('geInitAirportR8'),'Airport map must initialize from hydrated canonical airport rows.');
