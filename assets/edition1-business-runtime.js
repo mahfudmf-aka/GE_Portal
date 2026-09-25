@@ -1504,20 +1504,34 @@ function geFirebaseUserMap(users){
  }));
 }
 async function syncFirebaseUsers(){
- if(!geCanManageAccounts()||typeof gxApi!=='function')return;
  window.GE_FIREBASE_USERS_STATE='loading';
+ window.GE_FIREBASE_USERS_ERROR='';
+ renderUserAccounts();
  try{
-   const r=await gxApi('/auth-list-users',{method:'GET'});
-   if(Array.isArray(r.users)){
-     data.users=geFirebaseUserMap(r.users);
+   // Authoritative source: root Firestore /users collection. Never seed this page from data.js/local sample users.
+   if(window.GXFirebase?.init) await window.GXFirebase.init();
+   const db=window.GXFirebase?.state?.db;
+   if(!db) throw new Error('Firestore runtime belum siap.');
+   const snap=await db.collection('users').get();
+   const rows=snap.docs.map(d=>({id:d.id,...d.data()}));
+   data.users=geFirebaseUserMap(rows).sort((a,b)=>String(a.name||a.username||a.email||'').localeCompare(String(b.name||b.username||b.email||''),'id'));
+   window.GE_FIREBASE_USERS_STATE='ready';
+   renderUserAccounts();
+ }catch(directError){
+   // Keep the existing authorized Netlify endpoint only as a transport fallback to the SAME root /users collection.
+   try{
+     if(typeof gxApi!=='function') throw directError;
+     const r=await gxApi('/auth-list-users',{method:'GET'});
+     if(!Array.isArray(r.users)) throw directError;
+     data.users=geFirebaseUserMap(r.users).sort((a,b)=>String(a.name||a.username||a.email||'').localeCompare(String(b.name||b.username||b.email||''),'id'));
      window.GE_FIREBASE_USERS_STATE='ready';
      renderUserAccounts();
+   }catch(e){
+     window.GE_FIREBASE_USERS_STATE='error';
+     window.GE_FIREBASE_USERS_ERROR=e?.message||directError?.message||String(e);
+     console.warn('Firestore user sync failed:', window.GE_FIREBASE_USERS_ERROR);
+     renderUserAccounts();
    }
- }catch(e){
-   window.GE_FIREBASE_USERS_STATE='error';
-   window.GE_FIREBASE_USERS_ERROR=e?.message||String(e);
-   console.warn('Firebase user sync failed:', window.GE_FIREBASE_USERS_ERROR);
-   renderUserAccounts();
  }
 }
 function setPasswordFields(mode){
@@ -1798,7 +1812,7 @@ function renderUserAccounts(){
  const t=document.getElementById('userAccountRows');if(!t)return;
  populateAccountFilters();
  const state=window.GE_FIREBASE_USERS_STATE||'idle';
- if(state==='idle' && geCanManageAccounts() && typeof syncFirebaseUsers==='function'){
+ if(state==='idle' && typeof syncFirebaseUsers==='function'){
    t.innerHTML='<tr><td colspan="11" class="ge-data-state-r13">Memuat akun dari Firebase / Firestore…</td></tr>';
    syncFirebaseUsers(); return;
  }
