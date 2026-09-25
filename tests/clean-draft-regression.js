@@ -55,7 +55,7 @@ console.log(`CLEAN_DRAFT_REGRESSION_PASS HTML=${html.length}`);
 {
   const boot=fs.readFileSync('assets/edition1-page-boot.js','utf8');
   assert(boot.includes("'airport-experience':{perm:'services'"),'Airport Experience must hydrate canonical Firestore data');
-  assert(boot.includes("window.renderAirportMapMarkers?.()"),'Airport Experience boot must initialize map');
+  assert(boot.includes("window.geInitAirportV214?.()"),'Airport Experience boot must initialize map exactly through canonical initializer');
   const shell=fs.readFileSync('assets/portal-shell.js','utf8');
   assert(shell.includes("u.searchParams.get('page')"),'Sidebar active state must resolve canonical page query');
   const rt=fs.readFileSync('assets/edition1-business-runtime.js','utf8');

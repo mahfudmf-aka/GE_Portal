@@ -46,7 +46,7 @@ function rerender(){
  else if(page==='lounge-list'){window.renderLounges?.();window.renderLoungeVisitors?.();window.renderLoungePriceSummaryV243?.();window.renderLoungeCardsV237?.()}
  else if(page==='branch-office-planning'){window.geRenderPlanningPage?.();window.renderAirportSystems?.();window.renderLoungeProcurement?.();window.renderBOSpaces?.()}
  else if(page==='gaso-planning'){window.renderGasoAllV231?.()}
- else if(page==='airport-experience'){window.renderAirports?.();window.geInitAirportV214?.();window.renderAirportMapMarkers?.();window.geApplyMapView?.();window.geUpdateMapRegionCounts?.();}
+ else if(page==='airport-experience'){setTimeout(()=>{window.geInitAirportV214?.();window.geUpdateMapRegionCounts?.();},0);}
 }
 async function boot(){
  try{

@@ -9567,6 +9567,66 @@ function geRenderCalendarCanonicalR4(){
   if(typeof geCalBuildFiltersV2533==='function')geCalBuildFiltersV2533();
   if(typeof geCalRenderV2533==='function')return geCalRenderV2533();
 }
+geV251RenderCalendar=geRenderCalendarCanonicalR4;
 window.geV251RenderCalendar=geRenderCalendarCanonicalR4;
 window.geRenderCalendarCanonicalR4=geRenderCalendarCanonicalR4;
 window.geFilterInitiativeTouchpoint=geFilterInitiativeTouchpoint;
+
+
+/* R5 canonical Initiative UX/data integration */
+(function(){
+ function arr(v){return Array.isArray(v)?v.filter(Boolean):String(v||'').split(/[|,;]/).map(x=>x.trim()).filter(Boolean)}
+ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+ function stations(){return [...new Set((data.airports||[]).map(x=>String(x.code||x.airportCode||'').trim().toUpperCase()).filter(Boolean))].sort()}
+ function users(){return (data.users||[]).filter(x=>String(x.status||'Active').toLowerCase()==='active')}
+ function upgrade(){
+   const airport=document.getElementById('initiativeAirportV224');
+   if(airport && airport.tagName!=='SELECT'){
+     const sel=document.createElement('select');sel.id=airport.id;sel.multiple=true;sel.size=6;sel.className=airport.className;
+     sel.innerHTML=stations().map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');airport.replaceWith(sel);
+     sel.closest('label')?.childNodes?.[0] && (sel.closest('label').childNodes[0].textContent='Station / Area (bisa lebih dari satu) ');
+   }
+   const pic=document.getElementById('initiativePicV224');
+   if(pic && pic.tagName!=='SELECT'){
+     const sel=document.createElement('select');sel.id=pic.id;sel.innerHTML='<option value="">Pilih PIC dari User & Access</option>'+users().map(u=>`<option value="${esc(u.id||u.uid||u.email||u.username)}">${esc(u.name||u.employeeName||u.username||u.email||'-')} — ${esc(u.unit||u.department||u.role||'')}</option>`).join('');pic.replaceWith(sel);
+   }
+   const host=document.getElementById('initiativeModalV224')?.querySelector('.formgrid, .initiative-form-grid-v252, form');
+   if(host && !document.getElementById('initiativeBudgetLinkR5')){
+     host.insertAdjacentHTML('beforeend',`<div id="initiativeBudgetLinkR5" class="initiative-budget-link-r5"><b>Cost & Budget</b><span>Anggaran detail dikelola di Cost & Budget dan ditautkan dengan Initiative ID. Nilai ringkas di form ini tetap menjadi snapshot.</span><button type="button" class="btn secondary" onclick="location.href='app.html?page=budget-cost&initiativeId='+encodeURIComponent(document.getElementById('initiativeEditIdV224')?.value||'')">Buka Cost & Budget</button></div>`);
+   }
+ }
+ const oldOpen=window.openInitiativeModalV224;
+ window.openInitiativeModalV224=function(id=null){ if(typeof oldOpen==='function')oldOpen(id); upgrade(); const x=id?(data.initiatives||[]).find(v=>String(v.id)===String(id)):null; const st=document.getElementById('initiativeAirportV224'); if(st?.multiple){const vals=arr(x?.stations||x?.airport);[...st.options].forEach(o=>o.selected=vals.includes(o.value));} const pic=document.getElementById('initiativePicV224');if(pic&&x)pic.value=x.picUserId||x.pic||''; };
+ const oldSave=window.saveInitiativeV224;
+ window.saveInitiativeV224=function(){
+   const st=document.getElementById('initiativeAirportV224'),pic=document.getElementById('initiativePicV224');
+   if(!st?.multiple || !pic || typeof oldSave!=='function')return oldSave?.();
+   const stations=[...st.selectedOptions].map(o=>o.value); if(!stations.length)return alert('Pilih minimal satu Station / Area.');
+   /* old saver expects scalar .value; preserve first station then enrich record after save */
+   const first=stations[0]; const descriptor=Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value');
+   const beforeIds=new Set((data.initiatives||[]).map(x=>String(x.id))); oldSave();
+   let row=(data.initiatives||[]).find(x=>!beforeIds.has(String(x.id))) || (data.initiatives||[]).find(x=>String(x.id)===String(document.getElementById('initiativeEditIdV224')?.value||''));
+   if(!row)row=(data.initiatives||[]).slice(-1)[0];
+   if(row){row.stations=stations;row.airport=stations.join(', ');row.picUserId=pic.value;const u=users().find(u=>String(u.id||u.uid||u.email||u.username)===String(pic.value));row.pic=u?(u.name||u.employeeName||u.username||u.email):pic.value; if(typeof save==='function')save();}
+ };
+ function ensureViewControls(){
+   if(!document.getElementById('initRows'))return;
+   const panel=document.getElementById('initRows')?.closest('.card,section,div'); const search=document.querySelector('#q')?.parentElement;
+   if(search&&!document.getElementById('geInitiativeViewSelectR5')){const s=document.createElement('select');s.id='geInitiativeViewSelectR5';s.className='ge-view-select-r5';s.innerHTML='<option value="grid">Grid View</option><option value="list">List View</option>';s.onchange=()=>{window.GE_INITIATIVE_VIEW_R4=s.value;window.renderInitiatives?.();};search.appendChild(s);}
+ }
+ window.geFilterInitiativeTouchpoint=function(tp){const f=document.getElementById('ft');if(f)f.value=tp;window.GE_INITIATIVE_VIEW_R4='list';window.renderInitiatives?.();document.querySelector('#initRows')?.closest('section,.card,div')?.scrollIntoView({behavior:'smooth',block:'start'});};
+ const observer=new MutationObserver(()=>{upgrade();ensureViewControls()});observer.observe(document.documentElement,{childList:true,subtree:true});setTimeout(()=>{upgrade();ensureViewControls()},100);
+})();
+
+
+/* R5 explicit Lounge/Tenant Grid/Details selector */
+(function(){
+ function ensure(){
+   const grid=document.getElementById('loungeCardGridV237');if(!grid||document.getElementById('geLoungeViewSelectR5'))return;
+   const toolbar=document.querySelector('.lounge-master-toolbar-v237,.lounge-filter-row-v237,.title,.page-title-row')||grid.parentElement;
+   const sel=document.createElement('select');sel.id='geLoungeViewSelectR5';sel.className='ge-view-select-r5';sel.innerHTML='<option value="grid">Grid View</option><option value="detail">Details View</option>';
+   sel.onchange=()=>{const detail=sel.value==='detail';grid.style.display=detail?'none':'';const pager=document.getElementById('loungeCardPageInfoV237')?.parentElement;if(pager)pager.style.display=detail?'none':'';document.querySelector('.lounge-table-fallback-v237')?.classList.toggle('ge-p29-table-visible',detail);};
+   toolbar.appendChild(sel);
+ }
+ new MutationObserver(ensure).observe(document.documentElement,{childList:true,subtree:true});setTimeout(ensure,100);
+})();

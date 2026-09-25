@@ -5075,3 +5075,10 @@ html body.final-v257.final-shell-r5>.footer b{display:inline-block;line-height:1
 .ge-p29-capacity-section{margin-top:14px}
 /* Airport Experience stays in the Edition-1 navy family. */
 .final-v257 #interactiveMap .map-zoom-label{background:#123f78!important}.final-v257 .map-region-cards-v216 button.active{background:#123f78!important;border-color:#123f78!important}.final-v257 .map-control-rail-v216 button:hover{background:#0b356b!important;color:#fff!important}
+
+
+/* R5 view controls + initiative multi-select */
+.ge-view-select-r5{min-height:44px;min-width:140px;border:1px solid #c9d8e6;border-radius:10px;background:#fff;color:#123a5a;padding:0 38px 0 12px;font:inherit}
+#initiativeAirportV224[multiple]{min-height:132px;padding:8px 10px}
+.initiative-budget-link-r5{grid-column:1/-1;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 16px;border:1px solid #d6e2ed;border-radius:12px;background:#f7fafc;color:#24445e}
+.initiative-budget-link-r5 span{flex:1;min-width:260px;color:#6c8498;font-size:13px}
