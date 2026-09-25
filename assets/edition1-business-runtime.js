@@ -1505,15 +1505,19 @@ function geFirebaseUserMap(users){
 }
 async function syncFirebaseUsers(){
  if(!geCanManageAccounts()||typeof gxApi!=='function')return;
+ window.GE_FIREBASE_USERS_STATE='loading';
  try{
    const r=await gxApi('/auth-list-users',{method:'GET'});
    if(Array.isArray(r.users)){
      data.users=geFirebaseUserMap(r.users);
-     save();
+     window.GE_FIREBASE_USERS_STATE='ready';
      renderUserAccounts();
    }
  }catch(e){
-   console.warn('Firebase user sync failed:', e.message);
+   window.GE_FIREBASE_USERS_STATE='error';
+   window.GE_FIREBASE_USERS_ERROR=e?.message||String(e);
+   console.warn('Firebase user sync failed:', window.GE_FIREBASE_USERS_ERROR);
+   renderUserAccounts();
  }
 }
 function setPasswordFields(mode){
@@ -1793,20 +1797,29 @@ function populateAccountFilters(){
 function renderUserAccounts(){
  const t=document.getElementById('userAccountRows');if(!t)return;
  populateAccountFilters();
+ const state=window.GE_FIREBASE_USERS_STATE||'idle';
+ if(state==='idle' && geCanManageAccounts() && typeof syncFirebaseUsers==='function'){
+   t.innerHTML='<tr><td colspan="11" class="ge-data-state-r13">Memuat akun dari Firebase / Firestore…</td></tr>';
+   syncFirebaseUsers(); return;
+ }
+ if(state==='loading'){
+   t.innerHTML='<tr><td colspan="11" class="ge-data-state-r13">Memuat akun dari Firebase / Firestore…</td></tr>'; return;
+ }
+ if(state==='error'){
+   t.innerHTML=`<tr><td colspan="11" class="ge-data-state-r13 ge-data-error-r13">Data akun Firestore gagal dimuat: ${geEsc(window.GE_FIREBASE_USERS_ERROR||'Unknown error')}</td></tr>`; return;
+ }
  const q=(document.getElementById('accountSearch')?.value||'').toLowerCase();
  const rf=document.getElementById('accountRoleFilter')?.value||'';
  const sf=document.getElementById('accountStatusFilter')?.value||'';
  const af=(document.getElementById('accountAreaFilter')?.value||'').toLowerCase();
  const can=geCanManageAccounts();
- const rows=(data.users||[]).filter(u=>
-   (!q||`${u.name} ${u.username} ${u.employeeNo}`.toLowerCase().includes(q)) &&
-   (!rf||u.role===rf)&&(!sf||u.status===sf)&&(!af||`${u.unit} ${(u.airports||[]).join(' ')}`.toLowerCase().includes(af))
- );
- t.innerHTML=rows.map((u,i)=>{
-  const scope=u.scopeType==='ALL'?'All Area':u.scopeType==='LOUNGE'?`${(u.loungeIds||[]).length} Lounge`:u.scopeType==='AIRPORT'?(u.airports||[]).join(', '):(u.unit||'Custom');
-  const tabs=(u.tabs||[]).includes('ALL')?'Semua TAB':(u.tabs||[]).map(v=>GE_TAB_OPTIONS.find(x=>x[0]===v)?.[1]||v).join(', ');
-  return `<tr><td>${i+1}</td><td><b>${u.name}</b></td><td>${u.employeeNo||'-'}</td><td>${u.username}</td><td>${u.role}</td><td>${u.unit||'-'}</td><td>${scope}</td><td>${tabs}</td><td><span class="pill">${u.status}</span></td>${can?`<td class="visitor-actions"><button class="btn secondary compact-btn" onclick="openUserModal(${u.id})">Edit</button><button class="btn danger compact-btn" onclick="deleteUserAccount(${u.id})">Hapus</button></td>`:''}</tr>`;
- }).join('');
+ const rows=(data.users||[]).filter(u=>(!q||`${u.name||''} ${u.username||''} ${u.email||''} ${u.employeeNo||''}`.toLowerCase().includes(q))&&(!rf||u.role===rf)&&(!sf||u.status===sf)&&(!af||`${u.unit||''} ${(u.airports||[]).join(' ')}`.toLowerCase().includes(af)));
+ t.innerHTML=rows.length?rows.map((u,i)=>{
+   const scope=u.scopeType==='ALL'?'ALL':u.scopeType==='LOUNGE'?'LOUNGE':u.scopeType==='AIRPORT'||u.scopeType==='STATION'?'AIRPORT':(u.scopeType||'CUSTOM');
+   const assigned=(u.airports||[]).join(', ')||(u.loungeIds||[]).join(', ')||'—';
+   const protectedUser=u.role==='Super Admin';
+   return `<tr><td>${i+1}</td><td><b>${geEsc(u.name||u.fullName||'-')}</b><small>${geEsc(u.employeeNo||'')}</small></td><td><b>${geEsc(u.username||'-')}</b><small>${geEsc(u.email||'-')}</small></td><td>${geEsc(u.role||'-')}</td><td>${geEsc(u.accessLevel||u.level||'-')}</td><td>${geEsc(u.unit||u.department||'-')}</td><td><b>${geEsc(scope)}</b></td><td>${geEsc(assigned)}</td><td><span class="pill">${geEsc(u.status||'-')}</span></td><td>${geEsc(u.lastLogin||u.lastLoginAt||'Not available')}</td>${can?`<td class="visitor-actions">${protectedUser?'<span class="pill">Protected</span>':`<button class="btn secondary compact-btn" onclick="openUserModal('${String(u.id).replace(/'/g,"\\'")}')">Edit</button><button class="btn secondary compact-btn" onclick="resetUserPassword('${String(u.id).replace(/'/g,"\\'")}')">Reset Password</button>`}</td>`:''}</tr>`;
+ }).join(''):`<tr><td colspan="11" class="ge-data-state-r13">Tidak ada akun pada Firestore yang sesuai filter.</td></tr>`;
  if(typeof geEnhanceAllTables==='function')setTimeout(geEnhanceAllTables,0);
 }
 function renderAirports(){
@@ -9616,10 +9629,18 @@ window.saveInitiativeStepV224=function(){const d=store(),parent=String(document.
 window.geInitInitiativeCanonical=function(){window.renderInitiatives?.()};
 window.geFilterInitiativeTouchpoint=tp=>{location.href='app.html?page=calendar&view=gantt&touchpoint='+encodeURIComponent(tp||'')};
 
-function projectRows(){const out=[];(store().initiatives||[]).forEach(i=>{const t=arr(i.touchpoints||i.tp||i.touchpoint);out.push({kind:'Initiative',initiative:i.name||'-',title:i.name||'-',touchpoints:t,pic:i.pic||'-',start:i.startDate||'',due:i.dueDate||i.endDate||'',status:i.status||'',progress:Number(i.real||0)});(i.workflow||i.milestones||[]).forEach(m=>out.push({kind:'Milestone',initiative:i.name||'-',title:m.title||m.name||'Milestone',touchpoints:arr(m.touchpoints||m.touchpoint||t),pic:m.pic||i.pic||'-',start:m.startDate||i.startDate||'',due:m.dueDate||m.endDate||'',status:m.status||'',progress:Number(m.real||0)}))});(store().projectEvents||store().events||[]).forEach(e=>out.push({kind:'Activity',initiative:e.initiative||'-',title:e.title||'-',touchpoints:arr(e.touchpoints||e.touchpoint),pic:e.pic||'-',start:e.startDate||e.date||'',due:e.dueDate||e.endDate||e.date||'',status:e.status||e.category||'',progress:Number(e.progress||0)}));return out}
+let geGanttSortStateR13={key:'title',dir:1};
+function projectRows(){const out=[];(store().initiatives||[]).forEach(i=>{const t=arr(i.touchpoints||i.tp||i.touchpoint);out.push({id:String(i.id),kind:'Initiative',initiative:i.name||'-',title:i.name||'-',touchpoints:t,pic:i.pic||'-',start:i.startDate||'',due:i.dueDate||i.endDate||'',status:i.status||'',progress:Number(i.real||0)});(i.workflow||i.milestones||[]).forEach((m,idx)=>out.push({id:`m-${i.id}-${idx}`,kind:'Milestone',initiative:i.name||'-',title:m.title||m.name||'Milestone',touchpoints:arr(m.touchpoints||m.touchpoint||t),pic:m.pic||i.pic||'-',start:m.startDate||i.startDate||'',due:m.dueDate||m.endDate||'',status:m.status||'',progress:Number(m.real||0)}))});(store().projectEvents||store().events||[]).forEach(e=>out.push({id:String(e.id),kind:'Activity',initiative:e.initiative||'-',title:e.title||'-',touchpoints:arr(e.touchpoints||e.touchpoint),pic:e.pic||'-',start:e.startDate||e.date||'',due:e.dueDate||e.endDate||e.date||'',status:e.status||e.category||'',progress:Number(e.progress||0)}));return out}
 function filteredRows(){const tp=String(new URLSearchParams(location.search).get('touchpoint')||'').toLowerCase();return projectRows().filter(r=>!tp||r.touchpoints.some(x=>String(x).toLowerCase().includes(tp)))}
-function gantt(rows,tp){const dates=rows.flatMap(r=>[r.start,r.due]).filter(Boolean).map(v=>new Date(v+'T00:00:00')).filter(d=>!isNaN(d));let min=dates.length?new Date(Math.min(...dates)):new Date(),max=dates.length?new Date(Math.max(...dates)):new Date(min.getTime()+90*864e5);if(max<=min)max=new Date(min.getTime()+30*864e5);const span=max-min,periods=10,heads=Array.from({length:periods},(_,i)=>{const a=new Date(min.getTime()+span*i/periods),b=new Date(min.getTime()+span*(i+1)/periods);return `<div><b>P${i+1}</b><small>${a.toLocaleDateString('id-ID',{day:'numeric',month:'short'})}–${b.toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</small></div>`}).join('');return `${tp?`<div class="ge-active-filter-r11">Touch Point aktif: <b>${esc(tp)}</b></div>`:''}<div class="ge-gantt-r11"><div class="ge-gantt-title-r11"><div><b>Gantt Project Tracking</b><small>${min.toLocaleDateString('id-ID')} – ${max.toLocaleDateString('id-ID')}</small></div><div class="ge-gantt-legend-r11"><span>Initiative</span><span>Milestone</span><span>Activity</span></div></div><div class="ge-gantt-grid-r11"><div class="ge-gantt-left-head-r11">Project / Milestone / Activity</div><div class="ge-gantt-periods-r11">${heads}</div>${rows.map(r=>{const a=new Date((r.start||r.due||'')+'T00:00:00'),b=new Date((r.due||r.start||'')+'T00:00:00'),left=isNaN(a)?0:Math.max(0,Math.min(100,(a-min)/span*100)),width=isNaN(b)?2:Math.max(1.5,Math.min(100-left,(b-a)/span*100));return `<div class="ge-gantt-label-r11"><i></i><span><b>${esc(r.title)}</b><small>${esc(r.kind)}${r.initiative&&r.initiative!==r.title?' • '+esc(r.initiative):''}</small></span></div><div class="ge-gantt-track-r11"><i class="${r.kind.toLowerCase()}" style="left:${left}%;width:${width}%"></i></div>`}).join('')||'<div class="ge-gantt-empty-r11">Belum ada data.</div>'}</div></div>`}
-window.geSetCalendarWorkspace=function(view){const tabs=document.getElementById('geWorkspaceTabsR10'),cal=document.querySelector('.project-workspace-v253');if(!tabs||!cal)return;let alt=document.getElementById('geWorkspaceAltR10');if(!alt){alt=document.createElement('section');alt.id='geWorkspaceAltR10';cal.insertAdjacentElement('afterend',alt)}tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));cal.style.display=view==='calendar'?'':'none';alt.style.display=view==='calendar'?'none':'';if(view==='calendar'){window.geCalRenderV2533?.();return}const rows=filteredRows(),tp=new URLSearchParams(location.search).get('touchpoint')||'';if(view==='project'){alt.innerHTML=`${tp?`<div class="ge-active-filter-r11">Touch Point aktif: <b>${esc(tp)}</b></div>`:''}<div class="ge-detail-table-r10"><table><thead><tr><th>Type</th><th>Initiative</th><th>Item</th><th>Touch Point</th><th>PIC</th><th>Start</th><th>Due</th><th>Status</th><th>Progress</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.kind)}</td><td>${esc(r.initiative)}</td><td><b>${esc(r.title)}</b></td><td>${esc(r.touchpoints.join(', ')||'-')}</td><td>${esc(r.pic)}</td><td>${esc(r.start||'-')}</td><td>${esc(r.due||'-')}</td><td>${esc(r.status||'-')}</td><td>${r.progress}%</td></tr>`).join('')||'<tr><td colspan="9">Belum ada project data.</td></tr>'}</tbody></table></div>`;return}alt.innerHTML=gantt(rows,tp)};
+function geGanttSortR13(key){if(geGanttSortStateR13.key===key)geGanttSortStateR13.dir*=-1;else{geGanttSortStateR13.key=key;geGanttSortStateR13.dir=1}window.geSetCalendarWorkspace('gantt')}
+window.geGanttSortR13=geGanttSortR13;
+function gantt(rows,tp){
+ rows=[...rows].sort((a,b)=>String(a[geGanttSortStateR13.key]||'').localeCompare(String(b[geGanttSortStateR13.key]||''),undefined,{numeric:true})*geGanttSortStateR13.dir);
+ const dates=rows.flatMap(r=>[r.start,r.due]).filter(Boolean).map(v=>new Date(v+'T00:00:00')).filter(d=>!isNaN(d));let min=dates.length?new Date(Math.min(...dates)):new Date(),max=dates.length?new Date(Math.max(...dates)):new Date(min.getTime()+90*864e5);if(max<=min)max=new Date(min.getTime()+30*864e5);const span=Math.max(864e5,max-min),periods=10,heads=Array.from({length:periods},(_,i)=>{const a=new Date(min.getTime()+span*i/periods),b=new Date(min.getTime()+span*(i+1)/periods);return `<div><b>P${i+1}</b><small>${a.toLocaleDateString('id-ID',{day:'numeric',month:'short'})}–${b.toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</small></div>`}).join('');
+ const arrow=k=>geGanttSortStateR13.key===k?(geGanttSortStateR13.dir>0?' ↑':' ↓'):'';
+ return `${tp?`<div class="ge-active-filter-r11">Touch Point aktif: <b>${esc(tp)}</b></div>`:''}<div class="ge-gantt-r13"><div class="ge-gantt-title-r13"><div><b>Gantt Project Tracking</b><small>${min.toLocaleDateString('id-ID')} – ${max.toLocaleDateString('id-ID')}</small></div><div class="ge-gantt-legend-r13"><span class="initiative">Initiative</span><span class="milestone">Milestone</span><span class="activity">Activity</span></div></div><div class="ge-gantt-grid-r13"><div class="ge-gantt-head-r13 ge-gantt-project-head-r13"><button onclick="geGanttSortR13('title')">Project / Milestone / Activity${arrow('title')}</button><i class="ge-gantt-resize-r13" title="Geser untuk mengubah lebar kolom"></i></div><div class="ge-gantt-head-r13 ge-gantt-deadline-head-r13"><button onclick="geGanttSortR13('due')">Deadline${arrow('due')}</button></div><div class="ge-gantt-periods-r13">${heads}</div>${rows.map(r=>{const a=new Date((r.start||r.due||'')+'T00:00:00'),b=new Date((r.due||r.start||'')+'T00:00:00'),left=isNaN(a)?0:Math.max(0,Math.min(100,(a-min)/span*100)),width=isNaN(b)?1.2:Math.max(1.2,Math.min(100-left,Math.max(0,b-a)/span*100));return `<button class="ge-gantt-label-r13" data-gantt-id="${esc(r.id)}" onclick="geV2554OpenGanttItem('${esc(r.id)}')"><i class="${r.kind.toLowerCase()}"></i><span>${esc(r.title)}</span></button><button class="ge-gantt-deadline-r13" data-gantt-id="${esc(r.id)}" onclick="geV2554OpenGanttItem('${esc(r.id)}')">${esc(r.due||'—')}</button><div class="ge-gantt-track-r13"><button title="${esc(r.title)}" aria-label="Buka ${esc(r.title)}" data-gantt-id="${esc(r.id)}" onclick="geV2554OpenGanttItem('${esc(r.id)}')" class="ge-gantt-bar-r13 ${r.kind.toLowerCase()}" style="left:${left}%;width:${width}%"></button></div>`}).join('')||'<div class="ge-gantt-empty-r13">Belum ada data.</div>'}</div></div>`}
+function geBindGanttResizeR13(){const grid=document.querySelector('.ge-gantt-grid-r13'),grip=document.querySelector('.ge-gantt-resize-r13');if(!grid||!grip||grip.dataset.bound)return;grip.dataset.bound='1';grip.onpointerdown=e=>{e.preventDefault();const x=e.clientX,w=parseFloat(getComputedStyle(grid).getPropertyValue('--ge-gantt-project-width'))||340;const move=ev=>grid.style.setProperty('--ge-gantt-project-width',Math.max(220,Math.min(620,w+ev.clientX-x))+'px');const up=()=>{removeEventListener('pointermove',move);removeEventListener('pointerup',up)};addEventListener('pointermove',move);addEventListener('pointerup',up)}}
+window.geSetCalendarWorkspace=function(view){const tabs=document.getElementById('geWorkspaceTabsR10'),cal=document.querySelector('.project-workspace-v253');if(!tabs||!cal)return;let alt=document.getElementById('geWorkspaceAltR10');if(!alt){alt=document.createElement('section');alt.id='geWorkspaceAltR10';cal.insertAdjacentElement('afterend',alt)}tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));cal.style.display=view==='calendar'?'':'none';alt.style.display=view==='calendar'?'none':'';if(view==='calendar'){window.geCalRenderV2533?.();return}const rows=filteredRows(),tp=new URLSearchParams(location.search).get('touchpoint')||'';if(view==='project'){alt.innerHTML=`${tp?`<div class="ge-active-filter-r11">Touch Point aktif: <b>${esc(tp)}</b></div>`:''}<div class="ge-detail-table-r10"><table><thead><tr><th>Type</th><th>Initiative</th><th>Item</th><th>Touch Point</th><th>PIC</th><th>Start</th><th>Due</th><th>Status</th><th>Progress</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.kind)}</td><td>${esc(r.initiative)}</td><td><b>${esc(r.title)}</b></td><td>${esc(r.touchpoints.join(', ')||'-')}</td><td>${esc(r.pic)}</td><td>${esc(r.start||'-')}</td><td>${esc(r.due||'-')}</td><td>${esc(r.status||'-')}</td><td>${r.progress}%</td></tr>`).join('')||'<tr><td colspan="9">Belum ada project data.</td></tr>'}</tbody></table></div>`;return}alt.innerHTML=gantt(rows,tp);requestAnimationFrame(geBindGanttResizeR13)};
 window.geInitCalendarWorkspaceCanonical=function(){const tabs=document.getElementById('geWorkspaceTabsR10');tabs?.querySelectorAll('button').forEach(b=>b.onclick=()=>window.geSetCalendarWorkspace(b.dataset.view));const q=new URLSearchParams(location.search),view=['calendar','project','gantt'].includes(q.get('view'))?q.get('view'):'calendar';window.geSetCalendarWorkspace(view)};
 
 function airports(){return (store().airports||[]).map(a=>({...a,code:String(a.code||a.airportCode||a.iata||a.stationCode||'').trim().toUpperCase(),city:a.city||a.location||a.airportCity||'',airportName:a.airportName||a.name||a.airport||'',wilayah:a.wilayah||a.serviceRegion||a.networkRegion||a.region||'Domestik',status:a.status||'Active',lat:Number(a.lat??a.latitude??a.coordinates?.lat??0),lon:Number(a.lon??a.lng??a.longitude??a.coordinates?.lng??0)})).filter(a=>a.code)}
