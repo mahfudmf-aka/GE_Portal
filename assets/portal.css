@@ -5062,3 +5062,16 @@ html body.final-v257.final-shell-r5>.footer b{display:inline-block;line-height:1
 
 /* R3 login title contrast */
 .login-brand h1{color:#fff!important}
+/* R4 canonical interaction polish */
+.final-v257 .ge-nav-link.active{background:#123f78!important;box-shadow:inset 4px 0 #9bc7ee!important;font-weight:700!important}
+.final-v257 .ge-nav-link:hover{background:#0b356b!important}
+.ge-touchpoint-filter-card{border:0;text-align:inherit;width:100%;cursor:pointer;font:inherit;color:inherit;background:inherit}
+.ge-touchpoint-filter-card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,32,78,.12)}
+.ge-initiative-view-toggle-r4,.ge-p29-view-toggle{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ge-initiative-view-toggle-r4 button,.ge-p29-view-toggle>button{min-height:38px;border:1px solid #b8c9db;border-radius:9px;background:#fff;color:#12385f;padding:0 14px;font-weight:700;cursor:pointer}
+.ge-initiative-view-toggle-r4 button.active,.ge-p29-view-toggle>button.active{background:#0b356b;color:#fff;border-color:#0b356b}
+.ge-initiative-list-r4{overflow:auto;width:100%}.ge-initiative-list-r4 table{width:100%;border-collapse:collapse}.ge-initiative-list-r4 th{cursor:pointer;white-space:nowrap}
+.ge-p29-history-toggle{display:inline-flex;align-items:center;gap:6px;margin-left:8px;font-size:12px;color:#536f89}
+.ge-p29-capacity-section{margin-top:14px}
+/* Airport Experience stays in the Edition-1 navy family. */
+.final-v257 #interactiveMap .map-zoom-label{background:#123f78!important}.final-v257 .map-region-cards-v216 button.active{background:#123f78!important;border-color:#123f78!important}.final-v257 .map-control-rail-v216 button:hover{background:#0b356b!important;color:#fff!important}

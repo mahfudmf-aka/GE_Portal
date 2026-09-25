@@ -18,7 +18,8 @@ const config={
  'kontak':{perm:'contact',collections:['inbox']},
  'lounge-list':{perm:'planning',collections:['lounges','loungeVisitors','serviceProcurement','documents']},
  'branch-office-planning':{perm:'planning',collections:['lounges','boSpaces','serviceProcurement','airportSystems','stationMaterials','documents']},
- 'gaso-planning':{perm:'planning',collections:['gasoMaster','gasoServiceSupport','gasoPlanningService','airports','documents']}
+ 'gaso-planning':{perm:'planning',collections:['gasoMaster','gasoServiceSupport','gasoPlanningService','airports','documents']},
+ 'airport-experience':{perm:'services',collections:['airports','lounges','airportSystems','personnel']}
 };
 const cfg=config[page]; if(!cfg)return;
 function session(){return typeof window.gxGetSession==='function'?(gxGetSession()||{}):window.GX_CURRENT_USER||{}}
@@ -45,6 +46,7 @@ function rerender(){
  else if(page==='lounge-list'){window.renderLounges?.();window.renderLoungeVisitors?.();window.renderLoungePriceSummaryV243?.();window.renderLoungeCardsV237?.()}
  else if(page==='branch-office-planning'){window.geRenderPlanningPage?.();window.renderAirportSystems?.();window.renderLoungeProcurement?.();window.renderBOSpaces?.()}
  else if(page==='gaso-planning'){window.renderGasoAllV231?.()}
+ else if(page==='airport-experience'){window.renderAirports?.();window.geInitAirportV214?.();window.renderAirportMapMarkers?.();window.geApplyMapView?.();window.geUpdateMapRegionCounts?.();}
 }
 async function boot(){
  try{

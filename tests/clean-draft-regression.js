@@ -51,3 +51,17 @@ assert(shellCss.includes('.ge-p29-view-toggle'),'Lounge/Tenant must expose Grid/
 assert(fs.existsSync(path.join(root,'ROOT_MAP.md')),'Root menu/page/access map must ship with the revision.');
 
 console.log(`CLEAN_DRAFT_REGRESSION_PASS HTML=${html.length}`);
+// R4 regression guards: canonical runtime fixes.
+{
+  const boot=fs.readFileSync('assets/edition1-page-boot.js','utf8');
+  assert(boot.includes("'airport-experience':{perm:'services'"),'Airport Experience must hydrate canonical Firestore data');
+  assert(boot.includes("window.renderAirportMapMarkers?.()"),'Airport Experience boot must initialize map');
+  const shell=fs.readFileSync('assets/portal-shell.js','utf8');
+  assert(shell.includes("u.searchParams.get('page')"),'Sidebar active state must resolve canonical page query');
+  const rt=fs.readFileSync('assets/edition1-business-runtime.js','utf8');
+  assert(rt.includes("||activeJourney||''"),'Initiative Journey filter must use canonical activeJourney state');
+  assert(rt.includes('GE_Inisiatif_dan_Milestone.csv'),'Initiative export must include milestones');
+  assert(rt.includes('capacitySchedules'),'Lounge/Tenant must support capacity periods');
+  assert(rt.includes('supersedesId'),'Lounge/Tenant must preserve agreement replacement history');
+  assert(rt.includes('geRenderCalendarCanonicalR4'),'Calendar must use non-recursive canonical entry');
+}

@@ -47,3 +47,18 @@ Canonical runtime: `app.html?page=<route>`. Legacy/E1 physical names are compati
 `Initiative Timeline & Update → Calendar & Project Tracking` is one-way. Standalone Calendar/Project activity does **not** create or update Initiative.
 
 Lounge/Tenant agreement supports `priceSchedules[]` (multiple effective price periods in one agreement). CSV is the canonical Download Template format when equivalent CSV/XLSX templates exist.
+
+## R4 relationship additions
+
+### Initiative → Calendar → Assignment → Budget
+- Initiative is the parent work item.
+- Milestone belongs to an Initiative; standalone Calendar activity may optionally link to an Initiative.
+- Initiative/Milestone/Activity PIC should resolve to a portal user when an account exists; assignment creates an Inbox/notification item for that user. Due-date reminders remain a notification workflow requirement and must not be simulated only in the UI.
+- Cost & Budget is the financial child/relationship layer. Budget records should carry `initiativeId` and may optionally carry `milestoneId` / `activityId`, plus budget year, cost category/account, allocation, realization/commitment, currency and source document. Initiative views may show summarized allocated/realized budget while Cost & Budget remains the financial system-of-record page.
+
+### Lounge/Tenant agreement history
+- Default list = current/effective master records only.
+- `agreementAction`: new | replacement | amendment | extension.
+- Replacement/amendment/extension may set `supersedesId`; prior record is retained as history and marked Superseded, not deleted.
+- History can be included explicitly with the History filter.
+- Price and capacity are independent effective-dated schedules (`priceSchedules[]`, `capacitySchedules[]`).

@@ -97,7 +97,7 @@ function renderInitiativeCharts(rows){
    const actual=Math.min(100,Math.round(v.real/v.count)||0);
    const r=58,c=2*Math.PI*r;
    const td=(target/100)*c,ad=(actual/100)*c;
-   return `<div class="radial-card">
+   return `<button type="button" class="radial-card ge-touchpoint-filter-card" onclick="geFilterInitiativeTouchpoint(${JSON.stringify(tp)})">
     <div class="radial-chart">
       <svg viewBox="0 0 140 140">
         <circle class="track" cx="70" cy="70" r="${r}"></circle>
@@ -108,9 +108,10 @@ function renderInitiativeCharts(rows){
     </div>
     <div class="chart-title">${tp}</div>
     <div class="chart-meta"><span>Target <b>${target}%</b></span><span>Realisasi <b>${actual}%</b></span></div>
-   </div>`;
+   </button>`;
  }).join('');
 }
+function geFilterInitiativeTouchpoint(tp){const f=document.getElementById('ft');if(f){f.value=tp;renderInitiatives();f.scrollIntoView({behavior:'smooth',block:'center'});}}
 function renderInitiatives(){
  refreshInitiativeFilters();
  const rows=currentInitiativeRows();
@@ -4490,13 +4491,16 @@ function deleteInitiativeStepV224(id,index){
   x.workflow.splice(index,1);save();openInitiativeTimelineV224(id);
 }
 
-/* Updated CSV */
+/* Updated CSV — Initiative + Milestone visibility */
 exportCSV=function(){
- let csv='No,Inisiatif,Touch Point,Airport,PIC,Due Date,Target (%),Realisasi (%),Pencapaian,Remark\n';
- currentInitiativeRows().filter(geInitiativeScopedV224).forEach((x,i)=>{
-   csv+=`${i+1},"${String(x.name||'').replaceAll('"','""')}","${String(x.tp||'').replaceAll('"','""')}",${x.airport||''},"${String(x.pic||'').replaceAll('"','""')}",${x.dueDate||''},${x.plan},${x.real},${achievement(x.plan,x.real)},"${String(x.remark||'').replaceAll('"','""')}"\n`;
+ let csv='Record Type,Initiative ID,Initiative,Journey Scope,Touch Point,Airport,PIC,Due Date,Target (%),Realisasi (%),Pencapaian,Milestone,Milestone PIC,Milestone Due Date,Milestone Status,Remark\n';
+ currentInitiativeRows().filter(geInitiativeScopedV224).forEach((x)=>{
+   const q=v=>'"'+String(v??'').replaceAll('"','""')+'"';
+   csv+=['Initiative',x.id,q(x.name),q(geScopesV252(x).join(' | ')),q(geTPsV252(x).join(' | ')),q(x.airport||''),q(x.pic||''),x.dueDate||'',x.plan||0,x.real||0,achievement(x.plan,x.real),'','','','',q(x.remark||'')].join(',')+'\n';
+   const milestones=Array.isArray(x.workflow)?x.workflow:(Array.isArray(x.milestones)?x.milestones:[]);
+   milestones.forEach((m)=>{csv+=['Milestone',x.id,q(x.name),q(geScopesV252(x).join(' | ')),q(geTPsV252(x).join(' | ')),q(x.airport||''),q(x.pic||''),x.dueDate||'',x.plan||0,x.real||0,achievement(x.plan,x.real),q(m.title||m.name||'Milestone'),q(m.pic||x.pic||''),m.dueDate||m.date||'',q(m.status||''),q(m.remark||m.notes||'')].join(',')+'\n';});
  });
- downloadBlob(csv,'GE_Inisiatif.csv','text/csv;charset=utf-8');
+ downloadBlob(csv,'GE_Inisiatif_dan_Milestone.csv','text/csv;charset=utf-8');
 };
 
 /* Normalize old records after load */
@@ -7476,7 +7480,7 @@ saveInitiativeV224=function(){
 const geOldCurrentRowsV252=typeof currentInitiativeRows==='function'?currentInitiativeRows:null;
 currentInitiativeRows=function(){
  let rows=(data.initiatives||[]).slice();
- const page=document.getElementById('journeyPageValue')?.value||window.activeJourney||'';
+ const page=document.getElementById('journeyPageValue')?.value||activeJourney||'';
  if(page)rows=rows.filter(x=>geMatchesJourneyV252(x,page));
  const q=(document.getElementById('q')?.value||'').toLowerCase();
  const ft=document.getElementById('ft')?.value||'', fs=document.getElementById('fs')?.value||'', fp=document.getElementById('fp')?.value||'';
@@ -8713,6 +8717,7 @@ function installInitiativeControls(){
    else title.appendChild(wrap);
    $('geV2554UploadInitiative').onclick=openBulk;
  }
+ if(title&&!document.getElementById('geInitiativeViewToggleR4')){const v=document.createElement('div');v.id='geInitiativeViewToggleR4';v.className='ge-initiative-view-toggle-r4';v.innerHTML='<button type="button" class="active" data-view="grid">Grid</button><button type="button" data-view="list">List</button>';title.appendChild(v);v.querySelectorAll('button').forEach(b=>b.onclick=()=>{window.GE_INITIATIVE_VIEW_R4=b.dataset.view;v.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));renderInitiatives();});}
  const grid=document.querySelector('.initiative-filter-grid-v226');
  if(grid&&!$('geV2554Priority')){
    const csv=[...grid.querySelectorAll('button')].find(b=>/Unduh CSV/i.test(b.textContent||''));
@@ -8724,7 +8729,7 @@ function installInitiativeControls(){
    refreshInitiativeFilters();
    let rows=currentInitiativeRows().filter(geInitiativeScopedV224);
    const p=$('geV2554Priority')?.value||'';if(p)rows=rows.filter(x=>String(x.priority||'Normal')===p);
-   const t=$('initRows');if(t)t.innerHTML=rows.length?rows.map(geInitiativeCardV251).join(''):'<div class="initiative-empty-v246">Belum ada inisiatif pada filter ini.</div>';
+   const t=$('initRows');if(t){if(window.GE_INITIATIVE_VIEW_R4==='list'&&rows.length){t.innerHTML=`<div class="ge-initiative-list-r4"><table><thead><tr><th>Initiative</th><th>Journey</th><th>Touch Point</th><th>Station</th><th>PIC</th><th>Due</th><th>Progress</th><th>Action</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${geEsc(x.name||'-')}</b></td><td>${geEsc(geScopesV252(x).join(', '))}</td><td>${geEsc(geTPsV252(x).join(', '))}</td><td>${geEsc(x.airport||'-')}</td><td>${geEsc(x.pic||'-')}</td><td>${geEsc(x.dueDate||'-')}</td><td>${geEsc(String(x.real||0))}% / ${geEsc(String(x.plan||0))}%</td><td><button class="btn secondary compact-btn" onclick="openInitiativeModalV224(${Number(x.id)})">Update</button><button class="btn secondary compact-btn" onclick="openInitiativeTimelineV224(${Number(x.id)})">Milestone</button></td></tr>`).join('')}</tbody></table></div>`;}else t.innerHTML=rows.length?rows.map(geInitiativeCardV251).join(''):'<div class="initiative-empty-v246">Belum ada inisiatif pada filter ini.</div>';}
    renderInitiativeCharts(rows);
  };
  renderInitiatives();
@@ -9016,7 +9021,9 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
       documentNumber:String(raw.documentNumber??'').trim(),documentType:String(raw.documentType??'').trim(),
       documentStatus:status,remarks:String(raw.remarks??'').trim(),
       pricePerPax:singlePrice??0,currency:singleCurrency,priceDisplay:singlePrice!==null&&singleCurrency?safePriceDisplay(singleCurrency,singlePrice):'',
-      priceSchedules:schedules.length?checked.schedules.filter(x=>x.ok).map(x=>({effectiveFrom:x.effectiveFrom,effectiveTo:x.effectiveTo,price:x.price,currency:x.currency,priceBasis:x.priceBasis||'pax',priceNote:x.priceNote||''})):[]
+      priceSchedules:schedules.length?checked.schedules.filter(x=>x.ok).map(x=>({effectiveFrom:x.effectiveFrom,effectiveTo:x.effectiveTo,price:x.price,currency:x.currency,priceBasis:x.priceBasis||'pax',priceNote:x.priceNote||''})):[],
+      capacitySchedules:(Array.isArray(raw.capacitySchedules)?raw.capacitySchedules:[]).map(r=>({effectiveFrom:String(r.effectiveFrom||''),effectiveTo:String(r.effectiveTo||''),capacity:Number(r.capacity||0),note:String(r.note||'')})).filter(r=>r.effectiveFrom||r.effectiveTo||r.capacity||r.note),
+      agreementAction:String(raw.agreementAction||'new'),supersedesId:String(raw.supersedesId||'').trim()
     };
     if(errors.length)return {ok:false,errors,model:null};
     if(normalized.priceSchedules.length){
@@ -9053,6 +9060,27 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
   }
   window.geP29AddPriceRow=addPriceRow;
 
+  function renderCapacityRows(containerId,schedules){
+    const box=document.getElementById(containerId);if(!box)return;
+    const rows=Array.isArray(schedules)&&schedules.length?schedules:[{}];
+    box.innerHTML=rows.map((r,i)=>`<div class="ge-p29-price-row ge-p29-capacity-row" data-index="${i}">
+      <div><label>Effective From<input data-capacity-field="effectiveFrom" type="date" value="${esc(r.effectiveFrom||'')}"></label></div>
+      <div><label>Effective To<input data-capacity-field="effectiveTo" type="date" value="${esc(r.effectiveTo||'')}"></label></div>
+      <div><label>Capacity (pax)<input data-capacity-field="capacity" type="number" min="0" step="1" value="${esc(r.capacity??'')}"></label></div>
+      <div><label>Note<input data-capacity-field="note" value="${esc(r.note||'')}"></label></div>
+      <button type="button" class="btn secondary compact-btn ge-p29-remove-capacity" ${rows.length===1?'disabled':''}>Hapus</button>
+    </div>`).join('');
+    box.querySelectorAll('.ge-p29-remove-capacity').forEach(btn=>btn.addEventListener('click',()=>{btn.closest('.ge-p29-capacity-row')?.remove();if(!box.querySelector('.ge-p29-capacity-row'))renderCapacityRows(containerId,[{}]);}));
+  }
+  function capacityRowsFromForm(containerId){return [...(document.getElementById(containerId)?.querySelectorAll('.ge-p29-capacity-row')||[])].map(row=>{const o={};row.querySelectorAll('[data-capacity-field]').forEach(el=>o[el.dataset.capacityField]=el.value);if(o.capacity!=='')o.capacity=Number(o.capacity);return o}).filter(o=>o.effectiveFrom||o.effectiveTo||o.capacity!==undefined||o.note)}
+  window.geP29AddCapacityRow=function(containerId){const rows=capacityRowsFromForm(containerId);rows.push({});renderCapacityRows(containerId,rows)};
+  function applicableCapacity(x,when=new Date()){
+    const iso=when instanceof Date?when.toLocaleDateString('en-CA'):String(when||'');
+    const rows=Array.isArray(x?.capacitySchedules)?x.capacitySchedules:[];
+    const hit=rows.filter(r=>(!r.effectiveFrom||r.effectiveFrom<=iso)&&(!r.effectiveTo||r.effectiveTo>=iso)).sort((a,b)=>String(b.effectiveFrom||'').localeCompare(String(a.effectiveFrom||'')))[0];
+    if(hit)return Number(hit.capacity||0);
+    return Number(x?.capacity||x?.loungeCapacity||0);
+  }
   function commonFormMarkup(prefix,model){
     const m=model||{};
     return `<div class="formgrid ge-p29-form-grid">
@@ -9061,6 +9089,8 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
       <label>Nama Layanan / Provider<input id="${prefix}Name" required value="${esc(m.name||'')}"></label>
       <label>Jenis Layanan<select id="${prefix}ServiceType" required><option value="">Pilih Jenis Layanan</option>${TYPES.map(t=>`<option value="${t}" ${m.serviceType===t?'selected':''}>${t}</option>`).join('')}</select></label>
       <label>PIC<input id="${prefix}Pic" value="${esc(m.pic||'')}"></label>
+      <label>Record / Agreement Action<select id="${prefix}AgreementAction"><option value="new" ${!m.supersedesId?'selected':''}>New / Existing Active Agreement</option><option value="replacement" ${m.agreementAction==='replacement'?'selected':''}>Replacement</option><option value="amendment" ${m.agreementAction==='amendment'?'selected':''}>Amendment</option><option value="extension" ${m.agreementAction==='extension'?'selected':''}>Extension / Renewal</option></select></label>
+      <label>Replaces Record ID<input id="${prefix}SupersedesId" value="${esc(m.supersedesId||'')}" placeholder="Isi bila menggantikan record lama"></label>
       <label>Agreement Start Date<input id="${prefix}Start" type="date" value="${esc(m.startDate||'')}"></label>
       <label>Agreement End Date<input id="${prefix}End" type="date" value="${esc(m.endDate||'')}"></label>
       <label>Mata Uang (single price)<input id="${prefix}Currency" maxlength="3" value="${esc(m.currency||'')}" placeholder="IDR"></label>
@@ -9075,6 +9105,10 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
       <div id="${prefix}Prices" class="ge-p29-price-rows"></div>
       <div class="ge-p29-input-note">Satu sumber input: jika Price Schedule digunakan, jangan isi Harga Per Pax single price. Currency harus berupa kode mata uang ISO 4217 yang dikenali browser.</div>
     </section>
+    <section class="ge-p29-price-section ge-p29-capacity-section">
+      <div class="ge-p29-section-head"><div><b>Capacity Schedule</b><small>Kapasitas dapat berubah per periode tanpa membuat master Lounge/Tenant baru.</small></div><button type="button" class="btn secondary compact-btn" onclick="geP29AddCapacityRow('${prefix}Capacity')">+ Add Capacity Period</button></div>
+      <div id="${prefix}Capacity" class="ge-p29-price-rows"></div>
+    </section>
     <label class="ge-p29-file-field">Lampiran Dokumen<input id="${prefix}Document" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png"></label>`;
   }
 
@@ -9088,7 +9122,8 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
       region:val(prefix+'Region'),station:val(prefix+'Airport'),name:val(prefix+'Name'),serviceType:val(prefix+'ServiceType'),pic:val(prefix+'Pic'),
       startDate:val(prefix+'Start'),endDate:val(prefix+'End'),currency:val(prefix+'Currency'),pricePerPax:val(prefix+'Price'),
       documentNumber:val(prefix+'DocumentNumber'),documentType:val(prefix+'DocumentType'),documentStatus:val(prefix+'DocumentStatus'),remarks:val(prefix+'Remarks'),
-      priceSchedules:scheduleRowsFromForm(prefix+'Prices')
+      agreementAction:val(prefix+'AgreementAction')||'new',supersedesId:val(prefix+'SupersedesId'),
+      priceSchedules:scheduleRowsFromForm(prefix+'Prices'),capacitySchedules:capacityRowsFromForm(prefix+'Capacity')
     };
   }
 
@@ -9100,6 +9135,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
       <form id="${prefix}Form"><div id="${prefix}Errors"></div>${commonFormMarkup(prefix,model)}
       <div class="modal-actions sticky-actions"><button class="btn" type="submit">${id==='loungeAddModalV221'?'Simpan Layanan':'Simpan Update'}</button><button class="btn secondary" type="button" onclick="${id==='loungeAddModalV221'?'closeLoungeAddModalV221()':'closeLoungeEdit()'}">Batal</button></div></form>`;
     renderPriceRows(prefix+'Prices',model?.priceSchedules||[]);
+    renderCapacityRows(prefix+'Capacity',model?.capacitySchedules||[]);
     document.getElementById(prefix+'Form').addEventListener('submit',e=>{e.preventDefault();id==='loungeAddModalV221'?saveAdd(prefix):saveEdit(prefix)});
     modal.classList.add('show');
   }
@@ -9128,7 +9164,10 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
     if(old&&Array.isArray(old.priceSchedules)&&!model.priceSchedules.length)delete obj.priceSchedules;
     data.lounges=data.lounges||[];
     if(old){const i=data.lounges.findIndex(x=>String(x.id)===String(old.id));if(i<0)return false;data.lounges[i]=obj}
-    else data.lounges.push(obj);
+    else {
+      if(obj.supersedesId&&obj.agreementAction!=='new'){const prior=data.lounges.find(x=>String(x.id)===String(obj.supersedesId));if(prior){prior.supersededBy=obj.id;prior.supersededAt=new Date().toISOString();prior.recordStatus='Superseded';}}
+      obj.recordStatus=obj.recordStatus||'Active';data.lounges.push(obj);
+    }
     try{save()}catch(e){notice('Data Tidak Tersimpan','Perubahan tidak dapat disimpan: '+(e.message||'Unknown error'),'warning');return false}
     return true;
   }
@@ -9163,8 +9202,10 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
   function filteredRows(){
     const base=(data.lounges||[]).slice();
     const region=val('loungeRegionFilter'),station=val('loungeAirportFilter'),provider=val('loungeNameFilter'),status=val('loungeStatusFilter'),type=filterType();
+    const showHistory=!!document.getElementById('geP29ShowHistory')?.checked;
     return base.filter(x=>{
       const rt=resolveType(x),t=rt.value;
+      if(!showHistory&&(x.recordStatus==='Superseded'||x.supersededBy))return false;
       return (!region||String(x.region||'')===region)&&(!station||String(x.airport||'')===station)&&(!provider||String(x.name||'')===provider)&&(!status||String(x.documentStatus||'')===status)&&(!type||t===type);
     });
   }
@@ -9186,7 +9227,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
     const start=(GE_LOUNGE_CARD_PAGE_V237-1)*pageSize,slice=rows.slice(start,start+pageSize);
     grid.innerHTML=slice.map(x=>{
       const rt=resolveType(x),type=rt.value||'Requires Review',stateA=statusForAgreement(x),price=applicablePrice(x,new Date());
-      const scheduleCount=Array.isArray(x.priceSchedules)?x.priceSchedules.length:0;
+      const scheduleCount=Array.isArray(x.priceSchedules)?x.priceSchedules.length:0,capacity=applicableCapacity(x,new Date());
       const priceText=price.status==='CURRENT'||price.status==='LEGACY'?safePriceDisplay(price.currency,price.price):price.status==='NOT_APPLICABLE'?'Not Available':price.status==='INVALID'?'Requires Review':'Not Available';
       const priceMeta=scheduleCount?`${scheduleCount} Price Period${scheduleCount===1?'':'s'}`:'';
       const review=rt.status==='REVIEW'?`<div class="ge-p29-review-note">Requires Review: ${esc(rt.reason)}</div>`:'';
@@ -9202,6 +9243,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
             <div><dt>Agreement Status</dt><dd>${esc(x.documentStatus||'Not Available')}</dd></div>
             <div><dt>Agreement Period</dt><dd>${dateLabel(x.startDate)} — ${dateLabel(x.endDate)}</dd></div>
             <div><dt>Current Price</dt><dd>${esc(priceText)}</dd></div>
+            <div><dt>Current Capacity</dt><dd>${capacity?esc(capacity)+' pax':'Not Available'}</dd></div>
             ${priceMeta?`<div><dt>Price Schedule</dt><dd>${esc(priceMeta)}</dd></div>`:''}
             <div><dt>Agreement</dt><dd>${esc(x.documentNumber||'Not Available')}</dd></div>
           </div>${review}
@@ -9223,6 +9265,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
       return `<tr><td>${i+1}</td><td>${esc(x.region||'-')}</td><td><b>${esc(x.airport||'Not Available')}</b></td><td><b>${esc(x.name||'Not Available')}</b></td><td><span class="pill">${esc(rt.value||'Requires Review')}</span></td><td>${esc(price)}</td><td>${dateLabel(x.startDate)}</td><td>${dateLabel(x.endDate)}</td><td>${esc(x.documentNumber||'-')}</td><td>${esc(x.documentType||'-')}</td><td>${esc(x.documentStatus||'Not Available')}</td><td>${esc(x.remarks||'-')}</td><td>${x.documentKey?`<button class="btn secondary" onclick="GEFiles.download('${esc(x.documentKey)}','${esc(x.documentName||'document')}')">Unduh</button>`:esc(x.documentName||'-')}</td>${action}</tr>`;
     }).join('');
   }
+  const geP29RenderTableBaseR4=renderTable;renderTable=function(){geP29RenderTableBaseR4();setTimeout(()=>window.geEnhanceAllTables?.(),0)};
   window.renderLounges=function(){try{populateFilterOptions();renderTable();renderCards();renderPriceSummary();}catch(e){console.error('P29 Lounge render guard',e);const g=document.getElementById('loungeCardGridV237');if(g)g.innerHTML='<div class="lounge-master-empty-v237">Data Lounge/Tenant tidak dapat ditampilkan. Periksa data yang memerlukan review.</div>';}};
 
   function renderPriceSummary(){
@@ -9405,7 +9448,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
   function setup(){
     setupTypeFilter();
     const heading=document.querySelector('.lounge-master-view-label-v237');
-    if(heading&&!document.getElementById('geP29ViewToggle')){const toggle=document.createElement('div');toggle.id='geP29ViewToggle';toggle.className='ge-p29-view-toggle';toggle.innerHTML='<button type="button" class="active" data-view="grid">Grid</button><button type="button" data-view="detail">Details</button>';heading.appendChild(toggle);toggle.querySelectorAll('button').forEach(b=>b.onclick=()=>{toggle.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));const detail=b.dataset.view==='detail';const grid=document.getElementById('loungeCardGridV237');if(grid)grid.style.display=detail?'none':'';const pager=document.getElementById('loungeCardPageInfoV237')?.parentElement;if(pager)pager.style.display=detail?'none':'';document.querySelector('.lounge-table-fallback-v237')?.classList.toggle('ge-p29-table-visible',detail);});}
+    if(heading&&!document.getElementById('geP29ViewToggle')){const toggle=document.createElement('div');toggle.id='geP29ViewToggle';toggle.className='ge-p29-view-toggle';toggle.innerHTML='<button type="button" class="active" data-view="grid">Grid</button><button type="button" data-view="detail">Details</button><label class="ge-p29-history-toggle"><input id="geP29ShowHistory" type="checkbox"> Tampilkan history agreement</label>';heading.appendChild(toggle);document.getElementById('geP29ShowHistory').onchange=()=>renderLounges();toggle.querySelectorAll('button').forEach(b=>b.onclick=()=>{toggle.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));const detail=b.dataset.view==='detail';const grid=document.getElementById('loungeCardGridV237');if(grid)grid.style.display=detail?'none':'';const pager=document.getElementById('loungeCardPageInfoV237')?.parentElement;if(pager)pager.style.display=detail?'none':'';document.querySelector('.lounge-table-fallback-v237')?.classList.toggle('ge-p29-table-visible',detail);});}
     const templateBtn=[...document.querySelectorAll('button')].find(b=>/Unduh Template/i.test(b.textContent||''));if(templateBtn){templateBtn.textContent='Download CSV Template';templateBtn.title='Download CSV Template P29';}
     ['loungeRegionFilter','loungeAirportFilter','loungeNameFilter','loungeStatusFilter'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('change',()=>{GE_LOUNGE_CARD_PAGE_V237=1;renderLounges()})});
     try{if(typeof fillAirportSelects==='function')fillAirportSelects()}catch(e){}
@@ -9518,3 +9561,12 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
   window.addEventListener=_w;
   document.addEventListener=_d;
 })();
+
+/* R4 canonical calendar entry: bypass legacy wrapper chain to prevent recursive stack overflow. */
+function geRenderCalendarCanonicalR4(){
+  if(typeof geCalBuildFiltersV2533==='function')geCalBuildFiltersV2533();
+  if(typeof geCalRenderV2533==='function')return geCalRenderV2533();
+}
+window.geV251RenderCalendar=geRenderCalendarCanonicalR4;
+window.geRenderCalendarCanonicalR4=geRenderCalendarCanonicalR4;
+window.geFilterInitiativeTouchpoint=geFilterInitiativeTouchpoint;

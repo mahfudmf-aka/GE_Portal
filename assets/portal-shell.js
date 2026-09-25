@@ -115,7 +115,7 @@ function cleanNavigation(){
    }
    section.style.display=has?'':'none';
  });
- side.querySelectorAll('.ge-nav-link[href]').forEach(a=>a.classList.toggle('active',path()===(a.getAttribute('href')||'').split('?')[0].split('#')[0]));
+ side.querySelectorAll('.ge-nav-link[href]').forEach(a=>{const u=new URL(a.getAttribute('href')||'',location.href);const ap=(u.searchParams.get('page')||u.pathname.split('/').pop()?.replace(/\.html$/,'')||'index').toLowerCase()+'.html';a.classList.toggle('active',path()===ap);});
 }
 function ensureShell(){
  if(path()==='login.html'||!finalUserPages.has(path())) return null;
