@@ -65,3 +65,21 @@ console.log(`CLEAN_DRAFT_REGRESSION_PASS HTML=${html.length}`);
   assert(rt.includes('supersedesId'),'Lounge/Tenant must preserve agreement replacement history');
   assert(rt.includes('geRenderCalendarCanonicalR4'),'Calendar must use non-recursive canonical entry');
 }
+// R6 regression guards: deployed cache identity + directly visible canonical controls.
+{
+  const app=fs.readFileSync('app.html','utf8');
+  const registry=fs.readFileSync('assets/clean-page-registry.js','utf8');
+  const rt=fs.readFileSync('assets/edition1-business-runtime.js','utf8');
+  const css=fs.readFileSync('assets/portal.css','utf8');
+  assert(app.includes('v=r6'),'Canonical root assets must use the current deployment cache identity.');
+  assert(registry.includes('edition1-business-runtime.js?v=r6'),'Page runtime must not reuse stale v=1 browser cache.');
+  assert(registry.includes('geInitiativeViewSelectR6'),'Initiative Grid/List selector must exist in canonical page markup.');
+  assert(registry.includes('geLoungeViewSelectR6'),'Lounge/Tenant Grid/Details selector must exist in canonical page markup.');
+  assert(registry.includes('loungeFilterTextR6'),'Lounge/Tenant must expose a free-text filter in addition to dropdown filters.');
+  assert(registry.includes('ge-clickable'),'Planning snapshot source panels must be actionable.');
+  assert(registry.includes('id=\\"rows\\"')||registry.includes('id="rows"'),'Airport Experience network section must contain the table body required by its runtime.');
+  assert(rt.includes('geV251RenderCalendar=geCalRenderV2533'),'Calendar canonical render entry must bypass recursive wrapper/filter rebuild chain.');
+  assert(rt.includes('window.changeLoungeCardPageV237=function(delta)'),'Lounge pagination must use canonical card renderer on every page.');
+  assert(css.includes('.login-brand h1{color:#0d2639!important}'),'Login portal title must retain approved dark title color.');
+  assert(css.includes('.login-submit{color:#fff!important}'),'Login Masuk button text must be white.');
+}

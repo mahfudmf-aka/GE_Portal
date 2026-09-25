@@ -9201,12 +9201,13 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
   function filterType(){return document.querySelector('[data-ge-p29-service-filter].active')?.dataset.geP29ServiceFilter||''}
   function filteredRows(){
     const base=(data.lounges||[]).slice();
-    const region=val('loungeRegionFilter'),station=val('loungeAirportFilter'),provider=val('loungeNameFilter'),status=val('loungeStatusFilter'),type=filterType();
+    const region=val('loungeRegionFilter'),station=val('loungeAirportFilter'),provider=val('loungeNameFilter'),status=val('loungeStatusFilter'),type=filterType(),q=(document.getElementById('loungeFilterTextR6')?.value||'').trim().toLowerCase();
     const showHistory=!!document.getElementById('geP29ShowHistory')?.checked;
     return base.filter(x=>{
       const rt=resolveType(x),t=rt.value;
       if(!showHistory&&(x.recordStatus==='Superseded'||x.supersededBy))return false;
-      return (!region||String(x.region||'')===region)&&(!station||String(x.airport||'')===station)&&(!provider||String(x.name||'')===provider)&&(!status||String(x.documentStatus||'')===status)&&(!type||t===type);
+      const text=[x.region,x.airport,x.name,t,x.serviceCategory,x.documentNumber,x.documentType,x.documentStatus,x.remarks].map(v=>String(v||'')).join(' ').toLowerCase();
+      return (!q||text.includes(q))&&(!region||String(x.region||'')===region)&&(!station||String(x.airport||'')===station)&&(!provider||String(x.name||'')===provider)&&(!status||String(x.documentStatus||'')===status)&&(!type||t===type);
     });
   }
   window.loungeFiltered=function(){return filteredRows()};
@@ -9629,4 +9630,50 @@ window.geFilterInitiativeTouchpoint=geFilterInitiativeTouchpoint;
    toolbar.appendChild(sel);
  }
  new MutationObserver(ensure).observe(document.documentElement,{childList:true,subtree:true});setTimeout(ensure,100);
+})();
+
+/* R6 — canonical runtime corrections verified against current consolidated source. */
+(function(){
+  /* Calendar: render must never rebuild/enhance its own filters. Filter construction is a one-time page setup step. */
+  if(typeof geCalRenderV2533==='function'){
+    geV251RenderCalendar=geCalRenderV2533;
+    window.geV251RenderCalendar=geCalRenderV2533;
+  }
+
+  /* Lounge pagination must use the same canonical renderer as page 1; legacy lexical renderer changed card fields across pages. */
+  window.changeLoungeCardPageV237=function(delta){
+    const rows=typeof window.loungeFiltered==='function'?window.loungeFiltered():[];
+    const pages=Math.max(1,Math.ceil(rows.length/12));
+    GE_LOUNGE_CARD_PAGE_V237=Math.max(1,Math.min(pages,(Number(GE_LOUNGE_CARD_PAGE_V237)||1)+Number(delta||0)));
+    if(typeof window.renderLounges==='function')window.renderLounges();
+    document.querySelector('.lounge-open-heading-v237')?.scrollIntoView({behavior:'smooth',block:'start'});
+  };
+  window.geSetLoungeViewR6=function(view){
+    const detail=view==='detail',grid=document.getElementById('loungeCardGridV237');
+    if(grid)grid.style.display=detail?'none':'';
+    const pager=document.getElementById('loungeCardPageInfoV237')?.parentElement;if(pager)pager.style.display=detail?'none':'';
+    document.querySelector('.lounge-table-fallback-v237')?.classList.toggle('ge-p29-table-visible',detail);
+  };
+
+  /* Search text is additive to dropdown filters. */
+  if(typeof window.loungeFiltered==='function'){
+    const base=window.loungeFiltered;
+    window.loungeFiltered=function(){
+      const q=(document.getElementById('loungeFilterTextR6')?.value||'').trim().toLowerCase();
+      const rows=base(); if(!q)return rows;
+      return rows.filter(x=>[x.region,x.airport,x.name,x.serviceType,x.serviceCategory,x.documentNumber,x.documentType,x.documentStatus,x.remarks].some(v=>String(v||'').toLowerCase().includes(q)));
+    };
+    window.geLoungeCardSourceV237=window.loungeFiltered;
+  }
+
+  function initR6Controls(){
+    /* Existing dropdowns remain dropdowns, but are searchable/free-text through the canonical filter enhancer. */
+    ['loungeRegionFilter','loungeAirportFilter','loungeNameFilter','loungeStatusFilter'].forEach(id=>{
+      const s=document.getElementById(id);if(!s)return;
+      s.style.color='#7b8fa3';
+      if(typeof geEnhanceFilterSelectV245==='function'&&!s._geSearchWrapV245)geEnhanceFilterSelectV245(s);
+    });
+    const lv=document.getElementById('geLoungeViewSelectR6');if(lv)window.geSetLoungeViewR6(lv.value);
+  }
+  setTimeout(initR6Controls,0);
 })();

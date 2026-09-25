@@ -5060,8 +5060,9 @@ html body.final-v257.final-shell-r5>.footer b{display:inline-block;line-height:1
  .p27-section{padding:12px}.p27-grid,.p27-grid-wide,.p27-form{grid-template-columns:1fr}.p27-form-actions{grid-column:auto;flex-wrap:wrap}.p27-security-row{align-items:flex-start;flex-direction:column}.p27-password-shell{padding:14px}.p27-password-card{padding:16px}.p27-password-actions{justify-content:stretch}.p27-password-actions .ge-btn{flex:1;justify-content:center}
 }
 
-/* R3 login title contrast */
-.login-brand h1{color:#fff!important}
+/* R6 login correction: keep approved title color; button label is white. */
+.login-brand h1{color:#0d2639!important}
+.login-submit{color:#fff!important}
 /* R4 canonical interaction polish */
 .final-v257 .ge-nav-link.active{background:#123f78!important;box-shadow:inset 4px 0 #9bc7ee!important;font-weight:700!important}
 .final-v257 .ge-nav-link:hover{background:#0b356b!important}
@@ -5082,3 +5083,9 @@ html body.final-v257.final-shell-r5>.footer b{display:inline-block;line-height:1
 #initiativeAirportV224[multiple]{min-height:132px;padding:8px 10px}
 .initiative-budget-link-r5{grid-column:1/-1;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 16px;border:1px solid #d6e2ed;border-radius:12px;background:#f7fafc;color:#24445e}
 .initiative-budget-link-r5 span{flex:1;min-width:260px;color:#6c8498;font-size:13px}
+
+/* R6 canonical controls */
+.ge-view-select-r6{min-height:42px;border:1px solid #c7d5e3;border-radius:10px;background:#fff;color:#526b82;padding:0 36px 0 12px;font-weight:700}
+.ge-filter-free-r6::placeholder{color:#a8b5c2}
+.snapshot-kpi.ge-clickable{cursor:pointer;text-align:left;width:100%;font:inherit;color:inherit}
+.snapshot-kpi.ge-clickable:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(8,42,78,.10)}
