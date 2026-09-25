@@ -47,8 +47,7 @@ function getJourney(tp){
  return map[key]||'';
 }
 function uniqueTouchpoints(){
- return [...new Set([...(data.touchpoints||[]),...(data.initiatives||[]).map(x=>x.tp)].filter(Boolean))]
-   .sort((a,b)=>a.localeCompare(b));
+ return [...new Set([...(data.touchpoints||[]).map(x=>typeof x==='string'?x:(x.name||x.title||x.touchpoint||x.code||'')),...(data.initiatives||[]).map(x=>x.tp||x.touchpoint||'')].map(x=>String(x||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
 }
 function refreshInitiativeFilters(){
  const ft=document.getElementById('ft');
@@ -1854,7 +1853,7 @@ function personnelAirportMatrix(){
     const n=GE_CORE_BO_FUNCTIONS.filter(f=>x.functions.has(f)).length;
     const classification=n>=4?'BO A':n===3?'BO B':'BO C';
     return {...x,functionCount:n,classification};
-  }).sort((a,b)=>a.airport.localeCompare(b.airport));
+  }).sort((a,b)=>String(a.airport||'').localeCompare(String(b.airport||''),'id'));
 }
 function renderPersonnelReadiness(){
   const tbody=document.getElementById('readinessRows');if(!tbody)return;
@@ -1947,7 +1946,7 @@ function personnelAirportMatrix(){
   return Object.values(map).map(x=>{
     const n=GE_CORE_BO_FUNCTIONS.filter(f=>x.functions.has(f)).length;
     return {...x,functionCount:n,classification:n>=4?'BO A':n===3?'BO B':'BO C'};
-  }).sort((a,b)=>a.airport.localeCompare(b.airport));
+  }).sort((a,b)=>String(a.airport||'').localeCompare(String(b.airport||''),'id'));
 }
 function renderPersonnelReadiness(){
   const tbody=document.getElementById('readinessRows');if(!tbody)return;
@@ -7328,8 +7327,8 @@ function geV251RenderTouchpointPage(){
    ============================================================== */
 
 /* ---------- Global page content / section visibility ---------- */
-function pmCfgR2(){data.portalManagerR2||={pages:{},menus:{}};return data.portalManagerR2}
-function pmPageKeyR2(){return (location.pathname.split('/').pop()||'index.html')}
+function pmCfgR2(){data.portalManagerR2||={};data.portalManagerR2.pages||={};data.portalManagerR2.menus||={};return data.portalManagerR2}
+function pmPageKeyR2(){const f=(location.pathname.split('/').pop()||'index.html');if(f==='app.html'){const r=String(new URLSearchParams(location.search).get('page')||'index');const a=(window.P40_CLEAN_ALIASES||{})[r]||r;return a.split('?')[0]+'.html'}return f}
 function pmApplyPageR2(){
  const cfg=pmCfgR2(),key=pmPageKeyR2(),pc=cfg.pages[key]||{};
  if(pc.title){const hero=document.querySelector('.hero h2,.page-header h2');if(hero)hero.textContent=pc.title}
@@ -8736,7 +8735,7 @@ function bindCalendar(){
  const draft=$('geV2554DraftBtn');
  if(draft)draft.onclick=e=>{e.preventDefault();e.stopPropagation();window.geV2542OpenDrafts?.()};
  const add=document.querySelector('[data-calendar-add-v2535]');
- if(add)add.onclick=e=>{e.preventDefault();e.stopPropagation();window.geV254OpenActivity?.()};
+ if(add)add.onclick=e=>{e.preventDefault();e.stopPropagation();if(typeof window.geV254OpenActivity==='function')window.geV254OpenActivity();else if(typeof window.geCalOpenActivityV2535==='function')window.geCalOpenActivityV2535();else if(typeof window.geCalOpenActivityV2534==='function')window.geCalOpenActivityV2534();};
  // Robust calendar navigation: keep one explicit calendar date state and render from it.
  window.geCalMoveV2533=function(n){
    if(!(window.geV251CalDate instanceof Date))window.geV251CalDate=new Date();
@@ -9405,6 +9404,8 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
 
   function setup(){
     setupTypeFilter();
+    const heading=document.querySelector('.lounge-master-view-label-v237');
+    if(heading&&!document.getElementById('geP29ViewToggle')){const toggle=document.createElement('div');toggle.id='geP29ViewToggle';toggle.className='ge-p29-view-toggle';toggle.innerHTML='<button type="button" class="active" data-view="grid">Grid</button><button type="button" data-view="detail">Details</button>';heading.appendChild(toggle);toggle.querySelectorAll('button').forEach(b=>b.onclick=()=>{toggle.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));const detail=b.dataset.view==='detail';const grid=document.getElementById('loungeCardGridV237');if(grid)grid.style.display=detail?'none':'';const pager=document.getElementById('loungeCardPageInfoV237')?.parentElement;if(pager)pager.style.display=detail?'none':'';document.querySelector('.lounge-table-fallback-v237')?.classList.toggle('ge-p29-table-visible',detail);});}
     const templateBtn=[...document.querySelectorAll('button')].find(b=>/Unduh Template/i.test(b.textContent||''));if(templateBtn){templateBtn.textContent='Download CSV Template';templateBtn.title='Download CSV Template P29';}
     ['loungeRegionFilter','loungeAirportFilter','loungeNameFilter','loungeStatusFilter'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('change',()=>{GE_LOUNGE_CARD_PAGE_V237=1;renderLounges()})});
     try{if(typeof fillAirportSelects==='function')fillAirportSelects()}catch(e){}
@@ -9490,8 +9491,27 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
   if(typeof renderFaqs==='function') window.renderFaqs=renderFaqs;
   if(typeof renderAdminOverview==='function') window.renderAdminOverview=renderAdminOverview;
   if(typeof renderLounges==='function') window.renderLounges=renderLounges;
+  if(typeof changeLoungeCardPageV237==='function') window.changeLoungeCardPageV237=changeLoungeCardPageV237;
   if(typeof renderLoungeVisitors==='function') window.renderLoungeVisitors=renderLoungeVisitors;
   if(typeof renderPlanningDocuments==='function') window.renderPlanningDocuments=renderPlanningDocuments;
+  if(typeof geRenderPlanningPage==='function') window.geRenderPlanningPage=geRenderPlanningPage;
+  if(typeof renderPlanningOverview==='function') window.renderPlanningOverview=renderPlanningOverview;
+  if(typeof renderBOSpaces==='function') window.renderBOSpaces=renderBOSpaces;
+  if(typeof renderLoungeProcurement==='function') window.renderLoungeProcurement=renderLoungeProcurement;
+  if(typeof geV251InitCalendar==='function') window.geV251InitCalendar=geV251InitCalendar;
+  if(typeof geUpgradeCalendarModalV252==='function') window.geUpgradeCalendarModalV252=geUpgradeCalendarModalV252;
+  if(typeof geAddCalendarFiltersV252==='function') window.geAddCalendarFiltersV252=geAddCalendarFiltersV252;
+  if(typeof geUpgradeReminderV253==='function') window.geUpgradeReminderV253=geUpgradeReminderV253;
+  if(typeof geCalBuildFiltersV2533==='function') window.geCalBuildFiltersV2533=geCalBuildFiltersV2533;
+  if(typeof geCalRenderV2533==='function') window.geCalRenderV2533=geCalRenderV2533;
+  if(typeof geCalRenderKPIV2534==='function') window.geCalRenderKPIV2534=geCalRenderKPIV2534;
+  if(typeof geCalSetViewV2533==='function') window.geCalSetViewV2533=geCalSetViewV2533;
+  if(typeof geCalMoveV2533==='function') window.geCalMoveV2533=geCalMoveV2533;
+  if(typeof geCalDeleteActivityV2535==='function') window.geCalDeleteActivityV2535=geCalDeleteActivityV2535;
+  if(typeof geCalOpenActivityV2535==='function') window.geCalOpenActivityV2535=geCalOpenActivityV2535;
+  if(typeof geCalOpenDetailV2533==='function') window.geCalOpenDetailV2533=geCalOpenDetailV2533;
+  if(typeof geRequestNotificationV253==='function') window.geRequestNotificationV253=geRequestNotificationV253;
+
   if(typeof renderStationMaterials==='function') window.renderStationMaterials=renderStationMaterials;
   if(typeof renderAirportSystems==='function') window.renderAirportSystems=renderAirportSystems;
   if(typeof submitArticleProposal==='function') window.submitArticleProposal=submitArticleProposal;

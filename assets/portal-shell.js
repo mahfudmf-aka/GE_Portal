@@ -23,7 +23,7 @@ const NAV_SVG={
 function icon(x){const key=({'⌂':'home','◎':'cx','↔':'journey','✈':'network','⌾':'station','⚙':'initiative','✧':'opportunity','◇':'scenario','▦':'calendar','▣':'budget','◉':'budget','✓':'readiness','▤':'document','≡':'standard','⬡':'data','◫':'data','♙':'user','◷':'history','☎':'support','⇧':'data','◈':'station'})[x]||'standard';return `<span class="ni" aria-hidden="true"><svg viewBox="0 0 20 20">${NAV_SVG[key]}</svg></span>`;}
 const path=()=>{const file=(location.pathname.split('/').pop()||'app.html').toLowerCase();if(file==='login.html')return'login.html';if(file==='app.html'){const route=String(new URLSearchParams(location.search).get('page')||'index').trim().toLowerCase();const aliases=(window.P40_CLEAN_ALIASES||{});const canonical=(aliases[route]||route).split('?')[0];return `${canonical}.html`;}return file;};
 const cleanHref=(href)=>{const m=String(href||'').match(/^([^?#]+)\.html(?:\?([^#]*))?/);if(!m||m[1]==='login'||m[1]==='change-password')return href;const alias=(window.P40_CLEAN_ALIASES||{})[m[1]]||m[1];const parts=alias.split('?'),q=new URLSearchParams(parts[1]||'');new URLSearchParams(m[2]||'').forEach((v,k)=>q.set(k,v));q.set('page',parts[0]);return 'app.html?'+q.toString()};
-const item=(href,label,i,sub=false)=>`<a class="ge-nav-link ${sub?'ge-nav-sub':''} ${path()===href?'active':''}" href="${cleanHref(href)}" title="${label}">${icon(i)}<span>${label}</span></a>`;
+const item=(href,label,i,sub=false)=>{const target=cleanHref(href),u=new URL(target,location.href),targetPage=(u.searchParams.get('page')||href.replace(/\.html.*$/,'')).toLowerCase()+'.html';return `<a class="ge-nav-link ${sub?'ge-nav-sub':''} ${path()===targetPage?'active':''}" href="${target}" title="${label}">${icon(i)}<span>${label}</span></a>`};
 function group(title,items){return `<div class="ge-nav-section">${title}</div>${items.join('')}`}
 function dashboardPOV(s){
  const r=String(s?.role||'').trim().toLowerCase().replace(/[\s_-]+/g,' ');
@@ -50,7 +50,7 @@ function navFor(s){
   item('index.html','Branch Office Dashboard','⌂'),
   group('MY STATION',[item('station-360.html','Station Profile / 360','⌾'),item('readiness.html','Readiness','✓'),item('service-capability.html','Capability & Standards','◈')]),
   group('CUSTOMER EXPERIENCE',[item('customer-experience.html','Customer Experience','◎')]),
-  group('TASKS & ACTIONS',[item('improvement-intake.html','Improvement Opportunity','✧'),item('inisiatif.html','Initiative & Action','⚙')]),
+  group('TASKS & ACTIONS',[item('improvement-intake.html','Improvement Opportunity','✧'),item('inisiatif.html','Initiative & Action','⚙'),item('calendar.html','Calendar & Project Tracking','▦')]),
   group('IMPROVEMENT & PLANNING',planning),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣')]),
   group('DOCUMENTS / SUPPORT',[item('kontak.html','Support / Reference','☎')])].join('');
@@ -58,14 +58,14 @@ function navFor(s){
   item('index.html','GE Team Dashboard','⌂'),
   group('EXPERIENCE & INSIGHT',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈'),item('station-360.html','Station Profile / 360','⌾')]),
   group('READINESS & STANDARDS',[item('readiness.html','Readiness Assessment','✓'),item('service-capability.html','Capability & Standards','◈'),item('standar.html','Service Standard','≡')]),
-  group('IMPROVEMENT & PLANNING',[item('improvement-intake.html','Improvement Opportunity','✧'),item('inisiatif.html','Initiative & Improvement','⚙'),...planning]),
+  group('IMPROVEMENT & PLANNING',[item('improvement-intake.html','Improvement Opportunity','✧'),item('inisiatif.html','Initiative & Improvement','⚙'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
   group('DATA',[item('data.html','Data Management','⬡')]),
   commonSupport].join('');
  if(pov==='management') return [
   item('index.html','Management Dashboard','⌂'),
   group('EXPERIENCE & INSIGHT',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈')]),
-  group('IMPROVEMENT & PLANNING',[item('inisiatif.html','Initiative & Improvement','⚙'),...planning]),
+  group('IMPROVEMENT & PLANNING',[item('inisiatif.html','Initiative & Improvement','⚙'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣')]),
   group('REPORTS / DECISION SUPPORT',[item('management-outcome.html','Management Outcome','◷')]),
   commonSupport].join('');
@@ -73,14 +73,14 @@ function navFor(s){
   item('index.html','Super Admin / System Dashboard','⌂'),
   group('EXPERIENCE & INSIGHT',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈'),item('station-360.html','Station Profile / 360','⌾')]),
   group('READINESS & STANDARDS',[item('readiness.html','Readiness Assessment','✓'),item('service-capability.html','Capability & Standards','◈'),item('standar.html','Service Standard','≡')]),
-  group('IMPROVEMENT & PLANNING',[item('inisiatif.html','Initiative & Improvement','⚙'),item('improvement-intake.html','Improvement Opportunity','✧'),...planning]),
+  group('IMPROVEMENT & PLANNING',[item('inisiatif.html','Initiative & Improvement','⚙'),item('improvement-intake.html','Improvement Opportunity','✧'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
   group('DATA & ADMINISTRATION',[item('data.html','Data Management','⬡'),item('master-data.html','Master Data','◫'),item('admin.html','User & Access','♙'),item('portal-management.html','Portal Management','⚙'),item('audit-log.html','Audit Log','◷')]),
   commonSupport].join('');
  return [group('DASHBOARD',[item('index.html','Dashboard','⌂')]),commonSupport].join('');
 }
 
-const finalUserPages=new Set(['index.html','customer-experience.html','cx-import.html','touchpoint.html','network-stations.html','station-360.html','inisiatif.html','improvement-intake.html','action-scenario.html','calendar.html','budget-cost.html','program-kerja.html','cost-intelligence.html','readiness.html','agreement-service.html','standar.html','data.html','master-data.html','admin.html','portal-management.html','audit-log.html','service-capability.html','service-locations.html','berita.html','kontak.html','management-outcome.html','airport-experience-map.html','map.html','profile.html','service-planning.html','planning-workspace.html','lounge-list.html','branch-office-planning.html','gaso-planning.html','planning-documents.html']);
+const finalUserPages=new Set(['index.html','customer-experience.html','cx-import.html','touchpoint.html','network-stations.html','airport-experience.html','station-360.html','inisiatif.html','improvement-intake.html','action-scenario.html','calendar.html','budget-cost.html','program-kerja.html','cost-intelligence.html','readiness.html','agreement-service.html','standar.html','data.html','master-data.html','admin.html','portal-management.html','audit-log.html','service-capability.html','service-locations.html','berita.html','kontak.html','management-outcome.html','airport-experience-map.html','map.html','profile.html','service-planning.html','planning-workspace.html','lounge-list.html','branch-office-planning.html','gaso-planning.html','planning-documents.html']);
 const PLANNING_PAGES=new Set(['service-planning.html','planning-workspace.html','lounge-list.html','branch-office-planning.html','gaso-planning.html','planning-documents.html']);
 const PLANNING_TABS=[
   ['lounge-list.html','Lounge / Tenant','lounge'],
@@ -99,7 +99,7 @@ function planningTabs(){
  const main=document.querySelector('body > .shell > .main');if(!main||main.querySelector('.ge-planning-tabs'))return;
  const context=planningContext();
  const wrap=document.createElement('nav');wrap.className='ge-planning-tabs';wrap.setAttribute('aria-label','Planning Workspace');
- wrap.innerHTML=PLANNING_TABS.map(([href,label,key])=>`<a href="${href}" class="${context===key?'active':''}" aria-current="${context===key?'page':'false'}"><span>${label}</span></a>`).join('');
+ wrap.innerHTML=PLANNING_TABS.map(([href,label,key])=>`<a href="${cleanHref(href)}" class="${context===key?'active':''}" aria-current="${context===key?'page':'false'}"><span>${label}</span></a>`).join('');
  const target=main.querySelector('.hero,.ge-page-head,.title');
  if(target)target.insertAdjacentElement('afterend',wrap);else main.prepend(wrap);
  const title=main.querySelector('.hero h2,.ge-page-head h1');

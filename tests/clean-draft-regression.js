@@ -40,4 +40,14 @@ assert(shellCss.includes('z-index:100000!important'),'Canonical dialog strata mu
 assert(shellCss.includes('overflow-y:auto!important'),'Canonical sidebar must remain independently scrollable.');
 assert(registry.includes('id=\\\"interactiveMap\\\"')||registry.includes('id=\"interactiveMap\"'),'Airport Experience canonical page must contain the interactive map.');
 assert(registry.includes('Touch Point, Service & Capability'),'Capability & Standards canonical page must retain its page content.');
+
+assert(registry.includes('dashboardRoot'),'Dashboard canonical page must retain dashboardRoot for dashboard-firestore runtime.');
+const shell=read('assets/portal-shell.js'); assert(shell.includes("'airport-experience.html'"),'Canonical shell must recognize the consolidated Airport Experience route.'); assert(shell.includes("Calendar & Project Tracking"),'Calendar & Project Tracking must remain visible in the canonical navigation.');
+const relationships=read('assets/relationships-v257.js'); assert(relationships.includes('window.GERelationship={'),'Relationship engine must be a functional canonical implementation, not an empty compatibility shim.'); assert(relationships.includes('service_capability'),'Relationship engine must retain service-capability relationship type.');
+assert(business.includes("typeof x==='string'?x"),'Initiative touchpoint filter must normalize object/string Firestore data before localeCompare.');
+for(const fn of ['geRenderPlanningPage','geV251InitCalendar','geCalRenderV2533','geCalSetViewV2533','changeLoungeCardPageV237']) assert(business.includes(`window.${fn}=${fn}`),`Canonical runtime must expose ${fn}.`);
+assert(shellCss.includes('.p26-account-modal>#p26FormHost{display:flex!important;flex-direction:column!important'),'Add User modal must stack form and standard action row vertically.');
+assert(shellCss.includes('.ge-p29-view-toggle'),'Lounge/Tenant must expose Grid/Details view styling.');
+assert(fs.existsSync(path.join(root,'ROOT_MAP.md')),'Root menu/page/access map must ship with the revision.');
+
 console.log(`CLEAN_DRAFT_REGRESSION_PASS HTML=${html.length}`);

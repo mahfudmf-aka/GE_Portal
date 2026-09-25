@@ -5059,3 +5059,6 @@ html body.final-v257.final-shell-r5>.footer b{display:inline-block;line-height:1
 @media(max-width:820px){
  .p27-section{padding:12px}.p27-grid,.p27-grid-wide,.p27-form{grid-template-columns:1fr}.p27-form-actions{grid-column:auto;flex-wrap:wrap}.p27-security-row{align-items:flex-start;flex-direction:column}.p27-password-shell{padding:14px}.p27-password-card{padding:16px}.p27-password-actions{justify-content:stretch}.p27-password-actions .ge-btn{flex:1;justify-content:center}
 }
+
+/* R3 login title contrast */
+.login-brand h1{color:#fff!important}
