@@ -42,3 +42,5 @@ await import('./r30-role-scope-firestore-contract.js');
 
 await import('./r31-admin-firestore-contract.js');
 await import('./r31-1-partner-scope-contract.js');
+
+await import('./r32-pov-permission-map-contract.js');

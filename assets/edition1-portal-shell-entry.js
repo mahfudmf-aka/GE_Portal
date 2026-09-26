@@ -295,14 +295,14 @@ function navFor(s){
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
   group('DATA',[item('data.html','Data Management','⬡')]),
   commonSupport].join('');
- if(pov==='admin') return [
-  item('index.html','Ground Experience Admin Dashboard','⌂'),
-  group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈')]),
-  group('SERVICE GOVERNANCE',[item('standar.html','Readiness & Standards','≡')]),
-  group('IMPROVEMENT & PLANNING',[item('inisiatif.html','Initiative & Improvement','⚙'),item('improvement-intake.html','Improvement Opportunity','✧'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
-  group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
-  group('DATA & ADMINISTRATION',[item('master-data.html','Master Data & Partners','◫'),item('data.html','Data Management','⬡'),item('admin.html','User & Access','♙')]),
-  commonSupport].join('');
+ if(pov==='admin') {
+  const extraPerms=new Set([...(Array.isArray(s?.permissions)?s.permissions:[]),...(Array.isArray(s?.tabs)?s.tabs:[])].map(x=>String(x).toLowerCase()));
+  const improve=[item('inisiatif.html','Initiative & Improvement','⚙'),item('calendar.html','Calendar & Project Tracking','▦'),...planning];
+  if(extraPerms.has('improvement-opportunity')) improve.splice(1,0,item('improvement-intake.html','Improvement Opportunity','✧'));
+  const cost=[item('budget-cost.html','Budget & Cost','▣')];if(extraPerms.has('cost-intelligence'))cost.push(item('cost-intelligence.html','Cost Intelligence','◉'));
+  const adminData=[item('master-data.html','Master Data & Partners','◫'),item('admin.html','User & Access','♙')];if(extraPerms.has('data'))adminData.splice(1,0,item('data.html','Data Management','⬡'));
+  return [item('index.html','Ground Experience Admin Dashboard','⌂'),group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈')]),group('SERVICE GOVERNANCE',[item('standar.html','Readiness & Standards','≡')]),group('IMPROVEMENT & PLANNING',improve),group('BUDGET & COST',cost),group('DATA & ADMINISTRATION',adminData),commonSupport].join('');
+ }
  if(pov==='management') return [
   item('index.html','Management Dashboard','⌂'),
   group('EXPERIENCE & INSIGHT',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈')]),

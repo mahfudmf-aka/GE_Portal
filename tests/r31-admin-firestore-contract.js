@@ -12,6 +12,6 @@ assert(entry.includes("r==='admin'||access==='admin'"),'entry shell must use sam
 assert(entry.includes('Ground Experience Admin Dashboard'),'entry shell admin navigation missing');
 assert(entry.includes('Master Data & Partners'),'admin master data navigation missing');
 assert(entry.includes('User & Access'),'admin user access navigation missing');
-assert(dash.includes("for(const c of wanted)"),'dashboard must hydrate collections independently');
-assert(app.includes('portal-shell.js?v=r31'),'app must cache-bust canonical shell');
+assert(dash.includes("for(const c of cols)"),'dashboard must hydrate collections independently');
+assert(app.includes('portal-shell.js?v=r32'),'app must cache-bust canonical shell');
 console.log('R31_ADMIN_FIRESTORE_CONTRACT_PASS');

@@ -9868,59 +9868,25 @@ function polishBO(){document.querySelectorAll('h1,h2,h3,p,.section-subtitle').fo
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',polishBO);else polishBO();
 })();
 
-/* ==============================================================
-   R27 — Airport marker reliability + provider/service status view
-   ============================================================== */
-function geAirportInfoR27(code){
-  const c=String(code||'').trim().toUpperCase();
-  return geAirportVisibleRows().find(x=>String(x.code||'').toUpperCase()===c)||null;
-}
-geAirportInfo=geAirportInfoR27;
 
-function geMapProviderRecordsR27(code){
-  const c=String(code||'').trim().toUpperCase(), today=new Date(); today.setHours(0,0,0,0);
-  const state=(x)=>{
-    const end=x.endDate||x.until||x.effectiveUntil||'';
-    if(end){const d=new Date(String(end).slice(0,10)+'T23:59:59');if(!Number.isNaN(d.getTime())&&d<today)return 'expired'}
-    const s=String(x.status||x.documentStatus||'').toLowerCase();
-    if(/inactive|expired|terminate|closed|non.?active/.test(s))return 'expired';
-    return 'active';
-  };
-  const lounge=(data.lounges||[]).filter(x=>geLoungeAirportMatches(x.airport||x.station,c)).map(x=>({type:'lounge',name:x.name||x.provider||'Lounge/Tenant',status:state(x),raw:x}));
-  const gha=(data.serviceProcurement||[]).filter(x=>String(x.airport||x.station||'').toUpperCase()===c && /gha|ground handling|sgha|handling/.test(String(x.categoryService||x.serviceType||x.scope||'').toLowerCase())).map(x=>({type:'gha',name:x.provider||x.vendor||x.serviceName||x.name||'Ground Handling Agent',status:state(x),raw:x}));
-  return [...lounge,...gha];
-}
-function geEnsureMapProviderControlsR27(){
-  const tools=document.querySelector('.map-search-tools');if(!tools)return;
-  if(!document.getElementById('mapProviderTypeR27')){
-    const s=document.createElement('select');s.id='mapProviderTypeR27';s.innerHTML='<option value="">Semua Service Provider</option><option value="lounge">Lounge / Tenant</option><option value="gha">Ground Handling Agent</option>';s.onchange=renderAirportMapMarkers;tools.appendChild(s);
-  }
-  if(!document.getElementById('mapProviderStatusR27')){
-    const s=document.createElement('select');s.id='mapProviderStatusR27';s.innerHTML='<option value="">Semua Provider Status</option><option value="active">Active</option><option value="expired">Expired</option>';s.onchange=renderAirportMapMarkers;tools.appendChild(s);
-  }
-}
-const GE_MAP_FILTER_R27_BASE=geMapFilteredAirports;
-geMapFilteredAirports=function(){
-  let rows=GE_MAP_FILTER_R27_BASE();
-  const type=document.getElementById('mapProviderTypeR27')?.value||'', status=document.getElementById('mapProviderStatusR27')?.value||'';
-  if(!type&&!status)return rows;
-  return rows.filter(a=>geMapProviderRecordsR27(a.code).some(x=>(!type||x.type===type)&&(!status||x.status===status)));
-};
-function geMarkerStateR27(a){
-  const type=document.getElementById('mapProviderTypeR27')?.value||'', status=document.getElementById('mapProviderStatusR27')?.value||'';
-  const r=geMapProviderRecordsR27(a.code).filter(x=>!type||x.type===type);
-  if(type||status){if(r.some(x=>x.status==='active'))return'provider-active';if(r.some(x=>x.status==='expired'))return'provider-expired';return'provider-none'}
-  if(a.status==='Inactive')return'airport-inactive';if(a.pending)return'contract-pending';return'airport-active';
-}
-renderAirportMapMarkers=function(){
-  geEnsureMapProviderControlsR27();
-  if(typeof gePopulateMapVendorFilterV244==='function')gePopulateMapVendorFilterV244();
-  const layer=document.getElementById('airportMarkerLayer');if(!layer)return;
-  const rows=geMapFilteredAirports();
-  layer.innerHTML=rows.map(a=>{const p=geMapPosition(a.lat,a.lon),st=geMarkerStateR27(a);return `<button type="button" class="airport-marker airport-marker-v214 r27-marker ${st}" style="left:${p.left}%;top:${p.top}%" data-code="${geEsc(a.code)}" data-region="${geEsc(a.wilayah)}" aria-label="${geEsc(a.code)} ${geEsc(a.city)}" onmouseenter="showAirportTooltip(event,'${geEsc(a.code)}')" onmouseleave="hideAirportTooltip()" onclick="selectAirport('${geEsc(a.code)}',this)"><span class="r27-marker-label">${geEsc(a.code)}</span><i class="r27-selected-pointer" aria-hidden="true"></i></button>`}).join('');
-};
-selectAirport=function(code,marker){
-  document.querySelectorAll('.airport-marker').forEach(x=>x.classList.remove('active'));marker?.classList.add('active');
-  if(typeof geOpenAirportDetail217==='function')geOpenAirportDetail217(code,marker);
-};
-window.addEventListener('DOMContentLoaded',()=>{geEnsureMapProviderControlsR27();setTimeout(renderAirportMapMarkers,80);setTimeout(renderAirportMapMarkers,800)});
+/* ==============================================================
+   R32 — Standalone Airport Map marker renderer.
+   Does not depend on private symbols from the legacy runtime IIFE.
+   ============================================================== */
+(function(){'use strict';
+const GEO={CGK:[-6.1256,106.6559],DPS:[-8.7482,115.1672],SUB:[-7.3798,112.7873],KNO:[3.6422,98.8853],UPG:[-5.0616,119.554],BPN:[-1.2683,116.8945],HLP:[-6.2666,106.891],YIA:[-7.9053,110.0573],BDO:[-6.9006,107.5763],KOE:[-10.1716,123.6711],AAP:[-0.3744,117.2502],BDJ:[-3.4424,114.7626],BKS:[-3.8637,102.339],PLM:[-2.8983,104.6999],PKU:[0.4608,101.4445],PDG:[-0.7869,100.2806],JOG:[-7.7882,110.4318],SRG:[-6.9707,110.3732],SOC:[-7.5161,110.7575],LOP:[-8.7573,116.2767],MDC:[1.5493,124.9263],AMQ:[-3.7103,128.0891],DJJ:[-2.5769,140.5164],TIM:[-4.5283,136.8874],SOQ:[-0.894,131.287],HKG:[22.308,113.9185],SIN:[1.3644,103.9915],KUL:[2.7456,101.7099],BKK:[13.69,100.7501],NRT:[35.772,140.3929],HND:[35.5494,139.7798],ICN:[37.4602,126.4407],SYD:[-33.9399,151.1753],MEL:[-37.669,144.841],JED:[21.6702,39.1525],MED:[24.5534,39.7051],AMS:[52.3105,4.7683]};
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const db=()=>window.GEStore?.get?.()||{};
+const codeOf=x=>String(x?.code||x?.airportCode||x?.iata||x?.stationCode||x?.station||x?.airport||'').trim().toUpperCase();
+function coords(x,c){let lat=Number(x?.lat??x?.latitude??x?.coordinates?.lat),lon=Number(x?.lon??x?.lng??x?.longitude??x?.coordinates?.lng);if((!Number.isFinite(lat)||!Number.isFinite(lon)||(lat===0&&lon===0))&&GEO[c])[lat,lon]=GEO[c];return {lat,lon}}
+function rows(){const d=db(),base=[],seen=new Set();const add=x=>{const c=codeOf(x);if(!c||seen.has(c))return;const q=coords(x,c);if(!Number.isFinite(q.lat)||!Number.isFinite(q.lon))return;if(typeof window.gxAirportAllowed==='function'&&!window.gxAirportAllowed(c))return;seen.add(c);base.push({...x,code:c,lat:q.lat,lon:q.lon,city:x.city||x.location||'',airportName:x.airportName||x.name||x.airport||'',wilayah:x.wilayah||x.serviceRegion||x.networkRegion||x.region||'Domestik',status:x.status||'Active'})};(d.airports||[]).forEach(add);['lounges','serviceProcurement','stationMaterials','airportSystems','facilities','assets'].forEach(k=>(d[k]||[]).forEach(add));return base}
+function providers(c){const d=db(),today=new Date();today.setHours(0,0,0,0);const state=x=>{const end=x.endDate||x.until||x.effectiveUntil;if(end){const e=new Date(String(end).slice(0,10)+'T23:59:59');if(!isNaN(e)&&e<today)return'expired'}return /inactive|expired|terminate|closed|non.?active/i.test(String(x.status||x.documentStatus||''))?'expired':'active'};const match=x=>{const vals=[x.airport,x.station,x.stationCode,x.code].flat().map(v=>String(v||'').toUpperCase());return vals.includes(c)};return [...(d.lounges||[]).filter(match).map(x=>({type:'lounge',status:state(x),name:x.name||x.provider||'Lounge/Tenant'})),...(d.serviceProcurement||[]).filter(x=>match(x)&&/gha|ground handling|sgha|handling/i.test(String(x.categoryService||x.serviceType||x.scope||x.name||''))).map(x=>({type:'gha',status:state(x),name:x.provider||x.vendor||x.serviceName||x.name||'GHA'}))]}
+function pos(lat,lon){return{left:(Math.max(-20,Math.min(180,lon))+20)/200*100,top:(75-Math.max(-50,Math.min(75,lat)))/125*100}}
+function controls(){const tools=document.querySelector('.map-search-tools');if(!tools)return;if(!document.getElementById('mapProviderTypeR32'))tools.insertAdjacentHTML('beforeend','<select id="mapProviderTypeR32"><option value="">Semua Service Provider</option><option value="lounge">Lounge / Tenant</option><option value="gha">Ground Handling Agent</option></select><select id="mapProviderStatusR32"><option value="">Semua Provider Status</option><option value="active">Active</option><option value="expired">Expired</option></select>');['mapProviderTypeR32','mapProviderStatusR32'].forEach(id=>{const e=document.getElementById(id);if(e&&!e.dataset.bound){e.dataset.bound='1';e.addEventListener('change',render)}})}
+function filtered(){let a=rows(),q=(document.getElementById('mapAirportSearch')?.value||'').toLowerCase(),st=document.getElementById('mapStatusFilter')?.value||'',type=document.getElementById('mapProviderTypeR32')?.value||'',ps=document.getElementById('mapProviderStatusR32')?.value||'';if(q)a=a.filter(x=>[x.code,x.city,x.airportName,x.gm].join(' ').toLowerCase().includes(q));if(st)a=a.filter(x=>String(x.status)===st);if(type||ps)a=a.filter(x=>providers(x.code).some(p=>(!type||p.type===type)&&(!ps||p.status===ps)));return a}
+function markerState(x){const type=document.getElementById('mapProviderTypeR32')?.value||'',ps=document.getElementById('mapProviderStatusR32')?.value||'',p=providers(x.code).filter(v=>!type||v.type===type);if(type||ps){if(p.some(v=>v.status==='active'))return'provider-active';if(p.some(v=>v.status==='expired'))return'provider-expired';return'provider-none'}return /inactive/i.test(String(x.status))?'airport-inactive':'airport-active'}
+function detail(c,m){document.querySelectorAll('#airportMarkerLayer .airport-marker').forEach(x=>x.classList.remove('active'));m?.classList.add('active');const x=rows().find(v=>v.code===c),host=document.getElementById('airportDetail');if(!x||!host)return;const p=providers(c);host.innerHTML=`<div class="code">${esc(c)}</div><h2>${esc(x.city||x.airportName||c)}</h2><p class="section-subtitle">${esc(x.airportName||'Airport / Branch Office')}</p><div class="detail-row">Status<b>${esc(x.status)}</b></div><div class="detail-row">Lounge / Tenant<b>${p.filter(v=>v.type==='lounge').length}</b></div><div class="detail-row">Ground Handling Agent<b>${p.filter(v=>v.type==='gha').length}</b></div><div class="detail-row">Active Provider<b>${p.filter(v=>v.status==='active').length}</b></div><div class="detail-row">Expired Provider<b>${p.filter(v=>v.status==='expired').length}</b></div><div class="detail-row">Koordinat<b>${x.lat.toFixed(4)}, ${x.lon.toFixed(4)}</b></div>`}
+function render(){controls();const layer=document.getElementById('airportMarkerLayer');if(!layer)return;const a=filtered();layer.innerHTML=a.map(x=>{const p=pos(x.lat,x.lon);return `<button type="button" class="airport-marker airport-marker-v214 r32-marker ${markerState(x)}" style="left:${p.left}%;top:${p.top}%" data-code="${esc(x.code)}"><span class="r27-marker-label">${esc(x.code)}</span><i class="r27-selected-pointer"></i></button>`}).join('');layer.querySelectorAll('.r32-marker').forEach(m=>{m.addEventListener('click',e=>{e.stopPropagation();detail(m.dataset.code,m)});m.addEventListener('mouseenter',e=>{if(typeof window.showAirportTooltip==='function')try{window.showAirportTooltip(e,m.dataset.code)}catch(_){}});m.addEventListener('mouseleave',()=>{if(typeof window.hideAirportTooltip==='function')try{window.hideAirportTooltip()}catch(_){}})});layer.dataset.markerCount=String(a.length)}
+window.renderAirportMapMarkers=render;window.geR32AirportRows=rows;window.addEventListener('gx-data-background-refresh',render);
+const boot=()=>{controls();render();setTimeout(render,250);setTimeout(render,1200)};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
