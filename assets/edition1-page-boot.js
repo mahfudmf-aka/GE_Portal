@@ -23,7 +23,7 @@ const config={
 };
 const cfg=config[page]; if(!cfg)return;
 function session(){return typeof window.gxGetSession==='function'?(gxGetSession()||{}):window.GX_CURRENT_USER||{}}
-function showStatus(message,error=false){let b=document.getElementById('e1DataStatus');if(!b){b=document.createElement('div');b.id='e1DataStatus';b.className='e1-data-status';document.querySelector('main.main')?.prepend(b)}b.textContent=message;b.dataset.error=error?'1':'0';b.style.display=message?'block':'none'}
+function showStatus(message,error=false){const role=String(session().role||'');let b=document.getElementById('e1DataStatus');if(role!=='Super Admin'){b?.remove();return}if(!b){b=document.createElement('div');b.id='e1DataStatus';b.className='e1-data-status';document.querySelector('main.main')?.prepend(b)}b.textContent=message;b.dataset.error=error?'1':'0';b.style.display=message?'block':'none'}
 async function ensureFirebase(){
  if(!window.GX_FIREBASE_CONFIG){await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='assets/firebase-config.js?v=e1-runtime';s.onload=resolve;s.onerror=()=>reject(new Error('Firebase config gagal dimuat.'));document.head.appendChild(s)})}
  if(!window.GXFirebase){await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='assets/firebase-client.js?v=e1-runtime';s.onload=resolve;s.onerror=()=>reject(new Error('Firebase client gagal dimuat.'));document.head.appendChild(s)})}
@@ -35,21 +35,18 @@ async function ensureFirebase(){
 async function waitFirebase(){const state=await ensureFirebase();const u=await window.GXFirebase.currentUser();if(!u)throw new Error('Authentication required.');return{state,u}}
 async function waitStore(){
  if(window.GEStore&&typeof window.GEStore.hydrate==='function')return window.GEStore;
- // Self-heal the canonical dependency instead of waiting for a store that may never have executed.
- const existing=[...document.scripts].some(s=>String(s.src||'').includes('/assets/edition1-store.js'));
- if(!existing){
-  await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='assets/edition1-store.js?v=r10';s.onload=resolve;s.onerror=()=>reject(new Error('Edition1 data store gagal dimuat.'));document.body.appendChild(s)});
- }
- const deadline=Date.now()+3000;
+ // If the declared store script did not initialize, retry the same canonical store once.
+ await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='assets/edition1-store.js?v=r10&r18=retry';s.dataset.e1StoreRetry='1';s.onload=resolve;s.onerror=()=>reject(new Error('Edition1 data store gagal dimuat.'));document.body.appendChild(s)});
+ const deadline=Date.now()+5000;
  while(Date.now()<deadline){if(window.GEStore&&typeof window.GEStore.hydrate==='function')return window.GEStore;await new Promise(r=>setTimeout(r,25));}
- throw new Error('Edition1 data store gagal diinisialisasi.');
+ throw new Error('Edition1 data store gagal diinisialisasi setelah retry canonical store.');
 }
 function hasAccess(){if(cfg.perm==='admin')return window.gxHasUserManagementPermission?.()||session().role==='Super Admin';return window.gxHasPermission?.(cfg.perm)!==false}
 function rerender(){
  if(page==='standar'){const panel=new URLSearchParams(location.search).get('panel');const panelButton=panel?document.querySelector(`[data-standard-panel="${panel}"]`):null;if(panel&&window.showStandardPanel)window.showStandardPanel(panel,panelButton);window.renderTouchpointStandards?.();window.renderPersonnelReadiness?.();window.renderSkyPriority?.();window.geEnsureStandardModalV248?.();window.geApplyStandardContentV248?.();window.renderAnnouncementLibraryV246?.()}
  else if(page==='inisiatif'){window.geInitInitiativeCanonical?.();window.geApplyInitiativePresentationV224?.()}
  else if(page==='service-planning'){window.geRenderPlanningPage?.();window.renderStationMaterials?.()}
- else if(page==='calendar'){window.geUpgradeCalendarModalV252?.();window.geUpgradeReminderV253?.();window.geCalBuildFiltersV2533?.();window.geCalRenderV2533?.();window.geInitCalendarWorkspaceCanonical?.()}
+ else if(page==='calendar'){window.geUpgradeCalendarModalV252?.();window.geUpgradeReminderV253?.();window.geCalBuildFiltersV2533?.();window.geCalRenderV2533?.();window.geBindCalendarControlsCanonical?.();window.geInitCalendarWorkspaceCanonical?.()}
  else if(page==='planning-documents'){window.renderPlanningDocuments?.()}
  else if(page==='data'){window.renderAirports?.();window.renderPersonnel?.();window.renderDocumentsAdmin?.()}
  else if(page==='admin'){window.renderAdminOverview?.();window.renderAdminInbox?.();window.renderAuditLogs?.();window.p26RenderUsers?.();window.pmLoadPageR2?.()}

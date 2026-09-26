@@ -107,7 +107,7 @@ function renderInitiativeCharts(rows){
    const r=58,c=2*Math.PI*r;
    const td=(target/100)*c,ad=(actual/100)*c;
    const tone=geProgressToneR17(actual);
-   return `<button type="button" class="radial-card ge-touchpoint-filter-card" style="--ge-progress-tone:${tone}" title="Buka Gantt: ${esc(tp)}" onclick="geFilterInitiativeTouchpoint(${JSON.stringify(tp)})">
+   return `<button type="button" class="radial-card ge-touchpoint-filter-card" style="--ge-progress-tone:${tone}" title="Buka Gantt: ${geEsc(tp)}" onclick="geFilterInitiativeTouchpoint(${JSON.stringify(tp)})">
     <div class="radial-chart">
       <svg viewBox="0 0 140 140">
         <circle class="track" cx="70" cy="70" r="${r}"></circle>
@@ -8783,20 +8783,23 @@ function bindCalendar(){
  const draft=$('geV2554DraftBtn');
  if(draft)draft.onclick=e=>{e.preventDefault();e.stopPropagation();window.geV2542OpenDrafts?.()};
  const add=document.querySelector('[data-calendar-add-v2535]');
- if(add)add.onclick=e=>{e.preventDefault();e.stopPropagation();if(typeof window.geV254OpenActivity==='function')window.geV254OpenActivity();else if(typeof window.geCalOpenActivityV2535==='function')window.geCalOpenActivityV2535();else if(typeof window.geCalOpenActivityV2534==='function')window.geCalOpenActivityV2534();};
+ if(add)add.onclick=e=>{e.preventDefault();e.stopPropagation();if(typeof window.geCalOpenActivityV2535==='function')window.geCalOpenActivityV2535();else if(typeof window.geCalOpenActivityV2534==='function')window.geCalOpenActivityV2534();else if(typeof window.geV254OpenActivity==='function')window.geV254OpenActivity();};
  // Robust calendar navigation: keep one explicit calendar date state and render from it.
  window.geCalMoveV2533=function(n){
-   if(!(window.geV251CalDate instanceof Date))window.geV251CalDate=new Date();
-   const d=new Date(window.geV251CalDate);
+   const step=Number(n)||0;
    const view=window.GE_CAL_VIEW_R2||'month';
-   if(view==='day')d.setDate(d.getDate()+n);
-   else if(view==='week')d.setDate(d.getDate()+7*n);
-   else d.setMonth(d.getMonth()+n,1);
-   window.geV251CalDate=d;
-   try{ if(typeof geV251CalDate!=='undefined')geV251CalDate=d; }catch(_e){}
-   window.geCalRenderV2533?.();
+   const current=(typeof geV251CalDate!=='undefined'&&geV251CalDate instanceof Date)?geV251CalDate:new Date();
+   const d=new Date(current.getTime());
+   if(view==='day')d.setDate(d.getDate()+step);
+   else if(view==='week')d.setDate(d.getDate()+7*step);
+   else d.setMonth(d.getMonth()+step,1);
+   geV251CalDate=d;
+   window.geV251CalDate=new Date(d.getTime());
+   if(typeof geCalRenderV2533==='function')geCalRenderV2533();
+   else window.geCalRenderV2533?.();
  };
 }
+window.geBindCalendarControlsCanonical=bindCalendar;
 
 /* Gantt click-through for Initiative, Milestone and Activity. */
 window.geV2554OpenGanttItem=function(id){
@@ -9669,8 +9672,29 @@ function geScaleControlsR16(){const b=s=>`<button type="button" class="${geGantt
 window.geSetGanttScaleR16=s=>{geGanttStateR16.scale=s;window.geSetCalendarWorkspace('gantt')};window.geApplyGanttCustomR16=()=>{geGanttStateR16.from=document.getElementById('geGanttFromR16')?.value||'';geGanttStateR16.to=document.getElementById('geGanttToR16')?.value||'';if(geGanttStateR16.from&&geGanttStateR16.to&&geGanttStateR16.from>geGanttStateR16.to)return alert('Tanggal From tidak boleh setelah To.');window.geSetCalendarWorkspace('gantt')};
 function geGanttSortR13(key){if(geGanttSortStateR13.key===key)geGanttSortStateR13.dir*=-1;else geGanttSortStateR13={key,dir:1};window.geSetCalendarWorkspace('gantt')}window.geGanttSortR13=geGanttSortR13;
 window.geV2554OpenGanttItem=function(id){id=String(id||'');const d=store();if(id.startsWith('m-')){const m=id.match(/^m-(.+)-(\d+)$/);if(!m)return;window.openInitiativeTimelineV224?.(m[1]);setTimeout(()=>{const cards=document.querySelectorAll('#initiativeTimelineModalV224 .timeline-card-v224');cards[Number(m[2])]?.scrollIntoView({behavior:'smooth',block:'center'})},120);return}const act=(d.projectEvents||d.events||[]).find(x=>String(x.id)===id);if(act){if(typeof window.geV254OpenActivity==='function')window.geV254OpenActivity(id);return}const init=(d.initiatives||[]).find(x=>String(x.id)===id);if(init)window.openInitiativeTimelineV224?.(init.id)};
+function geSortGanttHierarchyR18(rows){
+ const source=[...rows],dir=geGanttSortStateR13.dir,key=geGanttSortStateR13.key;
+ const cmp=(a,b)=>String(a?.[key]||'').localeCompare(String(b?.[key]||''),undefined,{numeric:true})*dir;
+ const projects=source.filter(r=>r.kind==='Initiative').sort(cmp),seen=new Set(),out=[];
+ projects.forEach(project=>{
+   out.push(project);seen.add(String(project.id));
+   source.forEach(child=>{
+     if(child===project||child.kind==='Initiative')return;
+     if(String(child.initiativeId||'')===String(project.id)){out.push(child);seen.add(String(child.id));}
+   });
+ });
+ const orphanGroups=new Map(),standalone=[];
+ source.forEach(row=>{
+   if(seen.has(String(row.id))||row.kind==='Initiative')return;
+   const parent=String(row.initiativeId||'');
+   if(parent){if(!orphanGroups.has(parent))orphanGroups.set(parent,[]);orphanGroups.get(parent).push(row)}else standalone.push(row);
+ });
+ [...orphanGroups.values()].sort((a,b)=>cmp(a[0],b[0])).forEach(group=>out.push(...group));
+ standalone.sort(cmp).forEach(row=>out.push(row));
+ return out;
+}
 function gantt(rows,tp){
- rows=[...rows].sort((a,b)=>String(a[geGanttSortStateR13.key]||'').localeCompare(String(b[geGanttSortStateR13.key]||''),undefined,{numeric:true})*geGanttSortStateR13.dir);
+ rows=geSortGanttHierarchyR18(rows);
  const {min,max}=geScaleRangeR16(rows),span=Math.max(864e5,max-min),h=geTimelineHeaderR16(min,max);
  const heads=h.cells.map(c=>`<div style="flex:${c.days}"><b>${esc(c.label)}</b><small>${esc(c.sub)}</small></div>`).join('');
  const arrow=k=>geGanttSortStateR13.key===k?(geGanttSortStateR13.dir>0?' ↑':' ↓'):'';
