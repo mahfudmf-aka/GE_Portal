@@ -1,0 +1,11 @@
+--- a/app.html
++++ b/app.html
+@@
+-<script src="assets/clean-page-registry.js?v=clean01"></script></head><body id="top" class="e1-page"><header class="top"></header>
++<script src="assets/clean-page-registry.js?v=clean01"></script><script src="assets/portal-shell.js?v=p40-clean-runtime"></script></head><body id="top" class="e1-page"><header class="top"></header>
+@@
+-document.title=def.title+' — Ground Experience Portal'; outlet.innerHTML=def.html;
++document.title=def.title+' — Ground Experience Portal'; outlet.innerHTML=def.html || (route==='index' ? '<div id="dashboardRoot"></div>' : '<div class="clean-page-empty"></div>');
+@@
+-function loadSrc(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Gagal memuat '+src));document.body.appendChild(s);});}
++function loadSrc(src){return new Promise((resolve,reject)=>{const abs=new URL(src,location.href).href;const existing=[...document.scripts].find(x=>x.src===abs);if(existing){resolve();return;}const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Gagal memuat '+src));document.body.appendChild(s);});}

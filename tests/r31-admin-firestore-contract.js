@@ -1,0 +1,17 @@
+'use strict';
+const fs=require('fs'), assert=require('assert');
+const fn=fs.readFileSync('netlify/functions/edition1-data.js','utf8');
+const shell=fs.readFileSync('assets/portal-shell.js','utf8');
+const entry=fs.readFileSync('assets/edition1-portal-shell-entry.js','utf8');
+const dash=fs.readFileSync('assets/dashboard-firestore.js','utf8');
+const app=fs.readFileSync('app.html','utf8');
+assert(fn.includes("permissions/tabs govern page/navigation"),'business read must not be denied by module tabs');
+assert(fn.includes('isOperationalAdmin(actor)'),'operational admin helper missing');
+assert(shell.includes("r==='admin'||access==='admin'"),'accessLevel Admin must resolve admin POV');
+assert(entry.includes("r==='admin'||access==='admin'"),'entry shell must use same admin POV');
+assert(entry.includes('Ground Experience Admin Dashboard'),'entry shell admin navigation missing');
+assert(entry.includes('Master Data & Partners'),'admin master data navigation missing');
+assert(entry.includes('User & Access'),'admin user access navigation missing');
+assert(dash.includes("for(const c of cols)"),'dashboard must hydrate collections independently');
+assert(app.includes('portal-shell.js?v=r32'),'app must cache-bust canonical shell');
+console.log('R31_ADMIN_FIRESTORE_CONTRACT_PASS');

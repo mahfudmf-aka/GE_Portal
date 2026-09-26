@@ -1,0 +1,5 @@
+--- a/assets/clean-page-registry.js
++++ b/assets/clean-page-registry.js
+@@
+-location.href='station-360.html?stationId=${encodeURIComponent(x.stationId)}'
++location.href=window.p40CleanRoute('station-360.html?stationId=${encodeURIComponent(x.stationId)}')

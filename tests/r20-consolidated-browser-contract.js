@@ -1,0 +1,14 @@
+const fs=require('fs');const assert=(c,m)=>{if(!c)throw new Error(m)};
+const rt=fs.readFileSync('assets/edition1-business-runtime.js','utf8'),css=fs.readFileSync('assets/portal.css','utf8'),mr=fs.readFileSync('assets/master-reference.js','utf8'),api=fs.readFileSync('netlify/functions/edition1-data.js','utf8'),af=fs.readFileSync('netlify/functions/asset-facility.js','utf8'),reg=fs.readFileSync('assets/clean-page-registry.js','utf8');
+assert(rt.includes('moveLoungePriceSummary'),'Lounge price summary must be moved below operational list.');
+assert(rt.includes('Final canonical Initiative Grid/List view'),'Initiative list final wrapper missing.');
+assert(css.includes('.lounge-master-table tr.expired-row:hover'),'Expired row hover readability missing.');
+assert(css.includes('z-index:50110'),'Lounge dropdown layer correction missing.');
+assert(css.includes('linear-gradient(145deg,#062b63,#174b7a)'),'Lounge navy theme correction missing.');
+assert(mr.includes('Unduh Template')||reg.includes('Unduh Template'),'Master template action missing.');
+assert(mr.includes('Airport Cost')&&api.includes("'airportCosts'"),'Airport cost structure persistence missing.');
+assert(mr.includes('Station Applicability')&&mr.includes('Garuda Standard')&&mr.includes('Jenis Kerja Sama'),'Connected Partner Alignment fields missing.');
+assert(af.includes("doc('assets').collection('records')")&&af.includes("doc('facilities').collection('records')")&&af.includes("doc('lounges').collection('records')"),'Asset/Facility must use canonical portalData paths.');
+assert(rt.includes('AAP:[-0.3744,117.2502]')&&rt.includes('HKG:[22.308,113.9185]'),'Map coordinate fallback coverage missing.');
+assert(reg.includes('Service Provider &amp; Procurement')||reg.includes('Service Provider & Procurement'),'Branch Office service provider title missing.');
+console.log('R20_CONSOLIDATED_BROWSER_CONTRACT_PASS');

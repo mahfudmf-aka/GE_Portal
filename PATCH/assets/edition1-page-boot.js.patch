@@ -1,0 +1,25 @@
+--- a/assets/edition1-page-boot.js
++++ b/assets/edition1-page-boot.js
+@@
+-const page=(location.pathname.split('/').pop()||'').toLowerCase();
++const cleanRoute=(new URLSearchParams(location.search).get('page')||'').toLowerCase();
+const cleanPageMap={
+  'standar':'e1-standar.html',
+  'inisiatif':'e1-inisiatif.html',
+  'service-planning':'e1-service-planning.html',
+  'calendar':'e1-calendar.html',
+  'planning-documents':'e1-planning-documents.html',
+  'data':'e1-data.html',
+  'admin':'e1-admin.html',
+  'berita':'e1-berita.html',
+  'kontak':'e1-kontak.html',
+  'lounge-list':'e1-lounge-list.html',
+  'branch-office-planning':'e1-branch-office-planning.html',
+  'gaso-planning':'e1-gaso-planning.html'
+};
+const page=(location.pathname.split('/').pop()||'').toLowerCase()==='app.html'
+  ? (cleanPageMap[cleanRoute]||'')
+  : (location.pathname.split('/').pop()||'').toLowerCase();
+@@
+-const target=typeof gxDefaultPage==='function'?gxDefaultPage():'index.html';if(target!==page)location.replace(target);
++const target=typeof gxDefaultPage==='function'?gxDefaultPage():'app.html?page=index';if(target!==page)location.replace(window.p40CleanRoute?window.p40CleanRoute(target):target);

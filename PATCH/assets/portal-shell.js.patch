@@ -1,0 +1,15 @@
+--- a/assets/portal-shell.js
++++ b/assets/portal-shell.js
+@@
+-const path=()=>location.pathname.split('/').pop()||'index.html';
++const path=()=>{
+  const pathname=(location.pathname.split('/').pop()||'index.html').toLowerCase();
+  const clean=new URLSearchParams(location.search).get('page');
+  if(!clean||pathname!=='app.html')return pathname;
+  const alias=(window.P40_CLEAN_ALIASES||{})[String(clean).toLowerCase()]||String(clean).toLowerCase();
+  const route=alias.split('?')[0];
+  return route.endsWith('.html')?route:(route||'index')+'.html';
+};
+@@
+-const finalUserPages=new Set(['index.html'
++const finalUserPages=new Set(['index.html','airport-experience.html'

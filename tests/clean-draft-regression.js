@@ -12,7 +12,11 @@ assert(registry.includes('window.P40_CLEAN_PAGES='),'Canonical page registry mis
 assert(registry.includes('window.P40_CLEAN_ALIASES='),'Canonical route aliases missing.');
 assert(adapter.includes("params.set('page',route)"),'Clean route adapter does not resolve routes into app.html.');
 for(const asset of ['assets/firebase-config.js','assets/firebase-client.js','assets/auth.js']) assert(login.includes(asset),`login.html missing ${asset}`);
-for(const asset of ['assets/firebase-config.js','assets/firebase-client.js','assets/edition1-store.js','assets/portal-shell.js']) assert(registry.includes(asset),`Canonical runtime registry missing ${asset}`);
+for(const asset of ['assets/firebase-config.js','assets/firebase-client.js']) assert(app.includes(asset),`Canonical app missing global runtime ${asset}`); for(const asset of ['assets/firebase-config.js','assets/firebase-client.js']) assert(!registry.includes(asset),`Canonical registry must not duplicate global runtime ${asset}`); assert(registry.includes('assets/edition1-store.js'),'Canonical runtime registry missing assets/edition1-store.js');
+assert(!registry.includes('assets/edition1-portal-shell-entry.js'),'Registry must not load obsolete/duplicate Edition 1 shell entry.');
+assert(!registry.includes('assets/edition1-portal-route-adapter.js'),'Registry must not load obsolete Edition 1 route adapter.');
+assert(app.indexOf('await window.GX_AUTH_READY') < app.indexOf('outlet.innerHTML=def.html'),'Canonical page content must wait for authoritative auth/role before render.');
+assert(app.includes('assets/portal-shell.js'),'Canonical app must load the single portal shell.'); assert(app.indexOf('assets/portal-shell.js')<app.indexOf('assets/auth.js'),'Portal shell must load before auth so role POV is available.'); const authRefs=(registry.match(/assets\/auth\.js/g)||[]).length; assert(authRefs===0,`Canonical registry must not duplicate auth runtime; found ${authRefs}`); assert(/GX_AUTH_READY/.test(read('assets/auth.js')),'Auth runtime must expose a single readiness promise.'); assert(/await window\.GX_AUTH_READY/.test(read('assets/portal-shell.js')),'Portal shell must wait for auth/role resolution before rendering.');
 for(const critical of ['assets/tesseract.min.js','assets/tesseract-core-simd-lstm.wasm','assets/garuda_operational_map.svg','assets/xlsx.full.min.js']) assert(fs.existsSync(path.join(root,critical)),`Critical asset missing: ${critical}`);
 assert(fs.existsSync(path.join(root,'netlify.toml')),'netlify.toml missing.');
 const netlify=read('netlify.toml');
@@ -20,11 +24,71 @@ assert(netlify.includes('npm run test'),'Netlify must execute npm run test.');
 assert(!netlify.includes('tools/verify-package.mjs'),'Netlify must not reference missing tools/verify-package.mjs.');
 assert(!netlify.includes('tests/run-build.mjs --netlify'),'Netlify must not bypass npm run test.');
 const pkg=JSON.parse(read('package.json')); assert(pkg.scripts?.test,'package.json must expose npm run test.');
-const store=read('assets/edition1-store.js'); assert(store.includes('/api/edition1-data?collections='),'Business store must use the Firebase API adapter.'); assert(!/localStorage\.(getItem|setItem|removeItem)/.test(store),'Business store must not persist business data in localStorage.');
+const store=read('assets/edition1-store.js'); assert(store.includes('if(window.GX_AUTH_READY) await window.GX_AUTH_READY'),'Business store must reuse the authoritative auth readiness gate.'); assert(!store.includes('sessionDeadline'),'Business store must not poll stale session state during page boot.'); assert(store.includes('fetchWithTimeout'),'Business data requests must have a finite timeout.'); assert(store.includes('/api/edition1-data?collections='),'Business store must use the Firebase API adapter.'); assert(!/localStorage\.(getItem|setItem|removeItem)/.test(store),'Business store must not persist business data in localStorage.');
 const client=read('assets/firebase-client.js');
 assert(!/s\.db\.collection\(['"](initiatives|inbox)['"]\)/.test(client),'Client business access must not bypass the locked Firebase rules.');
 const data=read('netlify/functions/edition1-data.js');
 assert(data.includes("db.collection('portalData')"),'Business adapter must use portalData.');
 assert(data.includes("db.collection('portalMetadata')"),'Metadata adapter must use portalMetadata.');
 assert(data.includes(".collection('records')"),'Business adapter must use the existing records level.');
+const overlay=read('assets/edition1-overlay-manager.js');
+assert(!overlay.includes("'.p26-account-modal'"),'Overlay manager must promote the backdrop, never detach the P26 modal card from its backdrop.');
+const business=read('assets/edition1-business-runtime.js');
+for(const fn of ['showStandardPanel','renderTouchpointStandards','renderInitiatives','openInitiativeModalV224','showAdminSection','renderAdminInbox','renderArticles','showContentPanel']) assert(business.includes(`window.${fn}=${fn}`),`Canonical Edition 1 runtime must expose inline/page-boot handler ${fn}.`);
+const shellCss=read('assets/clean-shell.css');
+assert(shellCss.includes('z-index:100000!important'),'Canonical dialog strata must stay above the sticky portal header.');
+assert(shellCss.includes('overflow-y:auto!important'),'Canonical sidebar must remain independently scrollable.');
+assert(registry.includes('id=\\\"interactiveMap\\\"')||registry.includes('id=\"interactiveMap\"'),'Airport Experience canonical page must contain the interactive map.');
+assert(registry.includes('Touch Point, Service & Capability'),'Capability & Standards canonical page must retain its page content.');
+
+assert(registry.includes('dashboardRoot'),'Dashboard canonical page must retain dashboardRoot for dashboard-firestore runtime.');
+const shell=read('assets/portal-shell.js'); assert(shell.includes("'airport-experience.html'"),'Canonical shell must recognize the consolidated Airport Experience route.'); assert(shell.includes("Calendar & Project Tracking"),'Calendar & Project Tracking must remain visible in the canonical navigation.');
+const relationships=read('assets/relationships-v257.js'); assert(relationships.includes('window.GERelationship={'),'Relationship engine must be a functional canonical implementation, not an empty compatibility shim.'); assert(relationships.includes('service_capability'),'Relationship engine must retain service-capability relationship type.');
+assert(business.includes("typeof x==='string'?x"),'Initiative touchpoint filter must normalize object/string Firestore data before localeCompare.');
+for(const fn of ['geRenderPlanningPage','geV251InitCalendar','geCalRenderV2533','geCalSetViewV2533','changeLoungeCardPageV237']) assert(business.includes(`window.${fn}=${fn}`),`Canonical runtime must expose ${fn}.`);
+assert(shellCss.includes('.p26-account-modal>#p26FormHost{display:flex!important;flex-direction:column!important'),'Add User modal must stack form and standard action row vertically.');
+assert(shellCss.includes('.ge-p29-view-toggle'),'Lounge/Tenant must expose Grid/Details view styling.');
+assert(fs.existsSync(path.join(root,'ROOT_MAP.md')),'Root menu/page/access map must ship with the revision.');
+
+// Consolidated canonical runtime guards — historical R4–R9 patch names must not be required.
+const boot=read('assets/edition1-page-boot.js');
+assert(app.includes("canonicalExplicitBoot") && app.includes("!canonicalExplicitBoot.has(route)"),'Canonical pages must not re-fire global DOMContentLoaded.');
+assert(boot.includes("'airport-experience':{perm:'services'"),'Airport Experience must hydrate canonical Firestore data.');
+assert(boot.includes('window.geInitAirportCanonical?.()'),'Airport must initialize only after canonical Firestore hydration.');
+assert(boot.includes('window.geInitInitiativeCanonical?.()'),'Initiative controls must initialize after canonical hydration.');
+assert(boot.includes('window.geInitCalendarWorkspaceCanonical?.()'),'Calendar/Project/Gantt workspace must initialize after hydration.');
+assert(boot.includes("await store.hydrate(['users'])"),'Initiative must hydrate User & Access for PIC assignment.');
+assert(boot.includes("edition1-store.js?v=r29") && boot.includes("retry=1"),'Page boot must self-heal a missing Edition1 store dependency.');
+assert(business.includes('CANONICAL CONSOLIDATION — R11'),'Runtime must use one consolidated post-refactor implementation.');
+assert(!business.includes('/* R4 canonical calendar entry'),'Overlapping R4–R9 patch runtime must not remain active.');
+assert(business.includes('window.geInitAirportCanonical'),'Airport canonical initializer must exist.');
+assert(business.includes('window.geInitInitiativeCanonical'),'Initiative canonical initializer must exist.');
+assert(business.includes('map.addEventListener(\'wheel\'') && business.includes('map.addEventListener(\'pointermove\''),'Airport map must bind wheel zoom and pointer pan explicitly.');
+assert(business.includes('window.saveInitiativeStepV224=function'),'Milestone save must have an active canonical handler.');
+assert(business.includes('Pilih akun User & Access') && registry.includes('Input PIC manual'),'PIC must be based on users and retain free-text fallback.');
+assert(business.includes('window.geSetCalendarWorkspace'),'Calendar / Project / Gantt switching must exist.');
+assert(business.includes("page=calendar&view=gantt&touchpoint="),'Initiative Touch Point must deep-link to filtered Gantt.');
+assert(registry.includes('geWorkspaceTabsR10') && registry.includes('data-view=\\"project\\"') && registry.includes('data-view=\\"gantt\\"'),'Calendar / Project / Gantt controls must be structural page markup.');
+assert(registry.includes('initiativeStationPickerR11') && registry.includes('ge-picker-r11'),'Initiative Station / Area must use the compact searchable checkbox picker.');
+assert(registry.includes('initiativePicV224') && registry.includes('initiativePicFreeR11'),'Initiative PIC must support Firebase User & Access plus manual free text.');
+assert(registry.includes('initiativeStepPicV224') && registry.includes('initiativeStepPicFreeR11'),'Milestone PIC must support Firebase User & Access plus manual free text.');
+for(const id of ['initiativeStartDateV10','initiativeEndDateV10','initiativeActualDateV10','initiativeEstimatedCostV10','initiativeBudgetV10','initiativeActualCostV10','initiativePriorityV10','initiativeStatusV10','initiativeOutputV10','initiativeAchievementV10']) assert(registry.includes(id),`Initiative canonical form missing ${id}.`);
+assert(registry.includes('geInitiativeViewSelectR6'),'Initiative Grid/List selector must exist in canonical markup.');
+assert(registry.includes('geLoungeViewSelectR6'),'Lounge/Tenant Grid/Details selector must exist in canonical markup.');
+assert(!registry.includes('loungeFilterTextR6') && business.includes('ge-combo-input-r12') && business.includes('ge-combo-toggle-r12'),'Each Lounge/Tenant filter must combine free-text entry with dropdown choices; standalone keyword filter must not remain.');
+assert(registry.includes('Unduh Data') && !registry.includes('Unduh CSV'),'User-facing export action must be Unduh Data.');
+assert(business.includes('GE_Inisiatif_dan_Milestone.csv'),'Initiative export must retain milestone rows.');
+assert(business.includes('capacitySchedules'),'Lounge/Tenant must retain capacity history.');
+assert(business.includes('supersedesId'),'Lounge/Tenant must retain agreement replacement history.');
+assert(app.includes('v=r32'),'Canonical root assets must use current cache identity.');
+assert(registry.includes('edition1-business-runtime.js?v=r32'),'Canonical page runtime must use current cache identity.');
+
+// Route reachability guard: app.html is infrastructure, never a logical page.
+assert(app.includes("if(route==='app'){route='index'"),'SPA host must recover stale ?page=app to the canonical index route.');
+assert(read('assets/portal-shell.js').includes("if(m[1]==='app')"),'Portal shell must special-case app.html instead of converting it to page=app.');
+assert(adapter.includes("if(route==='app')"),'Route adapter must special-case app.html instead of converting it to page=app.');
+assert(!/P40_CLEAN_PAGES\[['"]app['"]\]/.test(app),'app must never be treated as a logical page key.');
+assert(!registry.includes('href=\"e1-') && !registry.includes("href='e1-"),'Canonical registry must not navigate to historical E1 page implementations.');
+// Every local HTML link embedded in a canonical page must resolve to another canonical page or an infrastructure entry.
+{ const vm=require('vm'); const ctx={window:{}}; vm.createContext(ctx); vm.runInContext(registry,ctx); const pages=ctx.window.P40_CLEAN_PAGES||{}, aliases=ctx.window.P40_CLEAN_ALIASES||{}; const bad=[]; for(const [pageKey,def] of Object.entries(pages)){ for(const m of String(def.html||'').matchAll(/href=["']([^"']+)["']/g)){ const href=m[1]; if(/^(https?:|mailto:|tel:|#|javascript:)/i.test(href))continue; const hit=href.match(/(?:^|\/)([^\/?#]+)\.html/); if(!hit)continue; let route=hit[1]; if(['login','change-password','app'].includes(route))continue; route=String(aliases[route]||route).split('?')[0]; if(!pages[route])bad.push(`${pageKey}: ${href} -> ${route}`); }} assert(!bad.length,`Canonical route reachability failed: ${bad.join('; ')}`); }
 console.log(`CLEAN_DRAFT_REGRESSION_PASS HTML=${html.length}`);

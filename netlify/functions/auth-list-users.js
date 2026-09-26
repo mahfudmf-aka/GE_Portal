@@ -8,8 +8,8 @@ exports.handler = async (event) => {
   try {
     const { db, actor } = await requireActor(event);
     if (!hasUserManagementPermission(actor)) return bad(403, 'USER_MANAGEMENT_PERMISSION_REQUIRED', 'Akun tidak memiliki permission User Management.');
-    const snap = await db.collection('users').orderBy('username').get();
-    const users = snap.docs.map(d => safeProfile({ id: d.id, ...d.data() }));
+    const snap = await db.collection('users').get();
+    const users = snap.docs.map(d => safeProfile({ id: d.id, ...d.data() })).sort((a,b) => String(a.name || a.username || a.email || '').localeCompare(String(b.name || b.username || b.email || ''), 'id'));
     const visible = actor.role === 'Super Admin' ? users : users.filter(u => u.role === 'Super Admin' || userManagementScopeAllowed(actor, u.scopeType, u.airports, u.loungeIds));
     return ok({ users: visible });
   } catch (e) {

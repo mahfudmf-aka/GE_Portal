@@ -1,0 +1,13 @@
+*** Begin Patch
+*** Update File: tests/clean-draft-regression.js
+@@
+ assert(!netlify.includes('tests/run-build.mjs --netlify'),'Netlify must not bypass npm run test.');
++assert(netlify.includes('from = "/index.html"'),'Legacy /index.html must resolve to the canonical app route.');
++assert(netlify.includes('to = "/app.html?page=index"'),'Legacy index route must target app.html?page=index.');
++const auth=read('assets/auth.js');
++assert(auth.includes('function gxCanonicalRoute(value)'), 'Auth must canonicalize both legacy and Clean Draft routes.');
++assert(auth.includes("return'app.html?page=index'"),'Auth default route must target canonical app.html?page=index.');
++assert(!/function gxDefaultPage\(\)[\s\S]*?return'index\.html'/.test(auth),'gxDefaultPage must not return nonexistent index.html.');
++assert(auth.includes('function gxCurrentPageKey()'),'Auth must resolve canonical app.html?page=... routes for access control.');
++assert(auth.includes('return gxSafeReturnTo(candidate)'), 'Stored/next return routes must be canonicalized before redirect.');
+*** End Patch

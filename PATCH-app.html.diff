@@ -1,0 +1,5 @@
+--- a/app.html
++++ b/app.html
+@@
+-<script src="assets/clean-page-registry.js?v=clean01"></script></head>
++<script src="assets/edition1-canonical-shell.js?v=p40-route-contract"></script><script src="assets/clean-page-registry.js?v=clean01"></script></head>

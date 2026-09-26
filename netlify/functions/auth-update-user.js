@@ -20,11 +20,12 @@ exports.handler = async (event) => {
     const current = snap.data();
     const roleProvided = Object.prototype.hasOwnProperty.call(body, 'role') && String(body.role || '').trim() !== '';
     const role = String(roleProvided ? body.role : (current.role || '')).trim();
+    const roleChanged = roleProvided && role !== String(current.role || '').trim();
     const accessLevel = normalizeAccessLevel(body.accessLevel ?? current.accessLevel, role);
     if (current.role === 'Super Admin') return bad(403, 'ROLE_PROTECTED', 'Super Admin adalah role terlindungi dan tidak dapat diedit melalui User Management.');
     if (role === 'Super Admin') return bad(403, 'ROLE_PROTECTED', 'Super Admin adalah role terlindungi dan tidak dapat ditetapkan melalui User Management.');
-    if (!ROLES.includes(role) && !(LEGACY_ROLES.includes(role) && !roleProvided)) return bad(400, 'INVALID_ROLE', 'Role hanya dapat dikoreksi ke Role organisasi yang didukung.');
-    if (roleProvided && !ROLES.includes(role)) return bad(400, 'INVALID_ROLE', 'Legacy Role hanya dapat dipertahankan tanpa perubahan atau dikoreksi ke Role organisasi yang didukung.');
+    if (!ROLES.includes(role) && !(LEGACY_ROLES.includes(role) && !roleChanged)) return bad(400, 'INVALID_ROLE', 'Role hanya dapat dikoreksi ke Role organisasi yang didukung.');
+    if (roleChanged && !ROLES.includes(role)) return bad(400, 'INVALID_ROLE', 'Legacy Role hanya dapat dipertahankan tanpa perubahan atau dikoreksi ke Role organisasi yang didukung.');
     if (body.accessLevel && !USER_ACCESS_LEVELS.includes(String(body.accessLevel).trim())) return bad(400, 'INVALID_ACCESS_LEVEL', 'Access Level tidak valid.');
     if (!hasUserManagementPermission(actor)) return bad(403, 'USER_MANAGEMENT_PERMISSION_REQUIRED', 'Akun tidak memiliki permission User Management.');
     const requestedScopeType = String(body.scopeType ?? current.scopeType ?? 'CUSTOM').trim();
@@ -39,12 +40,20 @@ exports.handler = async (event) => {
     const fullName = String(body.fullName ?? current.name ?? '').trim();
     const employeeNo = String(body.employeeNo ?? current.employeeNo ?? '').trim();
     const unit = String(body.unit ?? current.unit ?? '').trim();
+    const usernameProvided = Object.prototype.hasOwnProperty.call(body, 'username');
+    const username = String(usernameProvided ? body.username : (current.username || '')).trim().toLowerCase();
+    if (usernameProvided && username !== String(current.username || '').trim().toLowerCase()) {
+      if (!/^[a-z0-9][a-z0-9._-]{2,63}$/.test(username)) return bad(400, 'INVALID_USERNAME', 'Username baru harus 3-64 karakter dan hanya boleh a-z, 0-9, titik, underscore, atau tanda minus.');
+      const duplicate = await db.collection('users').where('username', '==', username).limit(1).get();
+      if (!duplicate.empty && duplicate.docs[0].id !== uid) return bad(409, 'USERNAME_EXISTS', 'Username sudah digunakan akun lain.');
+    }
     if (!fullName) return bad(400, 'INVALID_NAME', 'Employee Name wajib diisi.');
     if (!employeeNo) return bad(400, 'INVALID_EMPLOYEE_NO', 'Employee Number wajib diisi.');
     if (!unit) return bad(400, 'INVALID_UNIT', 'Unit / Department wajib diisi.');
     const patch = {
       name: fullName,
       employeeNo,
+      username: username || current.username || '',
       role,
       accessLevel,
       organizationType,

@@ -1,0 +1,8 @@
+--- a/assets/clean-page-registry.js
++++ b/assets/clean-page-registry.js
+@@
+-"index": {"title": "Ground Experience Portal", "html": "", "scripts": [
++"index": {"title": "Ground Experience Portal", "html": "<div id=\"dashboardRoot\"></div>", "scripts": [
+@@
+-INDEX ROUTE: {"src": "assets/portal-shell.js?v=10.5"}
++REMOVE the portal-shell.js entry ONLY from the index route scripts array.
