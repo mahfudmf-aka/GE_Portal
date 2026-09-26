@@ -192,7 +192,20 @@ exports.handler=async(event)=>{
     if(event.httpMethod==='POST'){
       let body; try{body=JSON.parse(event.body||'{}')}catch{return bad(400,'INVALID_JSON','Invalid JSON body.')}
       const collection=String(body.collection||'').trim(); const action=String(body.action||'').toUpperCase();
-      if(!['CREATE','UPDATE','DELETE'].includes(action)) return bad(400,'INVALID_ACTION','Action must be CREATE, UPDATE or DELETE.');
+      if(action==='BATCH'){
+        const changes=Array.isArray(body.changes)?body.changes:[];
+        if(!changes.length || changes.length>75) return bad(400,'INVALID_BATCH','Batch must contain 1 to 75 changes.');
+        // One authenticated function request for a bulk import. Writes retain the exact
+        // writeOne permission/scope/audit contract, but execute concurrently to remove
+        // the previous row-by-row network wait experienced by the browser.
+        const result=await Promise.all(changes.map(ch=>{
+          const a=String(ch?.action||'').toUpperCase();
+          if(!['CREATE','UPDATE','DELETE'].includes(a)) throw Object.assign(new Error('Invalid batch action.'),{statusCode:400,code:'INVALID_ACTION'});
+          return writeOne(db,actor,collection,a,ch?.id,ch?.data||{});
+        }));
+        return ok({ok:true,source:'Firestore',result});
+      }
+      if(!['CREATE','UPDATE','DELETE'].includes(action)) return bad(400,'INVALID_ACTION','Action must be CREATE, UPDATE, DELETE or BATCH.');
       const result=await writeOne(db,actor,collection,action,body.id,body.data||{}); return ok({ok:true,source:'Firestore',result});
     }
     return bad(405,'METHOD_NOT_ALLOWED','Method not allowed.');

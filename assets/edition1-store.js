@@ -86,6 +86,17 @@
     const r=await fetchWithTimeout('/api/edition1-data',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});
     const p=await r.json().catch(()=>({})); if(!r.ok)throw new Error(p.message||`Save request failed (${r.status}).`); return p.result;
   }
+  async function apiPostBatch(collection,changes){
+    if(!changes.length)return [];
+    const results=[];
+    // Keep each request bounded while avoiding one HTTP round-trip per imported row.
+    for(let i=0;i<changes.length;i+=75){
+      const part=changes.slice(i,i+75);
+      const r=await apiPost({collection,action:'BATCH',changes:part});
+      results.push(...(Array.isArray(r)?r:[]));
+    }
+    return results;
+  }
   function indexById(rows){const m=new Map();(rows||[]).forEach(x=>m.set(String(x.id),x));return m}
   function same(a,b){return JSON.stringify(a)===JSON.stringify(b)}
   async function persistSnapshot(snapshot){
@@ -98,12 +109,14 @@
         baseline[key]=clone(next); continue;
       }
       const prev=baseline[key]||[]; const next=snapshot[key]||[];
-      const pm=indexById(prev), nm=indexById(next);
+      const pm=indexById(prev), nm=indexById(next), changes=[];
       for(const [id,row] of nm){
-        if(!pm.has(id)) await apiPost({collection,action:'CREATE',id,data:row});
-        else if(!same(pm.get(id),row)) await apiPost({collection,action:'UPDATE',id,data:row});
+        if(!pm.has(id)) changes.push({action:'CREATE',id,data:row});
+        else if(!same(pm.get(id),row)) changes.push({action:'UPDATE',id,data:row});
       }
-      for(const id of pm.keys()) if(!nm.has(id)) await apiPost({collection,action:'DELETE',id,data:{}});
+      for(const id of pm.keys()) if(!nm.has(id)) changes.push({action:'DELETE',id,data:{}});
+      if(changes.length===1) await apiPost({collection,...changes[0]});
+      else if(changes.length>1) await apiPostBatch(collection,changes);
       baseline[key]=clone(next);
       if(cacheAllowed()) await writeCache(key,Array.isArray(next)?next:[next]);
     }

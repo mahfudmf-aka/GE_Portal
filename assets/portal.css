@@ -5356,3 +5356,10 @@ html body .ge-combo-toggle-r12::after{line-height:40px!important}
 .ge-readiness-viz-r37{justify-content:center;gap:28px}.ge-readiness-viz-r37 .ge-viz-donut{width:104px;height:104px;flex-basis:104px}.ge-readiness-viz-r37 .ge-viz-donut:after{inset:17px}.ge-readiness-viz-r37 .ge-readiness-bars{max-width:280px}
 .ge-outcome-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-items:stretch}.ge-outcome-summary>div{min-height:88px;border:1px solid #d8e4f1;border-radius:9px;background:#fbfdff;padding:12px;display:flex;flex-direction:column;justify-content:center}.ge-outcome-summary b{font-size:22px;color:#082f62}.ge-outcome-summary small{margin-top:5px;font-size:8px;line-height:1.25;color:#617895}.ge-outcome-summary .good b{color:#24895d}.ge-outcome-summary .partial b{color:#c88815}.ge-outcome-summary .bad b{color:#d83b35}
 @media(max-width:1100px){.ge-network-viz-r37{flex-direction:column}.ge-network-viz-r37 .ge-network-main{flex-basis:auto}.ge-outcome-summary{grid-template-columns:repeat(3,1fr)}}
+
+/* R38 — Master Data save feedback */
+.ge-ref-save-state{min-height:20px;margin-top:10px;font-size:12px;color:#607894}
+#geGlobalRefModal[data-saving="1"] .ge-ref-modal{cursor:progress}
+#geGlobalRefModal[data-saving="1"] .ge-ref-form{opacity:.72;pointer-events:none}
+.ge-ref-spinner{display:inline-block;width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;animation:geRefSpin .7s linear infinite}
+@keyframes geRefSpin{to{transform:rotate(360deg)}}
