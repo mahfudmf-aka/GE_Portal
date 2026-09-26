@@ -48,3 +48,5 @@ await import('./r32-pov-permission-map-contract.js');
 await import('./r38-master-save-contract.js');
 
 await import('./r38-1-master-table-actions-contract.js');
+
+await import('./r38-2-master-edit-modal-contract.js');
