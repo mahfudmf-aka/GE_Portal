@@ -15,7 +15,7 @@
   const baseline={}; let hydrated=false; let pending=Promise.resolve();
   const CACHE_DB='GE_E1_CACHE_V28'; const CACHE_STORE='collections';
   function session(){return typeof window.gxGetSession==='function'?(window.gxGetSession()||{}):window.GX_CURRENT_USER||{}}
-  function cacheAllowed(){return String(session().role||'')!=='Super Admin'}
+  function cacheAllowed(){return !!String(session().uid||session().id||session().email||'').trim()}
   function cacheIdentity(){const s=session();return String(s.uid||s.id||s.email||'anon')+'|'+String(s.scopeType||'')+'|'+(Array.isArray(s.airports)?s.airports.join(','):'')}
   function cacheKey(k){return cacheIdentity()+':'+collKey(k)}
   function openCache(){return new Promise((resolve,reject)=>{if(!window.indexedDB)return reject(new Error('IndexedDB unavailable'));const q=indexedDB.open(CACHE_DB,1);q.onupgradeneeded=()=>{if(!q.result.objectStoreNames.contains(CACHE_STORE))q.result.createObjectStore(CACHE_STORE)};q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error)})}
@@ -134,15 +134,20 @@
       }
       if(allCached){
         hydrated=true;
-        // One tiny manifest check replaces repeated full-collection reads. Full data is refreshed
-        // only when a successful write has bumped the server cache version.
-        try{
-          const local=await readManifestCache(); const remote=await apiManifest();
-          if(local && Number(local.version||0)===Number(remote.version||0)){await writeManifestCache(remote);return state}
-          const result=await apiGet(requested);
-          for(const key of requested){const apiKey=collKey(key),rows=normalizeCollection(key,result[apiKey]||[]);if(key==='projectEvents'){state.events=rows;baseline.events=clone(rows)}else{state[key]=rows;baseline[key]=clone(rows)};await writeCache(key,result[apiKey]||[])}
-          await writeManifestCache(remote); return state;
-        }catch(e){console.warn('[Edition1 cache] background manifest unavailable; using cached data',e);return state}
+        // R29 stale-while-revalidate: cached data is returned immediately. Firestore/network
+        // validation is never on the critical path for page rendering on a previously loaded device.
+        // The tiny manifest check runs behind the page and refreshes IndexedDB only when data changed.
+        Promise.resolve().then(async()=>{
+          try{
+            const local=await readManifestCache(); const remote=await apiManifest();
+            if(local && Number(local.version||0)===Number(remote.version||0)){await writeManifestCache(remote);return}
+            const result=await apiGet(requested);
+            for(const key of requested){const apiKey=collKey(key),rows=normalizeCollection(key,result[apiKey]||[]);if(key==='projectEvents'){state.events=rows;baseline.events=clone(rows)}else{state[key]=rows;baseline[key]=clone(rows)};await writeCache(key,result[apiKey]||[])}
+            await writeManifestCache(remote);
+            window.dispatchEvent(new CustomEvent('gx-data-background-refresh',{detail:{collections:requested}}));
+          }catch(e){console.warn('[Edition1 cache] background refresh unavailable; cached data remains active',e)}
+        });
+        return state;
       }
     }
     const result=await apiGet(requested);

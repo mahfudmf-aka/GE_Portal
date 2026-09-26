@@ -36,7 +36,7 @@ async function waitFirebase(){const state=await ensureFirebase();const u=await w
 async function waitStore(){
  if(window.GEStore&&typeof window.GEStore.hydrate==='function')return window.GEStore;
  // If the declared store script did not initialize, retry the same canonical store once.
- await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='assets/edition1-store.js?v=r10&r18=retry';s.dataset.e1StoreRetry='1';s.onload=resolve;s.onerror=()=>reject(new Error('Edition1 data store gagal dimuat.'));document.body.appendChild(s)});
+ await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='assets/edition1-store.js?v=r29&retry=1';s.dataset.e1StoreRetry='1';s.onload=resolve;s.onerror=()=>reject(new Error('Edition1 data store gagal dimuat.'));document.body.appendChild(s)});
  const deadline=Date.now()+5000;
  while(Date.now()<deadline){if(window.GEStore&&typeof window.GEStore.hydrate==='function')return window.GEStore;await new Promise(r=>setTimeout(r,25));}
  throw new Error('Edition1 data store gagal diinisialisasi setelah retry canonical store.');
@@ -74,5 +74,6 @@ async function boot(){
   showStatus(`Terhubung • Firestore • ${store.projectId||window.GX_FIREBASE_CONFIG?.projectId||'ground-experience-portal'} • ${total} record terhidrasi`);setTimeout(()=>showStatus(''),1400);
  }catch(e){console.error('[P40 Edition1 boot]',e);showStatus(e?.message||'Firebase / Firestore tidak dapat diakses.',true)}
 }
+window.addEventListener('gx-data-background-refresh',()=>{try{rerender()}catch(e){console.warn('[P40 background rerender]',e)}});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();

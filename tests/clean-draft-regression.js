@@ -58,7 +58,7 @@ assert(boot.includes('window.geInitAirportCanonical?.()'),'Airport must initiali
 assert(boot.includes('window.geInitInitiativeCanonical?.()'),'Initiative controls must initialize after canonical hydration.');
 assert(boot.includes('window.geInitCalendarWorkspaceCanonical?.()'),'Calendar/Project/Gantt workspace must initialize after hydration.');
 assert(boot.includes("await store.hydrate(['users'])"),'Initiative must hydrate User & Access for PIC assignment.');
-assert(boot.includes("edition1-store.js?v=r10"),'Page boot must self-heal a missing Edition1 store dependency.');
+assert(boot.includes("edition1-store.js?v=r29") && boot.includes("retry=1"),'Page boot must self-heal a missing Edition1 store dependency.');
 assert(business.includes('CANONICAL CONSOLIDATION — R11'),'Runtime must use one consolidated post-refactor implementation.');
 assert(!business.includes('/* R4 canonical calendar entry'),'Overlapping R4–R9 patch runtime must not remain active.');
 assert(business.includes('window.geInitAirportCanonical'),'Airport canonical initializer must exist.');
@@ -80,8 +80,8 @@ assert(registry.includes('Unduh Data') && !registry.includes('Unduh CSV'),'User-
 assert(business.includes('GE_Inisiatif_dan_Milestone.csv'),'Initiative export must retain milestone rows.');
 assert(business.includes('capacitySchedules'),'Lounge/Tenant must retain capacity history.');
 assert(business.includes('supersedesId'),'Lounge/Tenant must retain agreement replacement history.');
-assert(app.includes('v=r14'),'Canonical root assets must use current cache identity.');
-assert(registry.includes('edition1-business-runtime.js?v=r14'),'Canonical page runtime must use current cache identity.');
+assert(app.includes('v=r29'),'Canonical root assets must use current cache identity.');
+assert(registry.includes('edition1-business-runtime.js?v=r27'),'Canonical page runtime must use current cache identity.');
 
 // Route reachability guard: app.html is infrastructure, never a logical page.
 assert(app.includes("if(route==='app'){route='index'"),'SPA host must recover stale ?page=app to the canonical index route.');
