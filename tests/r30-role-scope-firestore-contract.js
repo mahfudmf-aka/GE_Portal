@@ -19,9 +19,13 @@ must(
   dash.includes('const stationVals=') &&
   dash.includes('const scoped=') &&
   dash.includes('scoped(d.initiatives,s)') &&
-  dash.includes('scoped(d.projectEvents||[],s)') &&
+  dash.includes('scoped(d.projectEvents||d.events||[],s)') &&
   dash.includes('scoped(d.airports||[],s)') &&
-  dash.includes('scoped(d.lounges||[],s)'),
+  dash.includes('scoped(d.lounges||[],s)') &&
+  dash.includes('scoped(d.serviceProcurement||[],s)') &&
+  dash.includes('scoped(d.assets||[],s)') &&
+  dash.includes('scoped(d.facilities||[],s)') &&
+  dash.includes('scoped(d.touchpointStandards||[],s)'),
   'dashboard station-scope filtering missing'
 );
 must(!/inisiatif[^\n]+collections:\[[^\]]*'users'/.test(boot),'initiative batch must not fail on user-directory permission');
