@@ -33,3 +33,5 @@ try {
   process.exitCode = 1;
 }
 
+
+await import('./r25-root-cause-contract.js');

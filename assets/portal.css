@@ -5271,3 +5271,8 @@ html body .ge-ref-multi-trigger,
 html body .ge-picker-trigger-r11{position:relative!important;padding-right:42px!important;border:1px solid #c8d7e4!important;border-radius:10px!important;background:#fff!important;color:#173b54!important;box-shadow:none!important}
 html body .ge-ref-multi-trigger::after,
 html body .ge-picker-trigger-r11::after{content:'▾';position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:15px;font-weight:700;color:#173b54}
+/* R25 — canonical combobox geometry: chevron remains inside the same field, never a detached button. */
+html body .ge-combo-r12{position:relative!important;display:block!important;width:100%!important}
+html body .ge-combo-input-r12{box-sizing:border-box!important;width:100%!important;padding-right:44px!important}
+html body .ge-combo-toggle-r12{position:absolute!important;inset:auto 1px 1px auto!important;top:1px!important;right:1px!important;bottom:1px!important;width:42px!important;height:auto!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:0 9px 9px 0!important;background:transparent!important;box-shadow:none!important;transform:none!important}
+html body .ge-combo-toggle-r12::after{line-height:40px!important}

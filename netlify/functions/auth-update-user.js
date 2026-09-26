@@ -39,12 +39,20 @@ exports.handler = async (event) => {
     const fullName = String(body.fullName ?? current.name ?? '').trim();
     const employeeNo = String(body.employeeNo ?? current.employeeNo ?? '').trim();
     const unit = String(body.unit ?? current.unit ?? '').trim();
+    const usernameProvided = Object.prototype.hasOwnProperty.call(body, 'username');
+    const username = String(usernameProvided ? body.username : (current.username || '')).trim().toLowerCase();
+    if (usernameProvided && username !== String(current.username || '').trim().toLowerCase()) {
+      if (!/^[a-z0-9][a-z0-9._-]{2,63}$/.test(username)) return bad(400, 'INVALID_USERNAME', 'Username baru harus 3-64 karakter dan hanya boleh a-z, 0-9, titik, underscore, atau tanda minus.');
+      const duplicate = await db.collection('users').where('username', '==', username).limit(1).get();
+      if (!duplicate.empty && duplicate.docs[0].id !== uid) return bad(409, 'USERNAME_EXISTS', 'Username sudah digunakan akun lain.');
+    }
     if (!fullName) return bad(400, 'INVALID_NAME', 'Employee Name wajib diisi.');
     if (!employeeNo) return bad(400, 'INVALID_EMPLOYEE_NO', 'Employee Number wajib diisi.');
     if (!unit) return bad(400, 'INVALID_UNIT', 'Unit / Department wajib diisi.');
     const patch = {
       name: fullName,
       employeeNo,
+      username: username || current.username || '',
       role,
       accessLevel,
       organizationType,

@@ -2413,12 +2413,15 @@ function geAirportDerived(a){
 }
 function geAirportCanonicalR8(a){
   const code=String(a?.code||a?.airportCode||a?.iata||a?.station||a?.stationCode||'').trim().toUpperCase();
-  const GEO={CGK:[-6.1256,106.6559],DPS:[-8.7482,115.1672],SUB:[-7.3798,112.7873],KNO:[3.6422,98.8853],UPG:[-5.0616,119.5540],BPN:[-1.2683,116.8945],HLP:[-6.2666,106.8910],YIA:[-7.9053,110.0573],BDO:[-6.9006,107.5763],KOE:[-10.1716,123.6711]};
+  const GEO={CGK:[-6.1256,106.6559],DPS:[-8.7482,115.1672],SUB:[-7.3798,112.7873],KNO:[3.6422,98.8853],UPG:[-5.0616,119.5540],BPN:[-1.2683,116.8945],HLP:[-6.2666,106.8910],YIA:[-7.9053,110.0573],BDO:[-6.9006,107.5763],KOE:[-10.1716,123.6711],AAP:[-0.3744,117.2494],BDJ:[-3.4424,114.7626],BKS:[-3.8637,102.3390],PLM:[-2.8983,104.6999],PKU:[0.4608,101.4445],PDG:[-0.7869,100.2800],JOG:[-7.7882,110.4318],SRG:[-6.9707,110.3741],SOC:[-7.5161,110.7569],LOP:[-8.7573,116.2767],MDC:[1.5493,124.9263],AMQ:[-3.7103,128.0891],DJJ:[-2.5769,140.5164],TIM:[-4.5283,136.8874],SOQ:[-0.8940,131.2870],HKG:[22.3080,113.9185],SIN:[1.3644,103.9915],KUL:[2.7456,101.7099],BKK:[13.6900,100.7501],NRT:[35.7720,140.3929],HND:[35.5494,139.7798],ICN:[37.4602,126.4407],SYD:[-33.9399,151.1753],MEL:[-37.6690,144.8410],JED:[21.6702,39.1525],MED:[24.5534,39.7051],AMS:[52.3105,4.7683]};
   let lat=Number(a?.lat??a?.latitude??a?.coordinates?.lat??0),lon=Number(a?.lon??a?.lng??a?.longitude??a?.coordinates?.lng??0);if((!Number.isFinite(lat)||!Number.isFinite(lon)||(lat===0&&lon===0))&&GEO[code]){[lat,lon]=GEO[code]}
   return {...a,code,city:a?.city||a?.location||a?.airportCity||'',airportName:a?.airportName||a?.name||a?.airport||'',wilayah:a?.wilayah||a?.serviceRegion||a?.networkRegion||a?.region||'Domestik',region:a?.region||a?.countryRegion||a?.networkRegion||'',status:a?.status||'Active',gm:a?.gm||a?.generalManager||a?.manager||'',lat,lon};
 }
 function geAirportVisibleRows(){
-  return (data.airports||[]).map(geAirportCanonicalR8).filter(a=>a.code&&(typeof gxAirportAllowed!=='function'||gxAirportAllowed(a.code))).map(geAirportDerived);
+  const base=[...(data.airports||[])],seen=new Set(base.map(x=>String(x.code||x.airportCode||x.iata||x.station||x.stationCode||'').toUpperCase()).filter(Boolean));
+  const add=(code,src={})=>{code=String(code||'').trim().toUpperCase();if(code&&!seen.has(code)){seen.add(code);base.push({...src,code,status:src.status||'Active'})}};
+  ;['lounges','serviceProcurement','stationMaterials','airportSystems','facilities','assets'].forEach(k=>(data[k]||[]).forEach(x=>add(x.airport||x.station||x.stationCode||x.code,x)));
+  return base.map(geAirportCanonicalR8).filter(a=>a.code&&Number.isFinite(Number(a.lat))&&Number.isFinite(Number(a.lon))&&!(Number(a.lat)===0&&Number(a.lon)===0)&&(typeof gxAirportAllowed!=='function'||gxAirportAllowed(a.code))).map(geAirportDerived);
 }
 function geSetAirportStatus(code,status){
   if(!(typeof gxCanManage==='function'&&gxCanManage()))return;
