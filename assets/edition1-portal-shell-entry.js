@@ -245,10 +245,12 @@ function icon(x){const key=({'⌂':'home','◎':'cx','↔':'journey','✈':'netw
 const path=()=>location.pathname.split('/').pop()||'index.html';
 const item=(href,label,i,sub=false)=>`<a class="ge-nav-link ${sub?'ge-nav-sub':''} ${path()===href?'active':''}" href="${href}" title="${label}">${icon(i)}<span>${label}</span></a>`;
 function group(title,items){return `<div class="ge-nav-section">${title}</div>${items.join('')}`}
+function isExternalPortalUser(s){const role=String(s?.role||'').trim().toLowerCase();const org=String(s?.organizationType||s?.organisationType||s?.orgType||'').trim().toLowerCase();return ['external user','external','collaborator','partner'].includes(role)||['partner','external','external partner','airline partner','vendor','supplier','ground handling agent','gha'].includes(org)}
 function dashboardPOV(s){
  const r=String(s?.role||'').trim().toLowerCase().replace(/[\s_-]+/g,' ');
  const access=String(s?.accessLevel||'').trim().toLowerCase();
  if(r==='super admin'||r==='superadmin')return 'superadmin';
+ if(isExternalPortalUser(s))return 'external';
  if(r==='admin'||access==='admin')return 'admin';
  if(r==='management')return 'management';
  if(['ge team','ground experience team','head office','headoffice','staff'].includes(r))return 'ge-team';
@@ -266,6 +268,17 @@ function navFor(s){
  if(['Lounge Staff','Lounge Luar Biasa'].includes(s?.role)) return [
   group('LOUNGE OPERATION',[item('lounge-access.html','Lounge Access','◉'),item('lounge-visitor.html','Visitor & Report','▤')]),
   commonSupport].join('');
+ if(pov==='external') {
+  const perms=new Set([...(Array.isArray(s?.permissions)?s.permissions:[]),...(Array.isArray(s?.tabs)?s.tabs:[])].map(x=>String(x).toLowerCase()));
+  const extra=[];
+  if(perms.has('services')) extra.push(group('ADDITIONAL ACCESS',[item('customer-experience.html','Customer Experience','◎')]));
+  if(perms.has('planning')) extra.push(group('ADDITIONAL PLANNING',[item('planning-workspace.html','Planning Workspace','◇')]));
+  if(perms.has('data')) extra.push(group('ADDITIONAL DATA',[item('data.html','Data Management','⬡')]));
+  return [
+   group('COLLABORATION',[item('inisiatif.html','Initiative','⚙'),item('calendar.html','Calendar & Project Tracking','▦')]),
+   group('INFORMATION',[item('berita.html','Berita & Informasi','▣'),item('kontak.html','Contact Support','☎')]),
+   ...extra].join('');
+ }
  if(pov==='branch') return [
   item('index.html','Branch Office Dashboard','⌂'),
   group('MY STATION',[item('station-360.html','Station Profile / 360','⌾'),item('readiness.html','Readiness','✓'),item('service-capability.html','Capability & Standards','◈')]),
@@ -378,7 +391,7 @@ function shell(){
  const pov=dashboardPOV(s);
  const initials=(s.name||s.username||'GE').split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
  const roleLabel=pov==='branch'?(s.unit||'Branch Office'):(pov==='ge-team'?'Ground Experience Team':(s.role||'User'));
- const context={superadmin:'Super Admin / System Dashboard',management:'Management Dashboard','ge-team':'Ground Experience Team / Head Office Dashboard',branch:'Branch Office Dashboard',unresolved:'Dashboard — Role Not Mapped'}[pov]||'Dashboard';
+ const context={superadmin:'Super Admin / System Dashboard',management:'Management Dashboard','ge-team':'Ground Experience Team / Head Office Dashboard',branch:'Branch Office Dashboard',external:'Partner / External Collaboration',unresolved:'Dashboard — Role Not Mapped'}[pov]||'Dashboard';
  refs.top.innerHTML=`<button id="mobileNavTriggerV233" class="mobile-nav-trigger-v233 ge-iconbtn" type="button" aria-label="Menu">☰</button>
  <div class="ge-brand-logos"><img class="garuda" src="assets/garuda-horizontal-white.png" alt="Garuda Indonesia"><img class="danantara" src="assets/danantara-white-user.png" alt="Danantara Indonesia"></div>
  <div class="ge-title"><strong>GROUND EXPERIENCE PORTAL</strong><span>${context}</span></div>

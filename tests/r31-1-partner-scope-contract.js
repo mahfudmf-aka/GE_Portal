@@ -1,0 +1,15 @@
+const fs=require('fs');
+const assert=require('assert');
+const auth=fs.readFileSync('assets/auth.js','utf8');
+const shell=fs.readFileSync('assets/portal-shell.js','utf8');
+const api=fs.readFileSync('netlify/functions/edition1-data.js','utf8');
+assert(auth.includes("['initiatives','calendar','project-tracking','news','contact','inbox']"),'External baseline pages must include initiative/calendar/news/contact');
+assert(shell.includes("group('COLLABORATION'"),'External navigation must expose collaboration pages');
+assert(shell.includes("group('INFORMATION'"),'External navigation must expose information/support pages');
+assert(api.includes('function isExternalActor(actor)'),'Server must classify external users from role or organization type');
+assert(api.includes("data.ownerUserId=actor.id;data.visibility='EXTERNAL_PRIVATE';data.initiativeScope='GENERAL'"),'External initiatives must be private/general and owned');
+assert(api.includes("delete data.touchPoint") && api.includes("delete data.touchpoints"),'External initiative must not be touch-point scoped');
+assert(api.includes("External users can only update their own records."),'External update ownership must be enforced');
+assert(api.includes("External users can only delete their own records."),'External delete ownership must be enforced');
+assert(api.includes("c==='projectEvents' && isExternalActor(actor)"),'External calendar must be isolated');
+console.log('R31_1_PARTNER_SCOPE_CONTRACT_PASS');
