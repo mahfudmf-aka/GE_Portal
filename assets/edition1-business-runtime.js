@@ -9903,3 +9903,30 @@ function applyAirportExperienceView(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(applyAirportExperienceView,60));else setTimeout(applyAirportExperienceView,60);
 window.geApplyAirportExperienceViewR39=applyAirportExperienceView;
 })();
+
+/* ==============================================================
+   R40 — Airport Experience map detail / Station 360 navigation.
+   Presentation-only enhancement over the canonical R32 marker source.
+   ============================================================== */
+(function(){'use strict';
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+const db=()=>window.GEStore?.get?.()||{};
+const codeOf=x=>String(x?.code||x?.airportCode||x?.iata||x?.stationCode||x?.station||x?.airport||'').trim().toUpperCase();
+const match=(x,c)=>[x?.airport,x?.station,x?.stationCode,x?.code,x?.airportCode,x?.iata].flat().some(v=>String(v||'').trim().toUpperCase()===c);
+function station(c){return (window.geR32AirportRows?.()||db().airports||[]).find(x=>codeOf(x)===c)||{} }
+function collections(c){const d=db();return{
+ service:[...(d.lounges||[]).filter(x=>match(x,c)),...(d.serviceProcurement||[]).filter(x=>match(x,c))],
+ facility:[...(d.facilities||[]).filter(x=>match(x,c)),...(d.assets||[]).filter(x=>match(x,c))],
+ system:(d.airportSystems||[]).filter(x=>match(x,c)),
+ contract:[...(d.lounges||[]).filter(x=>match(x,c)&& (x.agreement||x.agreementNo||x.contractNo||x.documentNo)),...(d.serviceProcurement||[]).filter(x=>match(x,c)&& (x.agreement||x.agreementNo||x.contractNo||x.documentNo))]
+}}
+function providerNames(c){const d=db(),names=[];[...(d.lounges||[]),...(d.serviceProcurement||[])].filter(x=>match(x,c)).forEach(x=>{const n=x.provider||x.vendor||x.operator||x.name||x.serviceName;if(n&&!names.includes(n))names.push(n)});return names}
+function itemTitle(x,type){if(type==='system')return x.systemName||x.system||x.provider||x.vendor||x.name||'Airport System';if(type==='facility')return x.assetName||x.facilityName||x.name||x.type||'Facility / Asset';if(type==='contract')return x.agreement||x.agreementNo||x.contractNo||x.documentNo||x.name||'Agreement';return x.serviceName||x.categoryService||x.name||x.provider||x.vendor||'Service'}
+function itemSub(x,type){if(type==='contract')return [x.provider||x.vendor,x.effectiveUntil||x.until||x.endDate].filter(Boolean).join(' • ');return [x.provider||x.vendor,x.status||x.documentStatus].filter(Boolean).join(' • ')}
+function panel(c){const x=station(c),sets=collections(c),providers=providerNames(c),host=document.getElementById('airportDetail');if(!host)return;const city=x.city||x.location||x.airportName||c,airport=x.airportName||x.name||'Airport / Branch Office',cat=x.category||x.type||x.domInt||x.internationalDomestic||x.wilayah||'';host.innerHTML=`<div class="r40-map-detail"><div class="r40-map-head"><div><h2>${esc(city)}</h2><p>${esc(airport)}${cat?` • ${esc(cat)}`:''}</p></div><a class="r40-station360" href="app.html?page=station-360&station=${encodeURIComponent(c)}">Station 360</a></div><div class="r40-map-label">VENDOR / PROVIDER</div><div class="r40-provider-chips">${providers.length?providers.slice(0,5).map(n=>`<span>${esc(n)}</span>`).join(''):'<span class="muted">Belum ada provider</span>'}</div><div class="r40-map-tabs">${[['service','Service'],['facility','Facility'],['system','System'],['contract','Contract']].map(([k,l],i)=>`<button type="button" class="${i?'':'active'}" data-r40-tab="${k}">${l} <b>${sets[k].length}</b></button>`).join('')}</div><div class="r40-map-tabbody"></div></div>`;
+ const body=host.querySelector('.r40-map-tabbody');function draw(k){host.querySelectorAll('[data-r40-tab]').forEach(b=>b.classList.toggle('active',b.dataset.r40Tab===k));const a=sets[k];body.innerHTML=a.length?a.slice(0,12).map(v=>`<div class="r40-map-item"><small>${esc(k.toUpperCase())}</small><b>${esc(itemTitle(v,k))}</b>${itemSub(v,k)?`<span>${esc(itemSub(v,k))}</span>`:''}</div>`).join(''):`<div class="r40-map-empty">Belum ada data ${esc(k)} untuk ${esc(c)}.</div>`}host.querySelectorAll('[data-r40-tab]').forEach(b=>b.onclick=()=>draw(b.dataset.r40Tab));draw('service')}
+function bind(){const layer=document.getElementById('airportMarkerLayer');if(!layer)return;layer.querySelectorAll('.r32-marker').forEach(m=>{if(m.dataset.r40Bound)return;m.dataset.r40Bound='1';m.addEventListener('click',()=>setTimeout(()=>panel(m.dataset.code),0))})}
+const old=window.renderAirportMapMarkers;if(old&&!old.__r40){const wrapped=function(){const v=old.apply(this,arguments);bind();return v};wrapped.__r40=true;window.renderAirportMapMarkers=wrapped}
+function boot(){bind();const layer=document.getElementById('airportMarkerLayer');if(layer)new MutationObserver(bind).observe(layer,{childList:true});document.querySelectorAll('#airportNetworkSummary tbody tr.ge-station-row').forEach(r=>r.classList.add('r40-network-row'))}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(boot,120));else setTimeout(boot,120);
+})();
