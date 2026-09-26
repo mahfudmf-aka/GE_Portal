@@ -20,11 +20,12 @@ exports.handler = async (event) => {
     const current = snap.data();
     const roleProvided = Object.prototype.hasOwnProperty.call(body, 'role') && String(body.role || '').trim() !== '';
     const role = String(roleProvided ? body.role : (current.role || '')).trim();
+    const roleChanged = roleProvided && role !== String(current.role || '').trim();
     const accessLevel = normalizeAccessLevel(body.accessLevel ?? current.accessLevel, role);
     if (current.role === 'Super Admin') return bad(403, 'ROLE_PROTECTED', 'Super Admin adalah role terlindungi dan tidak dapat diedit melalui User Management.');
     if (role === 'Super Admin') return bad(403, 'ROLE_PROTECTED', 'Super Admin adalah role terlindungi dan tidak dapat ditetapkan melalui User Management.');
-    if (!ROLES.includes(role) && !(LEGACY_ROLES.includes(role) && !roleProvided)) return bad(400, 'INVALID_ROLE', 'Role hanya dapat dikoreksi ke Role organisasi yang didukung.');
-    if (roleProvided && !ROLES.includes(role)) return bad(400, 'INVALID_ROLE', 'Legacy Role hanya dapat dipertahankan tanpa perubahan atau dikoreksi ke Role organisasi yang didukung.');
+    if (!ROLES.includes(role) && !(LEGACY_ROLES.includes(role) && !roleChanged)) return bad(400, 'INVALID_ROLE', 'Role hanya dapat dikoreksi ke Role organisasi yang didukung.');
+    if (roleChanged && !ROLES.includes(role)) return bad(400, 'INVALID_ROLE', 'Legacy Role hanya dapat dipertahankan tanpa perubahan atau dikoreksi ke Role organisasi yang didukung.');
     if (body.accessLevel && !USER_ACCESS_LEVELS.includes(String(body.accessLevel).trim())) return bad(400, 'INVALID_ACCESS_LEVEL', 'Access Level tidak valid.');
     if (!hasUserManagementPermission(actor)) return bad(403, 'USER_MANAGEMENT_PERMISSION_REQUIRED', 'Akun tidak memiliki permission User Management.');
     const requestedScopeType = String(body.scopeType ?? current.scopeType ?? 'CUSTOM').trim();

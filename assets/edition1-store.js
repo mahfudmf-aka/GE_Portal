@@ -94,7 +94,7 @@
       if(!Object.prototype.hasOwnProperty.call(baseline,k)) continue;
       if(Array.isArray(next[k])||k==='standardContent'||k==='portalManagerR2')snapshot[k]=clone(next[k]);
     }
-    pending=pending.then(()=>persistSnapshot(snapshot)).catch(err=>{console.error('[Edition1 Firebase Store]',err);window.dispatchEvent(new CustomEvent('gx-data-save-error',{detail:err}));throw err});
+    const previous=pending.catch(()=>undefined); pending=previous.then(()=>persistSnapshot(snapshot)).catch(err=>{console.error('[Edition1 Firebase Store]',err);window.dispatchEvent(new CustomEvent('gx-data-save-error',{detail:err}));throw err});
     return next;
   }
   async function hydrate(keys){
