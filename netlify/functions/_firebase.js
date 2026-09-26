@@ -62,13 +62,12 @@ function normalizeAccessLevel(value, role) {
 }
 
 function hasUserManagementPermission(actor) {
-  if (actor?.role === 'Super Admin') return true;
-  if (actor?.role !== 'Admin') return false;
-  const permissions = Array.isArray(actor.permissions) ? actor.permissions.map(x => String(x).toLowerCase()) : [];
-  if (permissions.length) return permissions.some(x => ['user-management','user_management','users','admin'].includes(x));
-  const tabs = Array.isArray(actor.tabs) ? actor.tabs.map(x => String(x).toLowerCase()) : [];
-  return tabs.includes('all') || tabs.includes('admin');
+  // Ground Experience Admin is an operational administrator by contract.
+  // User-management is therefore intrinsic to the Admin role; module permissions
+  // control navigation/business modules, not the ability to administer accounts.
+  return actor?.role === 'Super Admin' || actor?.role === 'Admin';
 }
+
 
 async function requireActor(event, allowedRoles = ['Admin', 'Super Admin']) {
   const token = bearer(event);

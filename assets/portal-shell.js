@@ -28,6 +28,7 @@ function group(title,items){return `<div class="ge-nav-section">${title}</div>${
 function dashboardPOV(s){
  const r=String(s?.role||'').trim().toLowerCase().replace(/[\s_-]+/g,' ');
  if(r==='super admin'||r==='superadmin')return 'superadmin';
+ if(r==='admin')return 'admin';
  if(r==='management')return 'management';
  if(['ge team','ground experience team','head office','headoffice','staff'].includes(r))return 'ge-team';
  if(['branch office','branchoffice','bo'].includes(r))return 'branch';
@@ -59,6 +60,14 @@ function navFor(s){
   group('IMPROVEMENT & PLANNING',[item('improvement-intake.html','Improvement Opportunity','✧'),item('inisiatif.html','Initiative & Improvement','⚙'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
   group('DATA',[item('data.html','Data Management','⬡')]),
+  commonSupport].join('');
+ if(pov==='admin') return [
+  item('index.html','Ground Experience Admin Dashboard','⌂'),
+  group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈')]),
+  group('SERVICE GOVERNANCE',[item('standar.html','Readiness & Standards','≡')]),
+  group('IMPROVEMENT & PLANNING',[item('inisiatif.html','Initiative & Improvement','⚙'),item('improvement-intake.html','Improvement Opportunity','✧'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
+  group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
+  group('DATA & ADMINISTRATION',[item('master-data.html','Master Data & Partners','◫'),item('data.html','Data Management','⬡'),item('admin.html','User & Access','♙')]),
   commonSupport].join('');
  if(pov==='management') return [
   item('index.html','Management Dashboard','⌂'),
@@ -152,7 +161,7 @@ async function shell(){
  const pov=dashboardPOV(s);
  const initials=(s.name||s.username||'GE').split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
  const roleLabel=pov==='branch'?(s.unit||'Branch Office'):(pov==='ge-team'?'Ground Experience Team':(s.role||'User'));
- const context={superadmin:'Super Admin / System Dashboard',management:'Management Dashboard','ge-team':'Ground Experience Team / Head Office Dashboard',branch:'Branch Office Dashboard',unresolved:'Dashboard — Role Not Mapped'}[pov]||'Dashboard';
+ const context={superadmin:'Super Admin / System Dashboard',admin:'Ground Experience Admin Dashboard',management:'Management Dashboard','ge-team':'Ground Experience Team / Head Office Dashboard',branch:'Branch Office Dashboard',unresolved:'Dashboard — Role Not Mapped'}[pov]||'Dashboard';
  refs.top.innerHTML=`<button id="mobileNavTriggerV233" class="mobile-nav-trigger-v233 ge-iconbtn" type="button" aria-label="Menu">☰</button>
  <div class="ge-brand-logos"><img class="garuda" src="assets/garuda-horizontal-white.png" alt="Garuda Indonesia"><img class="danantara" src="assets/danantara-white-user.png" alt="Danantara Indonesia"></div>
  <div class="ge-title"><strong>GROUND EXPERIENCE PORTAL</strong><span>${context}</span></div>

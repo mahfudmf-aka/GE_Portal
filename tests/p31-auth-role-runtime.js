@@ -13,7 +13,7 @@ const cases={
   'HeadOffice':'ge-team',
   'Branch Office':'branch',
   'BranchOffice':'branch',
-  'Admin':'unresolved',
+  'Admin':'admin',
   'Unknown':'unresolved'
 };
 for(const [role,want] of Object.entries(cases))assert.strictEqual(ctx.dashboardPOV({role}),want,role);

@@ -8,12 +8,12 @@ const file=(location.pathname.split('/').pop()||'app.html').toLowerCase();
 const page=file==='app.html'?String(new URLSearchParams(location.search).get('page')||'index').trim().toLowerCase():file.replace(/\.html$/,'').replace(/^e1-/,'');
 const config={
  'standar':{perm:'services',collections:['airports','personnel','touchpointStandards','skyPriority','announcements','standardContent']},
- 'inisiatif':{perm:'initiatives',collections:['initiatives','touchpoints','documents','users','inbox','airports']},
+ 'inisiatif':{perm:'initiatives',collections:['initiatives','touchpoints','documents','inbox','airports']},
  'service-planning':{perm:'planning',collections:['stationMaterials','lounges','boSpaces','airportSystems','touchpointStandards','documents','serviceProcurement']},
- 'calendar':{perm:'initiatives',collections:['initiatives','projectEvents','touchpoints','users','inbox','airports']},
+ 'calendar':{perm:'initiatives',collections:['initiatives','projectEvents','touchpoints','inbox','airports']},
  'planning-documents':{perm:'planning',collections:['documents','initiatives']},
  'data':{perm:'data',collections:['airports','personnel']},
- 'admin':{perm:'admin',collections:['users','inbox','auditLogs','portalManagerR2','airports','lounges']},
+ 'admin':{perm:'admin',collections:['users','inbox','auditLogs','airports','lounges']},
  'berita':{perm:'news',collections:['articles','announcements','faqs','news','documents']},
  'kontak':{perm:'contact',collections:['inbox']},
  'lounge-list':{perm:'planning',collections:['lounges','loungeVisitors','serviceProcurement','documents']},

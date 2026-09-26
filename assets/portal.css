@@ -5293,3 +5293,6 @@ html body .ge-combo-toggle-r12::after{line-height:40px!important}
 #airportMarkerLayer .r27-marker.active .r27-selected-pointer{display:block}
 #airportMarkerLayer .r27-marker.active{z-index:30!important;outline:3px solid rgba(23,63,104,.20)!important;outline-offset:3px!important}
 .map-search-tools #mapProviderTypeR27,.map-search-tools #mapProviderStatusR27{min-width:180px}
+/* R30 role/scope dashboard */
+.ge-dashboard-root[data-dashboard-pov="branch"] .ge-dash-head,.ge-dashboard-root[data-dashboard-pov="ge-team"] .ge-dash-head,.ge-dashboard-root[data-dashboard-pov="management"] .ge-dash-head,.ge-dashboard-root[data-dashboard-pov="admin"] .ge-dash-head{margin-bottom:18px}
+.ge-dash-context{display:inline-flex;margin-left:8px;padding:3px 9px;border:1px solid #d7e1ee;border-radius:999px;font-size:12px;color:#49627e;background:#f8fbff}

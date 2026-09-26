@@ -38,12 +38,9 @@ const MODULE_BY_COLLECTION = {
 function active(actor){return actor && String(actor.status || 'Active').toLowerCase() !== 'inactive';}
 function canModule(actor, collection){
   if (actor.role === 'Super Admin') return true;
-  if (collection === 'users' || collection === 'auditLogs' || collection === 'portalManager') {
-    if (actor.role !== 'Admin') return false;
-    const p=(Array.isArray(actor.permissions)?actor.permissions:[]).map(x=>String(x).toLowerCase());
-    const t=(Array.isArray(actor.tabs)?actor.tabs:[]).map(x=>String(x).toLowerCase());
-    return !p.length ? (t.includes('all')||t.includes('admin')) : p.some(x=>['user-management','user_management','users','admin'].includes(x));
-  }
+  if (collection === 'users') return actor.role === 'Admin';
+  if (collection === 'portalManager') return false; // Super Admin handled above.
+  if (collection === 'auditLogs') return actor.role === 'Admin';
   const module=MODULE_BY_COLLECTION[collection];
   if (!module) return true;
   if (actor.role === 'Admin') return true;
@@ -68,10 +65,15 @@ function allowedStations(actor){
   const a=Array.isArray(actor.airports)?actor.airports:[];
   return new Set(a.map(x=>String(x).trim().toUpperCase()).filter(Boolean));
 }
-function stationOf(x){ return String(x?.stationCode ?? x?.airport ?? x?.station ?? x?.relatedAirport ?? '').trim().toUpperCase(); }
+function stationsOf(x){
+  const raw=x?.stations ?? x?.stationCodes ?? x?.stationCode ?? x?.airport ?? x?.station ?? x?.relatedAirport ?? [];
+  const list=Array.isArray(raw)?raw:String(raw||'').split(/[,;]+/);
+  return list.map(v=>String(v||'').trim().toUpperCase()).filter(Boolean);
+}
+function stationOf(x){ return stationsOf(x)[0]||''; }
 function inScope(actor,x){
   const allowed=allowedStations(actor); if (!allowed) return true;
-  const s=stationOf(x); return !s || allowed.has(s);
+  const stations=stationsOf(x); return !stations.length || stations.some(s=>allowed.has(s));
 }
 function sanitize(v,depth=0){
   if(depth>8) return null;
@@ -110,12 +112,14 @@ async function readCollection(db,actor,c){
     ]); const map=new Map(); [...a.docs,...b.docs].forEach(d=>map.set(d.id,d)); docs=[...map.values()];
   } else if(c==='inbox' && !ADMIN_ROLES.has(actor.role)){
     const snap=await dataQuery(db,c).where('recipientId','==',String(actor.id)).get(); docs=snap.docs;
+  } else if(c==='users'){
+    const snap=await db.collection('users').get(); docs=snap.docs;
   } else {
     const snap=await dataQuery(db,c).get(); docs=snap.docs;
   }
   let rows=docs.map(d=>({id:d.id,...sanitize(d.data())}));
   if(c==='users') rows=rows.map(x=>{delete x.password;delete x.passwordHash;delete x.temporaryPassword;return x});
-  if(c!=='initiatives' && c!=='inbox' && c!=='users' && c!=='auditLogs') rows=rows.filter(x=>inScope(actor,x));
+  if(c!=='inbox' && c!=='users' && c!=='auditLogs' && !(c==='initiatives'&&EXTERNAL_ROLES.has(actor.role))) rows=rows.filter(x=>inScope(actor,x));
   return rows;
 }
 function cleanId(id){ const s=String(id||'').trim(); if(!s||s.length>200) throw Object.assign(new Error('Invalid document id.'),{statusCode:400,code:'INVALID_ID'}); return s; }

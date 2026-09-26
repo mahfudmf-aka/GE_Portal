@@ -32,7 +32,7 @@ async function gxSyncFirebaseSession(){if(!window.GXFirebase?.currentUser)return
 async function gxLogout(){try{if(window.GXFirebase?.signOut)await window.GXFirebase.signOut()}catch(e){}const s=gxGetSession();gxAuditDirect('Logout','Authentication','Session','User logged out',s);gxClearSession();location.replace('login.html')}
 function gxRoleLevel(role){return {'Lounge Staff':0,'Lounge Luar Biasa':0,'Staff':1,'Head Office':1,'GE Team':1,'Branch Office':1,'Management':1,'Viewer':1,'External User':1,'External':1,'Collaborator':1,'Admin':2,'Super Admin':3}[role]??0}
 function gxCanManage(){const s=gxGetSession();return !!s&&(s.role==='Super Admin'||(s.role==='Admin'&&gxHasUserManagementPermission()))}
-function gxHasUserManagementPermission(){const s=gxGetSession();if(!s)return false;if(s.role==='Super Admin')return true;if(s.role!=='Admin')return false;const p=gxUserPermissions();if(p.length)return p.some(x=>['user-management','user_management','users','admin'].includes(String(x).toLowerCase()));const tabs=gxUserTabs();return tabs.includes('ALL')||tabs.includes('admin')}
+function gxHasUserManagementPermission(){const s=gxGetSession();return !!s&&(s.role==='Super Admin'||s.role==='Admin')}
 function gxAccessLevel(){const s=gxGetSession()||{};return String(s.accessLevel||(['Super Admin','Admin'].includes(s.role)?'Admin':'Viewer')).trim()}
 function gxAccessLevelRank(){return ({Viewer:0,Editor:1,Approver:2,Admin:3})[gxAccessLevel()]??0}
 function gxUserTabs(){const s=gxGetSession();return Array.isArray(s?.tabs)?s.tabs:[]}

@@ -33,13 +33,9 @@ try {
   process.exitCode = 1;
 }
 
-
 await import('./r25-root-cause-contract.js');
-
 await import('./r26-data-lifecycle-contract.js');
-
 await import('./r27-airport-marker-contract.js');
-
 await import('./r28-firestore-cache-contract.js');
-
 await import('./r29-instant-cache-contract.js');
+await import('./r30-role-scope-firestore-contract.js');

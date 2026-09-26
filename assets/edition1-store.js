@@ -13,7 +13,7 @@
     standardContent:{},portalManagerR2:{},contactMessages:[],guestbook:[]
   };
   const baseline={}; let hydrated=false; let pending=Promise.resolve();
-  const CACHE_DB='GE_E1_CACHE_V28'; const CACHE_STORE='collections';
+  const CACHE_DB='GE_E1_CACHE_V30'; const CACHE_STORE='collections';
   function session(){return typeof window.gxGetSession==='function'?(window.gxGetSession()||{}):window.GX_CURRENT_USER||{}}
   function cacheAllowed(){return !!String(session().uid||session().id||session().email||'').trim()}
   function cacheIdentity(){const s=session();return String(s.uid||s.id||s.email||'anon')+'|'+String(s.scopeType||'')+'|'+(Array.isArray(s.airports)?s.airports.join(','):'')}
