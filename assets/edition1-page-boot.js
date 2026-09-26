@@ -19,7 +19,7 @@ const config={
  'lounge-list':{perm:'planning',collections:['lounges','loungeVisitors','serviceProcurement','documents']},
  'branch-office-planning':{perm:'planning',collections:['lounges','boSpaces','serviceProcurement','airportSystems','stationMaterials','documents']},
  'gaso-planning':{perm:'planning',collections:['gasoMaster','gasoServiceSupport','gasoPlanningService','airports','documents']},
- 'airport-experience':{perm:'services',collections:['airports','lounges','airportSystems','personnel']}
+ 'airport-experience':{perm:'services',collections:['airports','lounges','airportSystems','personnel','serviceProcurement','facilities','assets']}
 };
 const cfg=config[page]; if(!cfg)return;
 function session(){return typeof window.gxGetSession==='function'?(gxGetSession()||{}):window.GX_CURRENT_USER||{}}

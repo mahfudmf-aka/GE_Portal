@@ -5,4 +5,4 @@ const fs=require('fs'),assert=require('assert');const A=fs.readFileSync('assets/
   D.includes("p==='ge-team'"),
   'R35 dashboard must retain Admin, Management, BO and HO POV routing'
 );
-assert(M.includes('R32 — Standalone Airport Map marker renderer'));assert(M.includes('window.renderAirportMapMarkers=render'));assert(R.includes('edition1-business-runtime.js?v=r40'));console.log('R32_POV_PERMISSION_MAP_CONTRACT_PASS');
+assert(M.includes('R32 — Standalone Airport Map marker renderer'));assert(M.includes('window.renderAirportMapMarkers=render'));assert(R.includes('edition1-business-runtime.js?v=r41'));console.log('R32_POV_PERMISSION_MAP_CONTRACT_PASS');

@@ -9890,7 +9890,9 @@ function render(){controls();const layer=document.getElementById('airportMarkerL
 window.renderAirportMapMarkers=render;window.geR32AirportRows=rows;window.addEventListener('gx-data-background-refresh',render);
 const boot=()=>{controls();render();setTimeout(render,250);setTimeout(render,1200)};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
-\n\n/* R39 — Airport Experience explicit Network / Map projection without deleting either workspace. */
+
+
+/* R39 — Airport Experience explicit Network / Map projection without deleting either workspace. */
 (function(){'use strict';
 function applyAirportExperienceView(){
   const q=new URLSearchParams(location.search),page=q.get('page'),view=q.get('view');

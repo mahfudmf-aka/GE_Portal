@@ -54,3 +54,5 @@ await import('./r38-2-master-edit-modal-contract.js');
 await import('./r39-p1-p8-dashboard-cost-contract.js');
 
 await import('./r40-map-table-presentation-contract.js');
+
+await import('./r41-runtime-data-table-contract.js');
