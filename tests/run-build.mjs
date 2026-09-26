@@ -50,3 +50,5 @@ await import('./r38-master-save-contract.js');
 await import('./r38-1-master-table-actions-contract.js');
 
 await import('./r38-2-master-edit-modal-contract.js');
+
+await import('./r39-p1-p8-dashboard-cost-contract.js');

@@ -9890,3 +9890,16 @@ function render(){controls();const layer=document.getElementById('airportMarkerL
 window.renderAirportMapMarkers=render;window.geR32AirportRows=rows;window.addEventListener('gx-data-background-refresh',render);
 const boot=()=>{controls();render();setTimeout(render,250);setTimeout(render,1200)};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
+\n\n/* R39 — Airport Experience explicit Network / Map projection without deleting either workspace. */
+(function(){'use strict';
+function applyAirportExperienceView(){
+  const q=new URLSearchParams(location.search),page=q.get('page'),view=q.get('view');
+  if(page!=='airport-experience'||!view)return;
+  const map=document.querySelector('#airportExperienceMap, .airport-map-shell, .airport-map-shell-v216')?.closest('section') || document.querySelector('[data-section="map"]');
+  const network=document.querySelector('#airportNetworkSummary,[data-section="network"]');
+  if(view==='network'){ if(map)map.style.display='none'; if(network)network.style.display=''; }
+  if(view==='map'){ if(map)map.style.display=''; if(network)network.style.display='none'; }
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(applyAirportExperienceView,60));else setTimeout(applyAirportExperienceView,60);
+window.geApplyAirportExperienceViewR39=applyAirportExperienceView;
+})();
