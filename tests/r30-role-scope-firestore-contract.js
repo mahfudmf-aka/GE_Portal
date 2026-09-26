@@ -12,7 +12,18 @@ must(store.includes("GE_E1_CACHE_V30"),'stale pre-R30 cache must be isolated');
 must(shell.includes("return 'admin'"),'Admin dashboard POV missing');
 must(shell.includes('Ground Experience Admin Dashboard'),'Admin dashboard/navigation missing');
 must(dash.includes("p==='management'")&&dash.includes("p==='ge-team'")&&dash.includes("p==='branch'"),'role dashboards missing');
-must(dash.includes('Scope:')&&dash.includes('scoped('),'dashboard scope filtering missing');
+must(
+  dash.includes('const stations=') &&
+  dash.includes('scopeType') &&
+  dash.includes('s.airports') &&
+  dash.includes('const stationVals=') &&
+  dash.includes('const scoped=') &&
+  dash.includes('scoped(d.initiatives,s)') &&
+  dash.includes('scoped(d.projectEvents||[],s)') &&
+  dash.includes('scoped(d.airports||[],s)') &&
+  dash.includes('scoped(d.lounges||[],s)'),
+  'dashboard station-scope filtering missing'
+);
 must(!/inisiatif[^\n]+collections:\[[^\]]*'users'/.test(boot),'initiative batch must not fail on user-directory permission');
 must(!/calendar[^\n]+collections:\[[^\]]*'users'/.test(boot),'calendar batch must not fail on user-directory permission');
 console.log('R30_ROLE_SCOPE_FIRESTORE_CONTRACT_PASS');
