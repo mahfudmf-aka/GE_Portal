@@ -5224,3 +5224,50 @@ button[onclick^="openInitiativeStepV224"]{min-height:36px!important;padding:8px 
 .ge-bo-manage-r20,.bo-service-table td:last-child .btn,.bo-service-table td:last-child button{height:36px!important;min-height:36px!important;line-height:1!important;padding:0 12px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;white-space:nowrap!important}
 /* Asset & Facility canonical presentation */
 body:has(#kTotal) .ge-panel{background:#fff;border:1px solid #d8e2ec;border-radius:14px;padding:18px;margin-bottom:16px}body:has(#kTotal) .p39-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin:16px 0}body:has(#kTotal) .p39-kpi{padding:18px;border:1px solid #d8e2ec;border-radius:14px;background:#fff}body:has(#kTotal) .p39-kpi small{display:block;color:#71869a}body:has(#kTotal) .p39-kpi b{display:block;margin-top:8px;font-size:28px;color:#0b4f7c}body:has(#kTotal) .p39-filter-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}body:has(#kTotal) .p39-filter-grid input,body:has(#kTotal) .p39-filter-grid select{height:42px;border:1px solid #cbd8e5;border-radius:9px;padding:0 11px;background:#fff;color:#173b54}body:has(#kTotal) .p39-table-wrap{overflow:auto;width:100%}body:has(#kTotal) .p39-table{width:100%;min-width:1050px;border-collapse:collapse}body:has(#kTotal) .p39-table th,body:has(#kTotal) .p39-table td{padding:11px 12px;border-bottom:1px solid #e3e9ef;text-align:left;vertical-align:top}body:has(#kTotal) .p39-table th{background:#f5f8fb;color:#37536c;font-size:12px}body:has(#kTotal) .p39-note{color:#667e92}body:has(#kTotal) .ge-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}body:has(#kTotal) .ge-panel-actions{display:flex;gap:8px;flex-wrap:wrap}body:has(#kTotal) .ge-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}body:has(#kTotal) .ge-form-grid .span2{grid-column:1/-1}body:has(#kTotal) .ge-form-grid input,body:has(#kTotal) .ge-form-grid select,body:has(#kTotal) .ge-form-grid textarea{display:block;width:100%;box-sizing:border-box;margin-top:5px;border:1px solid #ccd8e4;border-radius:8px;padding:9px 10px;background:#fff}body:has(#kTotal) .ge-form-grid input,body:has(#kTotal) .ge-form-grid select{height:40px;padding-top:0;padding-bottom:0}@media(max-width:1000px){body:has(#kTotal) .p39-kpis{grid-template-columns:repeat(2,1fr)}body:has(#kTotal) .p39-filter-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* R24 — canonical dropdown field treatment across portal/pages/modals.
+   One field, one outline, integrated chevron; never a segmented arrow button. */
+html body.final-v257 select:not([multiple]),
+html body.final-shell-r5 select:not([multiple]),
+html body .ge-ref-form select:not([multiple]),
+html body .p39-filter-grid select:not([multiple]),
+html body .ge-form-grid select:not([multiple]),
+html body .ge-form-row select:not([multiple]),
+html body .map-search-tools select:not([multiple]),
+html body .ge-gantt-filterbar-r15 select:not([multiple]){
+  -webkit-appearance:none!important;appearance:none!important;
+  background-color:#fff!important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 7.5 10 12l4.5-4.5' fill='none' stroke='%23173b54' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;
+  background-repeat:no-repeat!important;background-position:right 14px center!important;background-size:14px 14px!important;
+  padding-right:42px!important;border:1px solid #c8d7e4!important;border-radius:10px!important;
+  color:#173b54!important;box-shadow:none!important;
+}
+html body.final-v257 select:not([multiple]):focus,
+html body.final-shell-r5 select:not([multiple]):focus,
+html body .ge-ref-form select:not([multiple]):focus,
+html body .p39-filter-grid select:not([multiple]):focus,
+html body .ge-form-grid select:not([multiple]):focus,
+html body .ge-form-row select:not([multiple]):focus{
+  outline:0!important;border-color:#2d6fba!important;box-shadow:0 0 0 3px rgba(45,111,186,.10)!important;
+}
+/* Custom searchable/free-entry combo: same visual contract as select. */
+html body .ge-ref-combo>input,
+html body .ge-combo-input-r12{padding-right:42px!important;border:1px solid #c8d7e4!important;border-radius:10px!important;background:#fff!important;color:#173b54!important;box-shadow:none!important}
+html body .ge-ref-combo-toggle,
+html body .ge-combo-toggle-r12{
+  position:absolute!important;right:4px!important;top:50%!important;transform:translateY(-50%)!important;
+  width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;
+  padding:0!important;margin:0!important;border:0!important;border-left:0!important;border-radius:8px!important;
+  background:transparent!important;color:#173b54!important;box-shadow:none!important;font-size:0!important;line-height:1!important;
+}
+html body .ge-ref-combo-toggle::after,
+html body .ge-combo-toggle-r12::after{content:'▾';display:block;font-size:17px!important;font-weight:700;color:#173b54;line-height:34px;text-align:center}
+html body .ge-ref-combo-toggle:hover,
+html body .ge-combo-toggle-r12:hover{background:#f2f6fa!important}
+html body .ge-ref-combo:focus-within>input,
+html body .ge-combo-r12:focus-within .ge-combo-input-r12{border-color:#2d6fba!important;box-shadow:0 0 0 3px rgba(45,111,186,.10)!important}
+/* Multi-select trigger uses the same integrated chevron. */
+html body .ge-ref-multi-trigger,
+html body .ge-picker-trigger-r11{position:relative!important;padding-right:42px!important;border:1px solid #c8d7e4!important;border-radius:10px!important;background:#fff!important;color:#173b54!important;box-shadow:none!important}
+html body .ge-ref-multi-trigger::after,
+html body .ge-picker-trigger-r11::after{content:'▾';position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:15px;font-weight:700;color:#173b54}
