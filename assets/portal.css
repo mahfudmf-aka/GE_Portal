@@ -5299,3 +5299,43 @@ html body .ge-combo-toggle-r12::after{line-height:40px!important}
 
 /* R33 — Reference-faithful Management / BO dashboard visual layer. */
 .ge-ref-dashboard{font-size:10px!important}.ge-ref-dashboard .ge-dash-panel{min-height:230px!important}.ge-ref-kpis .ge-dash-kpi{grid-template-columns:42px minmax(0,1fr)!important;min-height:96px!important}.ge-ref-kpis .ge-dash-kpi-icon{width:40px!important;height:40px!important}.ge-ref-kpis .ge-dash-kpi b{font-size:22px!important}.ge-ref-kpis .ge-dash-kpi.purple .ge-dash-kpi-icon{background:#6944c8!important}.ge-ref-kpis .ge-dash-kpi.green .ge-dash-kpi-icon{background:#21935f!important}.ge-ref-kpis .ge-dash-kpi.orange .ge-dash-kpi-icon{background:#ef7d18!important}.ge-ref-kpis .ge-dash-kpi.teal .ge-dash-kpi-icon{background:#118aa0!important}.ge-ref-kpis .ge-dash-kpi.red .ge-dash-kpi-icon{background:#dc3b37!important}.ge-ref-chart-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(120px,.65fr);gap:12px}.ge-ref-chart svg{display:block;width:100%;height:115px}.ge-ref-chart svg line{stroke:#d8e2ed;stroke-width:1}.ge-ref-chart svg polyline{fill:none;stroke:#1263d1;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.ge-ref-chart small{display:block;text-align:center;color:#75899d;font-size:7px}.ge-ref-score-list{display:grid;gap:7px}.ge-ref-score-list>div{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px;border-bottom:1px solid #e8eef5}.ge-ref-score-list span{color:#526d88;font-size:8px}.ge-ref-score-list b{font-size:14px;color:#0a2f63}.ge-ref-initiative-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-bottom:14px}.ge-ref-initiative-summary>div{text-align:center;border-right:1px solid #e3eaf2}.ge-ref-initiative-summary>div:last-child{border-right:0}.ge-ref-initiative-summary b{display:block;font-size:20px;color:#0a2d61}.ge-ref-initiative-summary span{font-size:7px;color:#6c8197}.ge-ref-progress-track{display:flex;height:8px;border-radius:9px;overflow:hidden;background:#e7edf4}.ge-ref-progress-track i{height:100%}.ge-ref-progress-track .inprogress{background:#1263d1}.ge-ref-progress-track .complete{background:#2b9d63}.ge-ref-progress-track .overdue{background:#dd3b36}.ge-ref-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;color:#60788f;font-size:8px}.ge-ref-legend b{color:#15395f}.ge-ref-cost{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.ge-ref-cost>div{border:1px solid #dce6ef;border-radius:7px;padding:10px;background:#fbfdff}.ge-ref-cost small{display:block;color:#667e95;font-size:7px}.ge-ref-cost b{display:block;margin-top:4px;color:#0b2f61;font-size:15px}.ge-dash-bo-head h1{margin:3px 0!important;color:#0a2f63!important;font-size:22px!important}.ge-dash-bo-head p{margin:3px 0!important;color:#486681!important}.ge-bo-kpis{grid-template-columns:repeat(6,minmax(0,1fr))!important}.ge-ref-dashboard .ge-dash-table td small{display:block;color:#7890a5;font-size:7px;margin-top:2px}.ge-ref-dashboard .ge-dash-table .ge-dash-progress{min-width:75px}.ge-ref-dashboard .ge-dash-bars{min-width:180px}.ge-admin-combined>.ge-ref-dashboard{margin-bottom:22px}@media(max-width:1180px){.ge-bo-kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important}.ge-ref-chart-grid{grid-template-columns:1fr}.ge-ref-initiative-summary{grid-template-columns:repeat(2,1fr);row-gap:10px}}@media(max-width:820px){.ge-bo-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}.ge-ref-cost{grid-template-columns:1fr}.ge-ref-initiative-summary{grid-template-columns:1fr 1fr}}
+
+/* R34 — dashboard density/alignment pass against approved Management & BO references. */
+.ge-ref-dashboard{font-size:11px!important}
+.ge-ref-dashboard .ge-dash-grid{align-items:stretch!important;gap:10px!important;margin-bottom:10px!important}
+.ge-ref-dashboard .ge-dash-panel{min-height:0!important;height:auto!important;padding:10px 12px!important;border-radius:9px!important;overflow:hidden!important}
+.ge-ref-dashboard .ge-dash-panel-head{padding-bottom:7px!important;margin-bottom:8px!important}
+.ge-ref-dashboard .ge-dash-panel-head h2{font-size:12px!important;letter-spacing:0!important}
+.ge-ref-dashboard .ge-dash-kpis{min-height:84px!important;margin-bottom:10px!important}
+.ge-ref-dashboard .ge-dash-kpi{min-height:82px!important;padding:10px 12px!important;gap:10px!important}
+.ge-ref-dashboard .ge-dash-kpi small{font-size:8px!important;line-height:1.15!important}
+.ge-ref-dashboard .ge-dash-kpi b{font-size:20px!important;line-height:1.05!important;margin-top:2px!important}
+.ge-ref-dashboard .ge-dash-kpi span{font-size:7px!important;line-height:1.2!important;margin-top:4px!important}
+.ge-ref-dashboard .ge-dash-kpi-icon{width:34px!important;height:34px!important;min-width:34px!important}
+.management-pov.ge-ref-dashboard>.ge-dash-grid-3:nth-of-type(2){grid-template-columns:1.08fr 1.02fr .9fr!important}
+.management-pov.ge-ref-dashboard>.ge-dash-grid-3:nth-of-type(3){grid-template-columns:1.05fr 1fr .95fr!important}
+.management-pov.ge-ref-dashboard .ge-dash-grid-3 .ge-dash-panel{min-height:245px!important;max-height:285px!important}
+.management-pov.ge-ref-dashboard .ge-dash-grid-2 .ge-dash-panel{min-height:155px!important;max-height:185px!important}
+.ge-ref-dashboard .ge-dash-table{table-layout:fixed!important;font-size:8px!important}
+.ge-ref-dashboard .ge-dash-table th,.ge-ref-dashboard .ge-dash-table td{padding:5px 6px!important;line-height:1.25!important}
+.ge-ref-dashboard .ge-dash-table td:first-child{width:38%!important}
+.ge-ref-dashboard .ge-dash-table td b{font-size:8px!important;line-height:1.25!important}
+.ge-ref-dashboard .ge-dash-table-wrap{overflow:auto!important;max-height:205px!important}
+.ge-ref-dashboard .ge-dash-progress{height:6px!important;min-width:56px!important}
+.ge-ref-dashboard .ge-dash-status{font-size:7px!important;padding:3px 6px!important;white-space:nowrap!important}
+.ge-ref-dashboard .ge-ref-chart svg{height:102px!important}
+.ge-ref-dashboard .ge-ref-chart-grid{gap:8px!important}
+.ge-ref-dashboard .ge-ref-score-list>div{padding:6px 4px!important}
+.ge-ref-dashboard .ge-ref-score-list span{font-size:8px!important}.ge-ref-dashboard .ge-ref-score-list b{font-size:12px!important}
+.ge-ref-dashboard .ge-dash-donut{gap:14px!important;align-items:center!important}.ge-ref-dashboard .donut{width:112px!important;height:112px!important;min-width:112px!important}
+.ge-ref-dashboard .donut b{font-size:20px!important}.ge-ref-dashboard .donut span{font-size:8px!important}
+.ge-ref-dashboard .ge-ref-initiative-summary{margin:4px 0 10px!important}.ge-ref-dashboard .ge-ref-initiative-summary b{font-size:18px!important}.ge-ref-dashboard .ge-ref-initiative-summary span{font-size:7px!important}
+.ge-ref-dashboard .ge-ref-cost>div{padding:8px!important}.ge-ref-dashboard .ge-ref-cost b{font-size:14px!important}
+.ge-ref-dashboard .ge-dash-budget-grid>div{padding:9px!important}.ge-ref-dashboard .ge-dash-budget-grid b{font-size:15px!important}
+.ge-ref-dashboard .ge-dash-note{font-size:7px!important;margin:8px 0 0!important}
+.branch-pov.ge-ref-dashboard .ge-dash-bo-head{min-height:72px!important;padding:10px 14px!important;margin-bottom:8px!important;border-radius:9px!important;background:linear-gradient(100deg,#eef7ff 0%,#dbeeff 55%,#f7fbff 100%)!important}
+.branch-pov.ge-ref-dashboard .ge-dash-bo-head h1{font-size:20px!important}.branch-pov.ge-ref-dashboard .ge-dash-bo-head small,.branch-pov.ge-ref-dashboard .ge-dash-bo-head p{font-size:9px!important}
+.branch-pov.ge-ref-dashboard .ge-dash-grid-3 .ge-dash-panel{min-height:220px!important;max-height:270px!important}
+.branch-pov.ge-ref-dashboard .ge-dash-table-wrap{max-height:195px!important}
+.ge-admin-combined .ge-dash-mode-label{margin:10px 0 6px!important;font-size:9px!important}
+@media(min-width:1400px){.ge-ref-dashboard .ge-dash-grid-3{grid-template-columns:1.08fr 1fr .92fr!important}.branch-pov.ge-ref-dashboard .ge-dash-grid-3{grid-template-columns:1.12fr .88fr .96fr!important}}
