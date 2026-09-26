@@ -258,9 +258,7 @@ const navItem=(href,label,i,sub=false)=>item(href,label,i,sub);
 function navFor(s){
  const pov=dashboardPOV(s);
  const planning=[
-   item('service-planning.html','Planning Overview','≡'),
-   item('planning-workspace.html','Planning Workspace','◇'),
-   item('planning-documents.html','Planning Documents','▤')
+   item('planning-workspace.html','Planning Workspace','◇')
  ];
  const commonSupport=group('SUPPORT',[item('berita.html','Berita & Informasi','▣'),item('kontak.html','Contact Support','☎')]);
  if(['Lounge Staff','Lounge Luar Biasa'].includes(s?.role)) return [

@@ -9793,3 +9793,48 @@ window.geInstallLoungeFiltersR12=function(){
 const lounge0=window.renderLounges;
 if(lounge0)window.renderLounges=function(){const r=lounge0();window.geInstallLoungeFiltersR12();const v=document.getElementById('geLoungeViewSelectR6')?.value||'grid';window.geSetLoungeViewR6?.(v);return r};
 })();
+
+/* R19 — consolidated interaction fixes: planning actions + canonical list/detail views. */
+(function(){
+'use strict';
+function byId(id){return document.getElementById(id)}
+/* Inline handlers rendered by clean pages must resolve on window even when the canonical bundle is evaluated in an isolated scope. */
+['openPlanningRecordModal','closePlanningRecordModal','savePlanningRecord','deletePlanningRecord','openServiceProcurementModalV243','closeServiceProcurementModalV243','saveServiceProcurementV243','deleteServiceProcurementV243','renderLoungeProcurement','renderTouchpointStandards'].forEach(name=>{
+  try{ if(typeof eval(name)==='function') window[name]=eval(name); }catch(_e){}
+});
+function setLoungeView(view){
+ const detail=view==='detail';
+ window.GE_LOUNGE_VIEW_R19=detail?'detail':'grid';
+ const grid=byId('loungeCardGridV237'), table=document.querySelector('.lounge-table-fallback-v237');
+ const pager=byId('loungeCardPageInfoV237')?.parentElement;
+ if(grid)grid.hidden=detail;
+ if(table){table.classList.toggle('ge-p29-table-visible',detail);table.hidden=!detail;}
+ if(pager)pager.hidden=detail;
+ const sel=byId('geLoungeViewSelectR6');if(sel&&sel.value!==window.GE_LOUNGE_VIEW_R19)sel.value=window.GE_LOUNGE_VIEW_R19;
+ document.querySelectorAll('#geP29ViewToggle button').forEach(b=>b.classList.toggle('active',b.dataset.view===window.GE_LOUNGE_VIEW_R19));
+}
+window.geSetLoungeViewR6=setLoungeView;
+function bindLoungeView(){
+ const sel=byId('geLoungeViewSelectR6');if(sel&&!sel.dataset.r19){sel.dataset.r19='1';sel.onchange=()=>setLoungeView(sel.value);}
+ document.querySelectorAll('#geP29ViewToggle button').forEach(b=>{if(b.dataset.r19)return;b.dataset.r19='1';b.onclick=()=>setLoungeView(b.dataset.view);});
+ setLoungeView(window.GE_LOUNGE_VIEW_R19||sel?.value||'grid');
+}
+function setInitiativeView(view){
+ window.GE_INITIATIVE_VIEW_R4=view==='list'?'list':'grid';
+ const sel=byId('geInitiativeViewSelectR6');if(sel&&sel.value!==window.GE_INITIATIVE_VIEW_R4)sel.value=window.GE_INITIATIVE_VIEW_R4;
+ document.querySelectorAll('#geInitiativeViewToggleR4 button').forEach(b=>b.classList.toggle('active',b.dataset.view===window.GE_INITIATIVE_VIEW_R4));
+ if(typeof window.renderInitiatives==='function')window.renderInitiatives();
+}
+window.geSetInitiativeViewR19=setInitiativeView;
+function bindInitiativeView(){
+ const sel=byId('geInitiativeViewSelectR6');if(sel&&!sel.dataset.r19){sel.dataset.r19='1';sel.onchange=()=>setInitiativeView(sel.value);}
+ document.querySelectorAll('#geInitiativeViewToggleR4 button').forEach(b=>{if(b.dataset.r19)return;b.dataset.r19='1';b.onclick=()=>setInitiativeView(b.dataset.view);});
+}
+function bindPlanningActions(){
+ document.querySelectorAll('button[onclick*="openPlanningRecordModal"],button[onclick*="openServiceProcurementModalV243"]').forEach(b=>{b.disabled=false;b.style.pointerEvents='auto';});
+}
+function init(){bindLoungeView();bindInitiativeView();bindPlanningActions();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,80));else setTimeout(init,80);
+const mo=new MutationObserver(()=>{bindLoungeView();bindInitiativeView();bindPlanningActions();});
+if(document.body)mo.observe(document.body,{childList:true,subtree:true});else document.addEventListener('DOMContentLoaded',()=>mo.observe(document.body,{childList:true,subtree:true}));
+})();
