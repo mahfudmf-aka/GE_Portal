@@ -1315,7 +1315,7 @@ function prepareEligibleConfirmation(parsed){
         </label>
         <label id="eligibilityReferenceWrap" style="display:none">
           <span id="eligibilityReferenceLabel">Referensi Eligibility</span>
-          <input id="eligibilityReference" autocomplete="off" placeholder="Contoh: Nama: BUDI SANTOSO | Flight: GA204 | Sequence: 037 | Eligible: Y">
+          <input id="eligibilityReference" autocomplete="off">
           <small>Wajib diisi untuk kategori yang memerlukan validasi membership, partnership, atau EMD.</small>
         </label>
         <div class="confirm-actions">
@@ -5940,10 +5940,10 @@ function geManualFallbackMarkupV238(){
   return `<div id="manualEntry" class="manual-entry lounge-manual-v236 lounge-manual-right-v238 show">
     <div class="lounge-section-head-v236"><div><span class="lounge-kicker-v236">FALLBACK</span><h3>Input Manual</h3><p>Digunakan bila barcode/string tidak dapat dibaca. Eligibility dihitung otomatis.</p></div></div>
     <div class="formgrid">
-      <label>Nama Penumpang<input id="manualName" placeholder="Contoh: BUDI SANTOSO"></label><label>Flight Number<input id="manualFlight" placeholder="Contoh: GA204"></label>
-      <label>From<input id="manualFrom" maxlength="3" placeholder="Contoh: CGK"></label><label>To<input id="manualTo" maxlength="3" placeholder="Contoh: DPS"></label>
-      <label>Cabin<select id="manualCabin"><option value="">Pilih Cabin</option><option value="C">C / Business</option><option value="Y">Y / Economy</option></select></label><label>Seat<input id="manualSeat" placeholder="Contoh: 7A"></label>
-      <label>Sequence Check-in<input id="manualSeq" placeholder="Contoh: 037"></label><label>Ticket Number<input id="manualTicket" placeholder="Contoh: 1261234567890"></label>
+      <label>Nama Penumpang<input id="manualName" placeholder="Nama Penumpang"></label><label>Flight Number<input id="manualFlight" placeholder="GA127"></label>
+      <label>From<input id="manualFrom" maxlength="3" placeholder="DJB"></label><label>To<input id="manualTo" maxlength="3" placeholder="CGK"></label>
+      <label>Cabin<select id="manualCabin"><option value="">Pilih Cabin</option><option value="C">C / Business</option><option value="Y">Y / Economy</option></select></label><label>Seat<input id="manualSeat" placeholder="7A"></label>
+      <label>Sequence Check-in<input id="manualSeq" placeholder="107"></label><label>Ticket Number<input id="manualTicket" placeholder="126xxxxxxxxxxx"></label>
       <label>Member<select id="manualMember"><option value="">Tidak Ada / Lainnya</option><option>Platinum</option><option>Elite Plus</option></select></label>
     </div><div class="scanner-note lounge-note-v236">Eligibility dihitung otomatis: Cabin C/Business = Eligible. Cabin Y/Economy = Eligible untuk Platinum atau Elite Plus; kombinasi lain = Tidak Eligible.</div>
     <div class="scan-actions"><button class="btn lounge-primary-v236" onclick="verifyManualPassenger()">Verifikasi Data Manual</button><button class="btn secondary" onclick="resetLoungeAccess()">Batal</button></div></div>`;

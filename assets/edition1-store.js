@@ -48,6 +48,9 @@
       if(key==='standardContent'||key==='portalManager'){
         const snap=await fb.db.collection('portalMetadata').doc(key).collection('records').doc('global').get();
         out[key]=snap.exists?[{id:'global',...snap.data()}]:[];
+      }else if(key==='users'){
+        const snap=await fb.db.collection('users').get();
+        out[key]=snap.docs.map(d=>({id:d.id,...d.data()}));
       }else{
         const snap=await fb.db.collection('portalData').doc(key).collection('records').get();
         out[key]=snap.docs.map(d=>({id:d.id,...d.data()}));
