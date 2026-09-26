@@ -5200,3 +5200,17 @@ button[onclick^="openInitiativeStepV224"]{min-height:36px!important;padding:8px 
 /* R21 login canonical: approved navy action with white label. */
 .login-submit{background:#0b356b!important;color:#fff!important;border:1px solid #0b356b!important}
 .login-submit:hover:not(:disabled){background:#123f78!important;border-color:#123f78!important}
+
+
+/* R22 — global overlay, usable list tables, resizable/sortable tables and BO table polish */
+#geGlobalRefModal{position:fixed!important;inset:0!important;z-index:2147483000!important;pointer-events:none!important}
+#geGlobalRefModal>.ge-ref-backdrop{position:absolute!important;inset:0!important;z-index:2147483001!important;pointer-events:auto!important;display:grid!important;place-items:center!important;padding:24px!important}
+#geGlobalRefModal .ge-ref-modal{position:relative!important;z-index:2147483002!important;max-height:calc(100vh - 48px)!important;overflow:auto!important}
+.ge-initiative-list-r4{width:100%!important;max-width:100%!important;overflow:auto!important}
+.ge-initiative-list-r4 table{width:max-content!important;min-width:100%!important;table-layout:auto!important}
+.ge-initiative-list-r4 th,.ge-initiative-list-r4 td{min-width:130px!important;max-width:320px!important;white-space:normal!important;vertical-align:top!important}
+.ge-initiative-list-r4 th:first-child,.ge-initiative-list-r4 td:first-child{min-width:260px!important}
+.ge-initiative-list-r4 th{position:relative!important;resize:horizontal!important;overflow:auto!important;cursor:pointer!important}
+.ge-ref-table th,.lounge-master-table th,.p39-table th{resize:horizontal!important;overflow:auto!important;cursor:pointer!important}
+.ge-bo-manage-r20{min-width:88px!important;max-width:none!important;width:auto!important;white-space:nowrap!important;padding:0 14px!important}
+.bo-service-table td,.bo-service-table th{vertical-align:top!important}
