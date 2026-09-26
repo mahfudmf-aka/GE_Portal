@@ -104,7 +104,7 @@ body:has(#initRows) .journey-tabs{grid-template-columns:repeat(5,minmax(130px,1f
 .radial-chart circle{fill:none;stroke-width:10}
 .radial-chart .track{stroke:#e5edf3}
 .radial-chart .target{stroke:#9cb6c8;stroke-width:7}
-.radial-chart .actual{stroke:#0b55ad;stroke-width:10;stroke-linecap:round}
+.radial-chart .actual{stroke:var(--ge-progress-tone,#073b67);stroke-width:10;stroke-linecap:round}
 .radial-center{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   flex-direction:column
@@ -5136,3 +5136,20 @@ button[onclick^="openInitiativeStepV224"]{min-height:36px!important;padding:8px 
 
 /* R15 canonical UI corrections: compact permissions, reference Gantt filters, consistent controls. */
 .tab-check-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important}.tab-check{min-height:58px!important;padding:10px 12px!important;gap:10px!important}.tab-check input[type=checkbox]{appearance:auto!important;-webkit-appearance:checkbox!important;width:17px!important;height:17px!important;min-width:17px!important;max-width:17px!important;flex:0 0 17px!important;margin:0!important;padding:0!important;box-shadow:none!important;accent-color:#062b63!important}.tab-check span{font-size:13px!important;line-height:1.25!important}@media(max-width:1100px){.tab-check-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.ge-gantt-filterbar-r15{grid-template-columns:repeat(3,minmax(0,1fr))}.ge-gantt-scale-r16{flex-direction:column}.ge-gantt-scale-actions-r16{justify-content:flex-start}}
+
+
+/* R17 — Gantt reference parity + progress tone standardization */
+.ge-gantt-grid-r13{--ge-gantt-line:#dce7ea;border-color:var(--ge-gantt-line)!important}
+.ge-gantt-head-r13,.ge-gantt-periods-r13,.ge-gantt-label-r13,.ge-gantt-deadline-r13,.ge-gantt-track-r13{border-color:var(--ge-gantt-line)!important}
+.ge-gantt-project-head-r13,.ge-gantt-deadline-head-r13,.ge-gantt-label-r13,.ge-gantt-deadline-r13{border-right:1px solid var(--ge-gantt-line)!important}
+.ge-gantt-label-r13,.ge-gantt-deadline-r13{border-top:0!important;border-left:0!important;border-bottom:1px solid var(--ge-gantt-line)!important;outline:0!important}
+.ge-gantt-track-r13{overflow:hidden;border-bottom:1px solid var(--ge-gantt-line)!important}
+.ge-gantt-periods-r13>div{border-right:1px solid var(--ge-gantt-line)!important}
+.ge-gantt-bar-r13{z-index:2}
+.ge-gantt-today-r16{z-index:5;width:1px;background:#d64a43}
+.ge-gantt-deadline-marker-r16{z-index:4}
+.ge-gantt-tooltip-r17{position:fixed;z-index:1200;display:none;max-width:320px;padding:9px 11px;border-radius:8px;background:#0b3558;color:#fff;font-size:11px;line-height:1.45;box-shadow:0 8px 24px rgba(7,35,60,.22);pointer-events:none;white-space:normal}
+.ge-gantt-tooltip-r17.show{display:block}
+.ge-touchpoint-filter-card{--ge-progress-tone:#073b67}
+.ge-touchpoint-filter-card .radial-chart .actual{stroke:var(--ge-progress-tone)!important}
+.ge-touchpoint-filter-card:focus-visible{outline:2px solid #164f78;outline-offset:3px}
