@@ -1,7 +1,7 @@
 <!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ground Experience Portal</title>
 <link rel="stylesheet" href="assets/portal.css?v=r14"><link rel="stylesheet" href="assets/clean-shell.css?v=r14">
-<script>try{if(localStorage.getItem('GE_V257_SIDEBAR_COLLAPSED')==='1')document.documentElement.classList.add('ge-precollapsed')}catch(e){}</script><script src="assets/portal-shell.js?v=r14"></script><script src="assets/firebase-config.js?v=r14"></script><script src="assets/firebase-client.js?v=r14"></script><script src="assets/auth.js?v=r14"></script><script src="assets/clean-page-registry.js?v=r14"></script></head><body id="top" class="e1-page"><header class="top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet"><div class="clean-page-loading">Memuat halaman…</div></main></div><footer class="footer"><b>GROUND EXPERIENCE — GARUDA INDONESIA</b><br>Portal Service Experience</footer><button aria-label="Kembali ke atas" class="back-to-top" id="backToTop">↑</button>
-<script src="assets/clean-route-adapter.js?v=r14"></script><script>
+<script>try{if(localStorage.getItem('GE_V257_SIDEBAR_COLLAPSED')==='1')document.documentElement.classList.add('ge-precollapsed')}catch(e){}</script><script src="assets/portal-shell.js?v=r15.1"></script><script src="assets/firebase-config.js?v=r14"></script><script src="assets/firebase-client.js?v=r14"></script><script src="assets/auth.js?v=r14"></script><script src="assets/clean-page-registry.js?v=r14"></script></head><body id="top" class="e1-page"><header class="top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet"><div class="clean-page-loading">Memuat halaman…</div></main></div><footer class="footer"><b>GROUND EXPERIENCE — GARUDA INDONESIA</b><br>Portal Service Experience</footer><button aria-label="Kembali ke atas" class="back-to-top" id="backToTop">↑</button>
+<script src="assets/clean-route-adapter.js?v=r15.1"></script><script>
 (async function(){
  const outlet=document.getElementById('cleanPageOutlet');
  try{
@@ -10,7 +10,11 @@
   await window.GX_AUTH_READY;
   if(!window.gxGetSession?.()) return; // auth bootstrap is redirecting to login or access fallback.
 
-  const params=new URLSearchParams(location.search); const route=params.get('page')||'index'; const def=window.P40_CLEAN_PAGES[route];
+  const params=new URLSearchParams(location.search); let route=String(params.get('page')||'index').trim().toLowerCase();
+  // app.html is the SPA host, never a logical page. Recover stale/legacy ?page=app links before rendering.
+  if(route==='app'){route='index';params.set('page','index');history.replaceState(null,'','app.html?'+params.toString());}
+  const alias=(window.P40_CLEAN_ALIASES||{})[route];if(alias)route=String(alias).split('?')[0];
+  const def=window.P40_CLEAN_PAGES[route];
   if(!def){outlet.innerHTML='<div class="clean-page-error"><h2>Page tidak ditemukan</h2><p>'+route+'</p></div>';return;}
   document.title=def.title+' — Ground Experience Portal'; outlet.innerHTML=def.html;
   // Route-specific styles not already in the canonical shell.

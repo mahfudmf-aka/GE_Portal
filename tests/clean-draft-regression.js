@@ -82,4 +82,13 @@ assert(business.includes('capacitySchedules'),'Lounge/Tenant must retain capacit
 assert(business.includes('supersedesId'),'Lounge/Tenant must retain agreement replacement history.');
 assert(app.includes('v=r14'),'Canonical root assets must use current cache identity.');
 assert(registry.includes('edition1-business-runtime.js?v=r14'),'Canonical page runtime must use current cache identity.');
+
+// Route reachability guard: app.html is infrastructure, never a logical page.
+assert(app.includes("if(route==='app'){route='index'"),'SPA host must recover stale ?page=app to the canonical index route.');
+assert(read('assets/portal-shell.js').includes("if(m[1]==='app')"),'Portal shell must special-case app.html instead of converting it to page=app.');
+assert(adapter.includes("if(route==='app')"),'Route adapter must special-case app.html instead of converting it to page=app.');
+assert(!/P40_CLEAN_PAGES\[['"]app['"]\]/.test(app),'app must never be treated as a logical page key.');
+assert(!registry.includes('href=\"e1-') && !registry.includes("href='e1-"),'Canonical registry must not navigate to historical E1 page implementations.');
+// Every local HTML link embedded in a canonical page must resolve to another canonical page or an infrastructure entry.
+{ const vm=require('vm'); const ctx={window:{}}; vm.createContext(ctx); vm.runInContext(registry,ctx); const pages=ctx.window.P40_CLEAN_PAGES||{}, aliases=ctx.window.P40_CLEAN_ALIASES||{}; const bad=[]; for(const [pageKey,def] of Object.entries(pages)){ for(const m of String(def.html||'').matchAll(/href=["']([^"']+)["']/g)){ const href=m[1]; if(/^(https?:|mailto:|tel:|#|javascript:)/i.test(href))continue; const hit=href.match(/(?:^|\/)([^\/?#]+)\.html/); if(!hit)continue; let route=hit[1]; if(['login','change-password','app'].includes(route))continue; route=String(aliases[route]||route).split('?')[0]; if(!pages[route])bad.push(`${pageKey}: ${href} -> ${route}`); }} assert(!bad.length,`Canonical route reachability failed: ${bad.join('; ')}`); }
 console.log(`CLEAN_DRAFT_REGRESSION_PASS HTML=${html.length}`);
