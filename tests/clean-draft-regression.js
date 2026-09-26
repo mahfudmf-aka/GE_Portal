@@ -80,8 +80,8 @@ assert(registry.includes('Unduh Data') && !registry.includes('Unduh CSV'),'User-
 assert(business.includes('GE_Inisiatif_dan_Milestone.csv'),'Initiative export must retain milestone rows.');
 assert(business.includes('capacitySchedules'),'Lounge/Tenant must retain capacity history.');
 assert(business.includes('supersedesId'),'Lounge/Tenant must retain agreement replacement history.');
-assert(app.includes('v=r29'),'Canonical root assets must use current cache identity.');
-assert(registry.includes('edition1-business-runtime.js?v=r27'),'Canonical page runtime must use current cache identity.');
+assert(app.includes('v=r32'),'Canonical root assets must use current cache identity.');
+assert(registry.includes('edition1-business-runtime.js?v=r32'),'Canonical page runtime must use current cache identity.');
 
 // Route reachability guard: app.html is infrastructure, never a logical page.
 assert(app.includes("if(route==='app'){route='index'"),'SPA host must recover stale ?page=app to the canonical index route.');
