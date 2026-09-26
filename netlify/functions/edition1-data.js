@@ -36,14 +36,15 @@ const MODULE_BY_COLLECTION = {
   events:'calendar'
 };
 function active(actor){return actor && String(actor.status || 'Active').toLowerCase() !== 'inactive';}
+function isOperationalAdmin(actor){ return actor?.role === 'Admin' || String(actor?.accessLevel||'') === 'Admin'; }
 function canModule(actor, collection){
   if (actor.role === 'Super Admin') return true;
-  if (collection === 'users') return actor.role === 'Admin';
+  if (collection === 'users') return isOperationalAdmin(actor);
   if (collection === 'portalManager') return false; // Super Admin handled above.
-  if (collection === 'auditLogs') return actor.role === 'Admin';
+  if (collection === 'auditLogs') return isOperationalAdmin(actor);
   const module=MODULE_BY_COLLECTION[collection];
   if (!module) return true;
-  if (actor.role === 'Admin') return true;
+  if (isOperationalAdmin(actor)) return true;
   const p=(Array.isArray(actor.permissions)?actor.permissions:[]).map(String);
   const t=(Array.isArray(actor.tabs)?actor.tabs:[]).map(String);
   if (p.length) return p.includes(module) || p.includes('ALL') || p.includes('all');
@@ -51,13 +52,19 @@ function canModule(actor, collection){
   if (EXTERNAL_ROLES.has(actor.role)) return ['initiatives','calendar','project-tracking','inbox'].includes(module);
   return true;
 }
-function canRead(actor,c){ return active(actor) && READ_ROLES.has(actor.role) && canModule(actor,c); }
+function canRead(actor,c){
+  if(!active(actor) || !READ_ROLES.has(actor.role)) return false;
+  // Active internal users read business collections; station scope is enforced after read.
+  // permissions/tabs govern page/navigation, not whether a visible page can hydrate its own data.
+  if(c==='users' || c==='auditLogs' || c==='portalManager') return canModule(actor,c);
+  return true;
+}
 function canWrite(actor,c){
   if (!active(actor)) return false;
-  if (c==='users' || c==='auditLogs') return ADMIN_ROLES.has(actor.role);
+  if (c==='users' || c==='auditLogs') return actor.role==='Super Admin' || isOperationalAdmin(actor);
   if (c==='inbox') return ADMIN_ROLES.has(actor.role) || WRITE_LEVELS.has(String(actor.accessLevel||''));
   if (EXTERNAL_ROLES.has(actor.role)) return false;
-  if (actor.role==='Super Admin') return true;
+  if (actor.role==='Super Admin' || isOperationalAdmin(actor)) return true;
   return canModule(actor,c) && (WRITE_LEVELS.has(String(actor.accessLevel||'')) || actor.role==='Admin');
 }
 function allowedStations(actor){
@@ -103,7 +110,7 @@ function queryCollections(event){
 async function readCollection(db,actor,c){
   if(!COLLECTIONS.has(c)) throw Object.assign(new Error(`Collection not allowed: ${c}`),{statusCode:400,code:'COLLECTION_NOT_ALLOWED'});
   if(!canRead(actor,c)) throw Object.assign(new Error(`Read access denied for ${c}.`),{statusCode:403,code:'FORBIDDEN'});
-  if(c==='auditLogs' && !ADMIN_ROLES.has(actor.role)) return [];
+  if(c==='auditLogs' && !(actor.role==='Super Admin'||isOperationalAdmin(actor))) return [];
   let docs;
   if(c==='initiatives' && EXTERNAL_ROLES.has(actor.role)){
     const [a,b]=await Promise.all([
@@ -133,7 +140,7 @@ async function bumpCacheVersion(db,collection){
 async function writeOne(db,actor,collection,action,id,raw){
   if(!COLLECTIONS.has(collection)) throw Object.assign(new Error(`Collection not allowed: ${collection}`),{statusCode:400,code:'COLLECTION_NOT_ALLOWED'});
   if(!(collection==='inbox' && action==='CREATE') && !canWrite(actor,collection)) throw Object.assign(new Error(`Write access denied for ${collection}.`),{statusCode:403,code:'FORBIDDEN'});
-  if(['users','auditLogs'].includes(collection) && !ADMIN_ROLES.has(actor.role)) throw Object.assign(new Error('Administrative access required.'),{statusCode:403,code:'FORBIDDEN'});
+  if(['users','auditLogs'].includes(collection) && !(actor.role==='Super Admin'||isOperationalAdmin(actor))) throw Object.assign(new Error('Administrative access required.'),{statusCode:403,code:'FORBIDDEN'});
   const ref=dataRef(db,collection,id?cleanId(id):db.collection('portalData').doc().id);
   if(action==='DELETE'){
     const snap=await ref.get(); if(!snap.exists) return {id:ref.id,deleted:false};

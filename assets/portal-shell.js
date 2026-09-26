@@ -27,8 +27,9 @@ const item=(href,label,i,sub=false)=>{const target=cleanHref(href),u=new URL(tar
 function group(title,items){return `<div class="ge-nav-section">${title}</div>${items.join('')}`}
 function dashboardPOV(s){
  const r=String(s?.role||'').trim().toLowerCase().replace(/[\s_-]+/g,' ');
+ const access=String(s?.accessLevel||'').trim().toLowerCase();
  if(r==='super admin'||r==='superadmin')return 'superadmin';
- if(r==='admin')return 'admin';
+ if(r==='admin'||access==='admin')return 'admin';
  if(r==='management')return 'management';
  if(['ge team','ground experience team','head office','headoffice','staff'].includes(r))return 'ge-team';
  if(['branch office','branchoffice','bo'].includes(r))return 'branch';

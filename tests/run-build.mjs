@@ -39,3 +39,5 @@ await import('./r27-airport-marker-contract.js');
 await import('./r28-firestore-cache-contract.js');
 await import('./r29-instant-cache-contract.js');
 await import('./r30-role-scope-firestore-contract.js');
+
+await import('./r31-admin-firestore-contract.js');

@@ -247,7 +247,9 @@ const item=(href,label,i,sub=false)=>`<a class="ge-nav-link ${sub?'ge-nav-sub':'
 function group(title,items){return `<div class="ge-nav-section">${title}</div>${items.join('')}`}
 function dashboardPOV(s){
  const r=String(s?.role||'').trim().toLowerCase().replace(/[\s_-]+/g,' ');
+ const access=String(s?.accessLevel||'').trim().toLowerCase();
  if(r==='super admin'||r==='superadmin')return 'superadmin';
+ if(r==='admin'||access==='admin')return 'admin';
  if(r==='management')return 'management';
  if(['ge team','ground experience team','head office','headoffice','staff'].includes(r))return 'ge-team';
  if(['branch office','branchoffice','bo'].includes(r))return 'branch';
@@ -268,32 +270,40 @@ function navFor(s){
   item('index.html','Branch Office Dashboard','⌂'),
   group('MY STATION',[item('station-360.html','Station Profile / 360','⌾'),item('readiness.html','Readiness','✓'),item('service-capability.html','Capability & Standards','◈')]),
   group('CUSTOMER EXPERIENCE',[item('customer-experience.html','Customer Experience','◎')]),
-  group('TASKS & ACTIONS',[item('improvement-intake.html','Improvement Opportunity','✧'),item('inisiatif.html','Initiative & Action','⚙')]),
+  group('TASKS & ACTIONS',[item('improvement-intake.html','Improvement Opportunity','✧'),item('inisiatif.html','Initiative & Action','⚙'),item('calendar.html','Calendar & Project Tracking','▦')]),
   group('IMPROVEMENT & PLANNING',planning),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣')]),
   group('DOCUMENTS / SUPPORT',[item('kontak.html','Support / Reference','☎')])].join('');
  if(pov==='ge-team') return [
   item('index.html','GE Team Dashboard','⌂'),
-  group('EXPERIENCE & INSIGHT',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈'),item('station-360.html','Station Profile / 360','⌾')]),
-  group('READINESS & STANDARDS',[item('readiness.html','Readiness Assessment','✓'),item('service-capability.html','Capability & Standards','◈'),item('standar.html','Service Standard','≡')]),
-  group('IMPROVEMENT & PLANNING',[item('improvement-intake.html','Improvement Opportunity','✧'),item('inisiatif.html','Initiative & Improvement','⚙'),...planning]),
+  group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈')]),
+  group('SERVICE GOVERNANCE',[item('standar.html','Readiness & Standards','≡')]),
+  group('IMPROVEMENT & PLANNING',[item('improvement-intake.html','Improvement Opportunity','✧'),item('inisiatif.html','Initiative & Improvement','⚙'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
   group('DATA',[item('data.html','Data Management','⬡')]),
+  commonSupport].join('');
+ if(pov==='admin') return [
+  item('index.html','Ground Experience Admin Dashboard','⌂'),
+  group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈')]),
+  group('SERVICE GOVERNANCE',[item('standar.html','Readiness & Standards','≡')]),
+  group('IMPROVEMENT & PLANNING',[item('inisiatif.html','Initiative & Improvement','⚙'),item('improvement-intake.html','Improvement Opportunity','✧'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
+  group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
+  group('DATA & ADMINISTRATION',[item('master-data.html','Master Data & Partners','◫'),item('data.html','Data Management','⬡'),item('admin.html','User & Access','♙')]),
   commonSupport].join('');
  if(pov==='management') return [
   item('index.html','Management Dashboard','⌂'),
   group('EXPERIENCE & INSIGHT',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈')]),
-  group('IMPROVEMENT & PLANNING',[item('inisiatif.html','Initiative & Improvement','⚙'),...planning]),
+  group('IMPROVEMENT & PLANNING',[item('inisiatif.html','Initiative & Improvement','⚙'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣')]),
   group('REPORTS / DECISION SUPPORT',[item('management-outcome.html','Management Outcome','◷')]),
   commonSupport].join('');
  if(pov==='superadmin') return [
   item('index.html','Super Admin / System Dashboard','⌂'),
-  group('EXPERIENCE & INSIGHT',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈'),item('station-360.html','Station Profile / 360','⌾')]),
-  group('READINESS & STANDARDS',[item('readiness.html','Readiness Assessment','✓'),item('service-capability.html','Capability & Standards','◈'),item('standar.html','Service Standard','≡')]),
-  group('IMPROVEMENT & PLANNING',[item('inisiatif.html','Initiative & Improvement','⚙'),item('improvement-intake.html','Improvement Opportunity','✧'),...planning]),
+  group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈')]),
+  group('SERVICE GOVERNANCE',[item('standar.html','Readiness & Standards','≡')]),
+  group('IMPROVEMENT & PLANNING',[item('inisiatif.html','Initiative & Improvement','⚙'),item('improvement-intake.html','Improvement Opportunity','✧'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
-  group('DATA & ADMINISTRATION',[item('data.html','Data Management','⬡'),item('master-data.html','Master Data','◫'),item('admin.html','User & Access','♙'),item('portal-management.html','Portal Management','⚙'),item('audit-log.html','Audit Log','◷')]),
+  group('DATA & ADMINISTRATION',[item('master-data.html','Master Data & Partners','◫'),item('data.html','Data Management','⬡'),item('admin.html','User & Access','♙'),item('portal-management.html','Portal Management','⚙'),item('audit-log.html','Audit Log','◷')]),
   commonSupport].join('');
  return [group('DASHBOARD',[item('index.html','Dashboard','⌂')]),commonSupport].join('');
 }
