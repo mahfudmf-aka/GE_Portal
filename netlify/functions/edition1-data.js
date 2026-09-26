@@ -123,6 +123,9 @@ function cleanData(data){
   if(!data || typeof data!=='object' || Array.isArray(data)) throw Object.assign(new Error('Invalid data payload.'),{statusCode:400,code:'INVALID_DATA'});
   const out={...data}; delete out.id; delete out.createdAt; delete out.createdBy; delete out.updatedAt; delete out.updatedBy; delete out.actorId; delete out.password; delete out.passwordHash; delete out.temporaryPassword; return out;
 }
+async function bumpCacheVersion(db,collection){
+  await db.collection('portalMetadata').doc('cacheState').set({version:FieldValue.increment(1),updatedAt:FieldValue.serverTimestamp(),lastCollection:String(collection||'')},{merge:true});
+}
 async function writeOne(db,actor,collection,action,id,raw){
   if(!COLLECTIONS.has(collection)) throw Object.assign(new Error(`Collection not allowed: ${collection}`),{statusCode:400,code:'COLLECTION_NOT_ALLOWED'});
   if(!(collection==='inbox' && action==='CREATE') && !canWrite(actor,collection)) throw Object.assign(new Error(`Write access denied for ${collection}.`),{statusCode:403,code:'FORBIDDEN'});
@@ -132,6 +135,7 @@ async function writeOne(db,actor,collection,action,id,raw){
     const snap=await ref.get(); if(!snap.exists) return {id:ref.id,deleted:false};
     const prev=snap.data()||{}; if(!inScope(actor,prev)) throw Object.assign(new Error('Record outside account scope.'),{statusCode:403,code:'SCOPE_FORBIDDEN'});
     await ref.delete();
+    await bumpCacheVersion(db,collection);
     await db.collection('auditLogs').add({actorId:actor.id,actorRole:actor.role,name:actor.name||actor.username||actor.email||actor.id,username:actor.username||actor.email||'',module:collection,object:ref.id,detail:`${collection} ${action.toLowerCase()}`,targetType:`EDITION1_${collection.toUpperCase()}`,targetId:ref.id,action:'Delete',timestamp:FieldValue.serverTimestamp(),result:'SUCCESS'});
     return {id:ref.id,deleted:true};
   }
@@ -142,6 +146,7 @@ async function writeOne(db,actor,collection,action,id,raw){
   const next={...data,updatedAt:now,updatedBy:actor.id}; if(!existing.exists){next.createdAt=now;next.createdBy=actor.id}
   if(action==='CREATE' && existing.exists) throw Object.assign(new Error('Record already exists.'),{statusCode:409,code:'ALREADY_EXISTS'});
   await ref.set(next,{merge:action==='UPDATE'});
+  await bumpCacheVersion(db,collection);
   const out=await ref.get();
   await db.collection('auditLogs').add({actorId:actor.id,actorRole:actor.role,name:actor.name||actor.username||actor.email||actor.id,username:actor.username||actor.email||'',module:collection,object:ref.id,detail:`${collection} ${action.toLowerCase()}`,targetType:`EDITION1_${collection.toUpperCase()}`,targetId:ref.id,action:action.charAt(0)+action.slice(1).toLowerCase(),timestamp:FieldValue.serverTimestamp(),result:'SUCCESS'});
   return {id:ref.id,...sanitize(out.data())};
@@ -150,6 +155,11 @@ exports.handler=async(event)=>{
   try{
     const {db,actor}=await actorFor(event);
     if(event.httpMethod==='GET'){
+      if(String(event.queryStringParameters?.manifest||'')==='1'){
+        const snap=await db.collection('portalMetadata').doc('cacheState').get();
+        const meta=snap.exists?sanitize(snap.data()):{};
+        return ok({ok:true,source:'Firestore',manifest:{version:Number(meta.version||0),updatedAt:meta.updatedAt||null,lastCollection:meta.lastCollection||''}});
+      }
       const cols=queryCollections(event); if(!cols.length) return bad(400,'COLLECTION_REQUIRED','At least one collection is required.');
       const out={}; for(const c of cols) out[c]=await readCollection(db,actor,c); return ok({ok:true,source:'Firestore',collections:out,actor:{id:actor.id,role:actor.role,accessLevel:actor.accessLevel||'',scopeType:actor.scopeType||'CUSTOM'}});
     }
