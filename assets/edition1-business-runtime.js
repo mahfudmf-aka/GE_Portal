@@ -2413,7 +2413,8 @@ function geAirportDerived(a){
 }
 function geAirportCanonicalR8(a){
   const code=String(a?.code||a?.airportCode||a?.iata||a?.station||a?.stationCode||'').trim().toUpperCase();
-  const lat=Number(a?.lat??a?.latitude??a?.coordinates?.lat??0),lon=Number(a?.lon??a?.lng??a?.longitude??a?.coordinates?.lng??0);
+  const GEO={CGK:[-6.1256,106.6559],DPS:[-8.7482,115.1672],SUB:[-7.3798,112.7873],KNO:[3.6422,98.8853],UPG:[-5.0616,119.5540],BPN:[-1.2683,116.8945],HLP:[-6.2666,106.8910],YIA:[-7.9053,110.0573],BDO:[-6.9006,107.5763],KOE:[-10.1716,123.6711]};
+  let lat=Number(a?.lat??a?.latitude??a?.coordinates?.lat??0),lon=Number(a?.lon??a?.lng??a?.longitude??a?.coordinates?.lng??0);if((!Number.isFinite(lat)||!Number.isFinite(lon)||(lat===0&&lon===0))&&GEO[code]){[lat,lon]=GEO[code]}
   return {...a,code,city:a?.city||a?.location||a?.airportCity||'',airportName:a?.airportName||a?.name||a?.airport||'',wilayah:a?.wilayah||a?.serviceRegion||a?.networkRegion||a?.region||'Domestik',region:a?.region||a?.countryRegion||a?.networkRegion||'',status:a?.status||'Active',gm:a?.gm||a?.generalManager||a?.manager||'',lat,lon};
 }
 function geAirportVisibleRows(){
@@ -3980,11 +3981,14 @@ async function geReadTabularFileV223(file){
   throw new Error('Format file harus .xlsx atau .csv');
 }
 function geNormalizeHeaderV223(v){
-  return String(v||'').trim().toLowerCase()
+  return String(v||'').replace(/^\uFEFF/,'').trim().toLowerCase()
    .replace(/[\/&]/g,' ')
    .replace(/[()]/g,'')
    .replace(/[²]/g,'2')
-   .replace(/\s+/g,' ');
+   .replace(/\*/g,'')
+   .replace(/[._-]+/g,' ')
+   .replace(/\s+/g,' ')
+   .trim();
 }
 function geFindHeaderRowV223(rows,requiredAliases){
   for(let i=0;i<Math.min(rows.length,12);i++){
@@ -4016,8 +4020,8 @@ const GE_IMPORT_SCHEMA_V223={
   title:'Upload Space & Building',
   help:'Gunakan Template Space & Building. Data akan masuk ke Branch Office Space Portfolio.',
   aliases:{
-    airport:['airport'],location:['area location','area / location'],function:['function'],sizeM2:['size m2','size m²'],
-    landlord:['landlord'],startDate:['start date'],endDate:['end date'],currency:['currency'],annualCost:['annual cost'],
+    airport:['airport','airport*'],location:['area location','area / location','area / location*'],function:['function'],sizeM2:['size m2','size m²','size m2*','size m²*'],
+    landlord:['landlord','provider','provider*'],startDate:['start date','start date*'],endDate:['end date','end date*'],currency:['currency','currency*'],annualCost:['annual cost','harga / m² / bulan','harga / m2 / bulan','harga m² bulan','harga m2 bulan'],
     status:['status'],documentName:['document reference','document / reference']
   }
  },
@@ -5117,12 +5121,25 @@ function geImportSimpleV231(type,rows){
  const gm={'gaso-master':'gasoMaster','gaso-support':'gasoServiceSupport','gaso-planning':'gasoPlanningService'};if(gm[type]){rows.forEach(r=>{if(!r.code){skipped++;return}const obj={id:Date.now()+added,...r,code:String(r.code).trim().toUpperCase()};if('amount'in obj)obj.amount=Number(obj.amount||0);data[gm[type]].push(obj);added++});save();renderGasoAllV231();return{added,skipped}}
  return null;
 }
-function confirmBulkImportV231(){
+async function geConfirmImportPersistedV240(result,successMessage){
+ if(!result)return false;
+ try{
+  if(window.GEStore?.flush)await window.GEStore.flush();
+  closeBulkImportV223();
+  geStorageNoticeV223('Import Selesai',successMessage,result.added?'success':'warning');
+  return true;
+ }catch(e){
+  console.error('[Bulk Import Firestore]',e);
+  geStorageNoticeV223('Import Gagal',`Data belum tersimpan ke Firestore. ${e?.message||String(e)}`,'error');
+  return false;
+ }
+}
+async function confirmBulkImportV231(){
  const {type,rows}=GE_BULK_IMPORT_V223;if(!rows.length)return;let result;
  if(['airport','personnel','station-material','airport-system-v231','gaso-master','gaso-support','gaso-planning'].includes(type))result=geImportSimpleV231(type,rows);
  else if(type==='lounge')result=geImportLoungeV230(rows);else if(type==='space')result=geImportSpaceV223(rows);else if(type==='system')result=geImportSystemV223(rows);else if(type==='visitor')result=geImportVisitorV223(rows);
- if(!result)return;closeBulkImportV223();const extra=result.duplicates!==undefined?` • ${result.duplicates} duplikat`:'';
- geStorageNoticeV223('Import Selesai',`${result.added} data berhasil ditambahkan • ${result.skipped} baris dilewati${extra}.`,result.added?'success':'warning');
+ if(!result)return;const extra=result.duplicates!==undefined?` • ${result.duplicates} duplikat`:'';
+ return geConfirmImportPersistedV240(result,`${result.added} data berhasil ditambahkan • ${result.skipped} baris dilewati${extra}.`);
 }
 
 /* ---------- Planning Documents: file download on every available binary ---------- */
@@ -6266,7 +6283,7 @@ function geImportServiceProcurementV243(rows){
     data.serviceProcurement.push({id:Date.now()+added,airport,categoryService:cat,serviceName:name,currency:String(r.currency||'').trim().toUpperCase(),pricePerPax:Number(String(r.pricePerPax||0).replace(/,/g,''))||0,startDate:geNormalizeDateUploadV223(r.startDate),endDate:geNormalizeDateUploadV223(r.endDate),documentNumber:String(r.documentNumber||'').trim(),documentType:String(r.documentType||'').trim(),documentStatus:String(r.documentStatus||'Valid').trim(),remarks:String(r.remarks||'').trim(),documentName:'',documentKey:''});added++});
   save();renderLoungeProcurement();renderAirportMapMarkers();return{added,skipped};
 }
-function confirmBulkImportV243(){
+async function confirmBulkImportV243(){
   const {type,rows}=GE_BULK_IMPORT_V223;if(!rows.length)return;let result;
   if(type==='service-procurement-v243')result=geImportServiceProcurementV243(rows);
   else if(type==='airport'||type==='personnel'||type==='station-material'||type==='airport-system-v231'||['gaso-master','gaso-support','gaso-planning'].includes(type))result=geImportSimpleV231(type,rows);
@@ -6274,7 +6291,8 @@ function confirmBulkImportV243(){
   else if(type==='space')result=geImportSpaceV223(rows);
   else if(type==='system')result=geImportSystemV223(rows);
   else if(type==='visitor')result=geImportVisitorV223(rows);
-  if(!result)return;closeBulkImportV223();geStorageNoticeV223('Import Selesai',`${result.added} data berhasil ditambahkan • ${result.skipped} baris dilewati.`,result.added?'success':'warning');
+  if(!result)return;
+  return geConfirmImportPersistedV240(result,`${result.added} data berhasil ditambahkan • ${result.skipped} baris dilewati.`);
 }
 
 /* Map service/facility filter. SGHA records are ready to represent Ground Handling. */
@@ -9450,7 +9468,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
   };
 
   const originalConfirm=window.confirmBulkImportV231;
-  window.confirmBulkImportV231=function(){
+  window.confirmBulkImportV231=async function(){
     if(state.importFileName){
       if(!canUpload())return;
       const groups=state.importGroups.filter(g=>g.model&&!g.error&&!existingDuplicate(g.model));
@@ -9464,6 +9482,8 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
           data.auditLogs.unshift({id:Date.now()+Math.floor(Math.random()*10000),timestamp:new Date().toISOString(),username:u?.username||'system',name:u?.name||u?.username||'System',role:u?.role||'System',action:'Bulk Import',module:'Lounge/Tenant Planning',object:`${added} Agreement`,detail:`P29 CSV CREATE-only • file ${state.importFileName} • ${state.importSummary?.total||0} rows • ${state.importSummary?.invalid||0} blocked`});
         }catch(e){}
         save();
+        try{if(window.GEStore?.flush)await window.GEStore.flush();}
+        catch(e){console.error('[Lounge/Tenant Import Firestore]',e);notice('Import Gagal',`Agreement belum tersimpan ke Firestore. ${e?.message||String(e)}`,'error');return;}
       }
       document.getElementById('bulkImportModalV223')?.classList.remove('show');fillAirportSelects?.();renderLounges?.();renderLoungeCardsV237?.();renderLoungePriceSummaryV243?.();
       notice('Import Selesai',`${added} Agreement dibuat • ${failures} gagal • ${state.importSummary?state.importSummary.invalid:'-'} baris tidak diimport karena validation/duplicate.` ,added?'success':'warning');

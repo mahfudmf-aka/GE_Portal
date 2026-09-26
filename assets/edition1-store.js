@@ -9,6 +9,7 @@
     flightSchedule:[],loungePurchases:[],loungeVisitors:[],stationMaterials:[],boSpaces:[],serviceProcurement:[],
     airportSystems:[],skyPriority:[],touchpointStandards:[],gasoMaster:[],gasoServiceSupport:[],gasoPlanningService:[],
     personnel:[],articles:[],announcements:[],faqs:[],inbox:[],auditLogs:[],users:[],lounges:[],
+    airlines:[],groundHandlers:[],serviceAlignments:[],
     standardContent:{},portalManagerR2:{},contactMessages:[],guestbook:[]
   };
   const baseline={}; let hydrated=false; let pending=Promise.resolve();

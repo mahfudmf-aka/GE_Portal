@@ -56,8 +56,8 @@ function navFor(s){
   group('DOCUMENTS / SUPPORT',[item('kontak.html','Support / Reference','☎')])].join('');
  if(pov==='ge-team') return [
   item('index.html','GE Team Dashboard','⌂'),
-  group('EXPERIENCE & INSIGHT',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈'),item('station-360.html','Station Profile / 360','⌾')]),
-  group('READINESS & STANDARDS',[item('readiness.html','Readiness Assessment','✓'),item('service-capability.html','Capability & Standards','◈'),item('standar.html','Service Standard','≡')]),
+  group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈')]),
+  group('SERVICE GOVERNANCE',[item('standar.html','Readiness & Standards','≡')]),
   group('IMPROVEMENT & PLANNING',[item('improvement-intake.html','Improvement Opportunity','✧'),item('inisiatif.html','Initiative & Improvement','⚙'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
   group('DATA',[item('data.html','Data Management','⬡')]),
@@ -71,11 +71,11 @@ function navFor(s){
   commonSupport].join('');
  if(pov==='superadmin') return [
   item('index.html','Super Admin / System Dashboard','⌂'),
-  group('EXPERIENCE & INSIGHT',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈'),item('station-360.html','Station Profile / 360','⌾')]),
-  group('READINESS & STANDARDS',[item('readiness.html','Readiness Assessment','✓'),item('service-capability.html','Capability & Standards','◈'),item('standar.html','Service Standard','≡')]),
+  group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈')]),
+  group('SERVICE GOVERNANCE',[item('standar.html','Readiness & Standards','≡')]),
   group('IMPROVEMENT & PLANNING',[item('inisiatif.html','Initiative & Improvement','⚙'),item('improvement-intake.html','Improvement Opportunity','✧'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
-  group('DATA & ADMINISTRATION',[item('data.html','Data Management','⬡'),item('master-data.html','Master Data','◫'),item('admin.html','User & Access','♙'),item('portal-management.html','Portal Management','⚙'),item('audit-log.html','Audit Log','◷')]),
+  group('DATA & ADMINISTRATION',[item('master-data.html','Master Data & Partners','◫'),item('data.html','Data Management','⬡'),item('admin.html','User & Access','♙'),item('portal-management.html','Portal Management','⚙'),item('audit-log.html','Audit Log','◷')]),
   commonSupport].join('');
  return [group('DASHBOARD',[item('index.html','Dashboard','⌂')]),commonSupport].join('');
 }

@@ -8,7 +8,8 @@ const tests = [
   'tests/p31-auth-role-runtime.js',
   'tests/p31b-login-access-assistance.js',
   'tests/p32-access-assistance-runtime.js',
-  'tests/r15-functional-contract.js'
+  'tests/r15-functional-contract.js',
+  'tests/upload-template-contract.js'
 ];
 
 const netlify = process.argv.includes('--netlify');
@@ -24,4 +25,5 @@ try {
 } catch (e) {
   console.error(e.message);
   process.exitCode = 1;
-}
+}run('tests/r18-consolidation-contract.js');
+
