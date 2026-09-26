@@ -7,7 +7,8 @@ const tests = [
   'tests/p29-lounge-planning.js',
   'tests/p31-auth-role-runtime.js',
   'tests/p31b-login-access-assistance.js',
-  'tests/p32-access-assistance-runtime.js'
+  'tests/p32-access-assistance-runtime.js',
+  'tests/r15-functional-contract.js'
 ];
 
 const netlify = process.argv.includes('--netlify');

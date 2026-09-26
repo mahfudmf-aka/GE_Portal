@@ -3,12 +3,17 @@ P40 Edition 1 Canonical Shell + Firestore Source Fix
 Replace the files in this ZIP at repository root using the same relative paths.
 
 This patch intentionally does NOT replace the P38-locked assets/portal-shell.js.
+Edition 1 uses assets/edition1-portal-shell-entry.js, a compatibility entrypoint
 based on the locked portal-shell geometry/markup, with Edition 1 route admission
 and transient UI-only in-memory state. It does not create a second visual shell.
 
 Edition 1 pages no longer load:
+- assets/e1-canonical.css
+- assets/edition1-canonical-shell.js
 
 Edition 1 pages now use:
+- assets/edition1-portal-shell-entry.js
+- assets/edition1-portal-route-adapter.js
 - assets/edition1-overlay-manager.js
 
 Firestore:
