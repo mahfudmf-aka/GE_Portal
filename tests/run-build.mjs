@@ -14,7 +14,8 @@ const tests = [
   'tests/r19-ui-consolidation-contract.js',
   'tests/r20-consolidated-browser-contract.js',
   'tests/r21-auth-persistence-contract.js',
-  'tests/r22-runtime-contract.js'
+  'tests/r22-runtime-contract.js',
+  'tests/r23-cumulative-fix-contract.js'
 ];
 
 const netlify = process.argv.includes('--netlify');
