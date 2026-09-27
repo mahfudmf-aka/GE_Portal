@@ -87,7 +87,7 @@ function navFor(s){
   const improve=[item('inisiatif.html','Initiative & Improvement','⚙'),item('calendar.html','Calendar & Project Tracking','▦'),...planning];
   if(extraPerms.has('improvement-opportunity')) improve.splice(1,0,item('improvement-intake.html','Improvement Opportunity','✧'));
   const cost=[item('budget-cost.html','Budget & Cost','▣')];if(extraPerms.has('cost-intelligence'))cost.push(item('cost-intelligence.html','Cost Intelligence','◉'));
-  const adminData=[item('master-data.html','Master Data & Partners','◫'),item('admin.html','User & Access','♙')];if(extraPerms.has('data'))adminData.splice(1,0,item('data.html','Data Management','⬡'));
+  const adminData=[item('master-data.html','Master Data & Partners','◫')];if(['Admin','Super Admin'].includes(s?.role))adminData.push(item('admin.html','User & Access','♙'));if(extraPerms.has('data'))adminData.splice(1,0,item('data.html','Data Management','⬡'));
   const decision=[];if(extraPerms.has('management-outcome'))decision.push(item('management-outcome.html','Management Outcome','◷'));
   return [item('index.html','Ground Experience Admin Dashboard','⌂'),group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),airportChildren()]),group('SERVICE GOVERNANCE',governanceItems()),group('IMPROVEMENT & PLANNING',improve),group('BUDGET & COST',cost),...(decision.length?[group('REPORTS / DECISION SUPPORT',decision)]:[]),group('DATA & ADMINISTRATION',adminData),commonSupport].join('');
  }

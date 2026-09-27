@@ -64,7 +64,7 @@ async function boot(){
   if(typeof store.waitAuth==='function') await store.waitAuth();
   else { if(window.GX_AUTH_READY) await window.GX_AUTH_READY; await waitFirebase(); }
   await waitFirebase();
-  if(!hasAccess()){const target=typeof gxDefaultPage==='function'?gxDefaultPage():'app.html?page=index';if(target!==location.pathname+location.search)location.replace(target);return}
+  if(!hasAccess()){const target=typeof gxDefaultPage==='function'?gxDefaultPage():'app.html?page=index';if(new URL(target,location.href).href!==location.href)location.replace(target);return}
   showStatus('Mengambil data dari Firebase / Firestore…');
   await store.hydrate(cfg.collections);
   if(page==='inisiatif'&&['Super Admin','Admin'].includes(String(session().role||''))) await store.hydrate(['users']);

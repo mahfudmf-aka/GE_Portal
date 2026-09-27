@@ -11,6 +11,7 @@
   if(!window.GX_AUTH_READY) throw new Error('Authentication bootstrap tidak tersedia.');
   await window.GX_AUTH_READY;
   if(!window.gxGetSession?.()) return; // auth bootstrap is redirecting to login or access fallback.
+  if(window.gxCurrentPageKey?.()==='admin.html'&&!window.gxHasUserManagementPermission?.()){outlet.innerHTML='<div class="clean-page-error"><h2>Akses User &amp; Role tidak tersedia</h2><p>Akun ini belum memiliki role Admin atau Super Admin. Hubungi Super Admin untuk penetapan role yang sesuai.</p></div>';reveal();return;}
 
   const params=new URLSearchParams(location.search); let route=String(params.get('page')||'index').trim().toLowerCase();
   // app.html is the SPA host, never a logical page. Recover stale/legacy ?page=app links before rendering.
