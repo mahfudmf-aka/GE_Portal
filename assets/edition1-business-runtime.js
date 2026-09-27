@@ -161,7 +161,7 @@ function addInitiative(){
    real:+(document.getElementById('ireal')?.value||0),
    remark:(document.getElementById('irem')?.value||'').trim()
  });
- if(!data.touchpoints.includes(tp))data.touchpoints.push(tp);
+ if(!(data.touchpoints||[]).some(x=>(typeof x==='string'?x:x.name)===tp))data.touchpoints.push({id:'legacy:'+tp,name:tp,status:'Active'});
  save();
  document.getElementById('initForm')?.reset();
  renderInitiatives();
@@ -4332,7 +4332,7 @@ function saveInitiativeV224(){
   }else{
     data.initiatives.push({id:Date.now(),...obj,workflow:[],triggerDocuments:[],supportingDocuments:[]});
   }
-  if(!data.touchpoints.includes(obj.tp))data.touchpoints.push(obj.tp);
+  if(!(data.touchpoints||[]).some(x=>(typeof x==='string'?x:x.name)===obj.tp))data.touchpoints.push({id:'legacy:'+obj.tp,name:obj.tp,status:'Active'});
   save();closeInitiativeModalV224();renderInitiatives();
   geStorageNoticeV223('Inisiatif Tersimpan',`${obj.name} berhasil disimpan.`,'success');
 }

@@ -35,7 +35,7 @@
     if(key==='portalManagerR2') return Array.isArray(rows)?(rows[0]||{}):{};
     const out=Array.isArray(rows)?rows.map(x=>{const y={...x};if(typeof y.id==='string'&&/^\d+$/.test(y.id))y.id=Number(y.id);return y}):[];
     if(key==='events'||key==='projectEvents') return out;
-    if(key==='touchpoints') return out.map(x=>typeof x==='string'?x:(x?.name||x?.title||x?.touchpoint||x));
+    if(key==='touchpoints') return out.map(x=>typeof x==='string'?{id:'legacy:'+x,name:x,status:'Active'}:x);
     if(key==='documents') return out.map(x=>({...x,blobKey:x.blobKey||x.storagePath||x.documentKey||'',fileName:x.fileName||x.name||''}));
     return out;
   }
