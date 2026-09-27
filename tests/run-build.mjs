@@ -59,3 +59,5 @@ await import('./r41-runtime-data-table-contract.js');
 await import('./r42-airport-map-presentation-contract.js');
 
 await import('./r43-airport-experience-foundation-contract.js');
+
+await import('./r44-sidebar-superadmin-contract.js');
