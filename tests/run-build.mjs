@@ -69,3 +69,4 @@ await import('./r46-navigation-readiness-contract.js');
 await import('./r47-assessment-map-contract.js');
 await import('./r49-role-cx-contract.js');
 await import('./r50-admin-cx-contract.js');
+await import('./r51-dashboard-source-contract.js');
