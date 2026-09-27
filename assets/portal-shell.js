@@ -31,6 +31,7 @@ const airportChildren=()=>`<div class="ge-nav-section ge-airport-parent">AIRPORT
  item('service-experience.html','Service Experience','◎',true),
  item('capability-classification.html','Capability & Classification','◈',true)
 ].join('')}`;
+const governanceItems=()=>[item('standar.html','Readiness & Standards','≡'),item('monitoring-assessment.html','Monitoring & Assessment','✓',true)];
 function group(title,items){return `<div class="ge-nav-section">${title}</div>${items.join('')}`}
 function isExternalPortalUser(s){const role=String(s?.role||'').trim().toLowerCase();const org=String(s?.organizationType||s?.organisationType||s?.orgType||'').trim().toLowerCase();return ['external user','external','collaborator','partner'].includes(role)||['partner','external','external partner','airline partner','vendor','supplier','ground handling agent','gha'].includes(org)}
 function dashboardPOV(s){
@@ -68,7 +69,7 @@ function navFor(s){
  }
  if(pov==='branch') return [
   item('index.html','Branch Office Dashboard','⌂'),
-  group('MY STATION',[item('station-360.html','Station Profile / 360','⌾'),item('readiness.html','Readiness','✓'),item('service-capability.html','Capability & Standards','◈')]),
+  group('MY STATION',[item('station-360.html','Station Profile / 360','⌾'),item('readiness.html','Readiness','✓'),item('monitoring-assessment.html','Monitoring & Assessment','✓'),item('service-capability.html','Capability & Standards','◈')]),
   group('CUSTOMER EXPERIENCE',[item('customer-experience.html','Customer Experience','◎')]),
   group('TASKS & ACTIONS',[item('improvement-intake.html','Improvement Opportunity','✧'),item('inisiatif.html','Initiative & Action','⚙'),item('calendar.html','Calendar & Project Tracking','▦')]),
   group('IMPROVEMENT & PLANNING',planning),
@@ -77,7 +78,7 @@ function navFor(s){
  if(pov==='ge-team') return [
   item('index.html','GE Team Dashboard','⌂'),
   group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),airportChildren()]),
-  group('SERVICE GOVERNANCE',[item('standar.html','Readiness & Standards','≡')]),
+  group('SERVICE GOVERNANCE',governanceItems()),
   group('IMPROVEMENT & PLANNING',[item('improvement-intake.html','Improvement Opportunity','✧'),item('inisiatif.html','Initiative & Improvement','⚙'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
   group('DATA',[item('data.html','Data Management','⬡')]),
@@ -89,11 +90,12 @@ function navFor(s){
   const cost=[item('budget-cost.html','Budget & Cost','▣')];if(extraPerms.has('cost-intelligence'))cost.push(item('cost-intelligence.html','Cost Intelligence','◉'));
   const adminData=[item('master-data.html','Master Data & Partners','◫'),item('admin.html','User & Access','♙')];if(extraPerms.has('data'))adminData.splice(1,0,item('data.html','Data Management','⬡'));
   const decision=[];if(extraPerms.has('management-outcome'))decision.push(item('management-outcome.html','Management Outcome','◷'));
-  return [item('index.html','Ground Experience Admin Dashboard','⌂'),group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),airportChildren()]),group('SERVICE GOVERNANCE',[item('standar.html','Readiness & Standards','≡')]),group('IMPROVEMENT & PLANNING',improve),group('BUDGET & COST',cost),...(decision.length?[group('REPORTS / DECISION SUPPORT',decision)]:[]),group('DATA & ADMINISTRATION',adminData),commonSupport].join('');
+  return [item('index.html','Ground Experience Admin Dashboard','⌂'),group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),airportChildren()]),group('SERVICE GOVERNANCE',governanceItems()),group('IMPROVEMENT & PLANNING',improve),group('BUDGET & COST',cost),...(decision.length?[group('REPORTS / DECISION SUPPORT',decision)]:[]),group('DATA & ADMINISTRATION',adminData),commonSupport].join('');
  }
  if(pov==='management') return [
   item('index.html','Management Dashboard','⌂'),
   group('EXPERIENCE & INSIGHT',[item('customer-experience.html','Customer Experience','◎'),airportChildren()]),
+  group('SERVICE GOVERNANCE',governanceItems()),
   group('IMPROVEMENT & PLANNING',[item('inisiatif.html','Initiative & Improvement','⚙'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣')]),
   group('REPORTS / DECISION SUPPORT',[item('management-outcome.html','Management Outcome','◷')]),
@@ -101,7 +103,7 @@ function navFor(s){
  if(pov==='superadmin') return [
   item('index.html','Super Admin / System Dashboard','⌂'),
   group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),airportChildren()]),
-  group('SERVICE GOVERNANCE',[item('standar.html','Readiness & Standards','≡')]),
+  group('SERVICE GOVERNANCE',governanceItems()),
   group('IMPROVEMENT & PLANNING',[item('inisiatif.html','Initiative & Improvement','⚙'),item('improvement-intake.html','Improvement Opportunity','✧'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
   group('DATA & ADMINISTRATION',[item('master-data.html','Master Data & Partners','◫'),item('data.html','Data Management','⬡'),item('admin.html','User & Access','♙'),item('portal-management.html','Portal Management','⚙'),item('audit-log.html','Audit Log','◷')]),

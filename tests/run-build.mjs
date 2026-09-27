@@ -63,3 +63,5 @@ await import('./r43-airport-experience-foundation-contract.js');
 await import('./r44-sidebar-superadmin-contract.js');
 
 await import('./r45-routing-lifecycle-contract.js');
+
+await import('./r46-navigation-readiness-contract.js');
