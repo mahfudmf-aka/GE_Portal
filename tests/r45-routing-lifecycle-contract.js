@@ -13,7 +13,7 @@ for(const route of ['airport-experience','station-360','service-experience','cap
 assert(shell.includes("item('airport-experience.html','Network & Map'"),'Combined Network and Map navigation target missing');
 assert(shell.includes('ge-airport-parent')&&shell.includes('const airportChildren='),'Airport parent must not be a clickable active route');
 assert(!app.includes("outlet.querySelector('[data-section=map]')?.toggleAttribute('hidden'"),'Network and Map must remain visible in the same page');
-assert(app.includes("await loadSrc('assets/r43-airport-experience-foundation.js?v=r45')")&&foundation.includes('window.geInitR43=boot'),'R43 page enhancer must boot explicitly');
+assert(app.includes("await loadSrc('assets/r43-airport-experience-foundation.js?v=r54')")&&foundation.includes('window.geInitR43=boot'),'R43 page enhancer must boot explicitly');
 assert(!foundation.includes("document.addEventListener('DOMContentLoaded',()=>setTimeout(boot"),'R43 enhancer must not depend on a synthetic page load');
 for(const match of shell.matchAll(/item\('([^']+\.html(?:\?[^']*)?)'/g)){
  const u=new URL(match[1],'https://portal.invalid/');const requested=u.pathname.split('/').pop().replace(/\.html$/,'');

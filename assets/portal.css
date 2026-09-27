@@ -5533,3 +5533,10 @@ html body.final-v257.final-shell-r5.e1-page .ge-sidebar-toggle:hover{background:
 .ge-ref-dashboard .ge-attention-item>div{min-width:0;overflow-wrap:anywhere}
 .ge-ref-dashboard .ge-attention-item>.ge-mini-action{white-space:nowrap}
 .ge-ref-dashboard .ge-priority.low{background:#24a063}
+
+/* R54: compact management row, independently scroll the ten attention items. */
+.management-pov.ge-ref-dashboard .ge-management-row1 .ge-dash-panel{height:410px!important;min-height:410px!important;max-height:410px!important;overflow:hidden!important}
+.management-pov.ge-ref-dashboard .ge-management-row1 .attention-panel .ge-attention-list{max-height:340px;overflow-y:auto;overscroll-behavior:contain}
+.branch-pov.ge-ref-dashboard .ge-attention-list{max-height:205px;overflow-y:auto;overscroll-behavior:contain}
+
+.r43-service-matrix .ge-experience-card{width:100%;text-align:left;cursor:pointer;border:1px solid #dce5ed;background:#fff;color:#173a61;padding:14px;border-radius:10px}.r43-service-matrix .ge-experience-card.active,.ge-experience-card.active{border-color:#1263b0;background:#eaf4ff}.ge-experience-card{cursor:pointer;text-align:left;border:1px solid #dce5ed;background:#fff;border-radius:10px;padding:14px;color:#173a61}.ge-experience-card:focus-visible{outline:2px solid #1263b0}
