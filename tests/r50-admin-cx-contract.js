@@ -9,8 +9,8 @@ assert.strictEqual(pov({role:'Head Office',accessLevel:'Editor',organizationType
 const dash=fs.readFileSync('assets/dashboard-firestore.js','utf8'),match=dash.match(/function cxSignals\(rows,limit=4\)[\s\S]*?\nfunction attentionWithCX/);
 assert(match);const signals=vm.runInNewContext('const num=(x,keys)=>{for(const k of keys){if(x[k]!==undefined&&x[k]!==null&&x[k]!==\x27\x27)return Number(x[k])}return null};const stationVals=x=>x.stationCode?[x.stationCode]:[];'+match[0].slice(0,-'function attentionWithCX'.length)+'cxSignals');
 assert.deepStrictEqual(JSON.parse(JSON.stringify(signals([{status:'Published',period:'2026-09',csi:76,csiTarget:80,nps:45,npsTarget:50}]))).map(x=>[x.metric,x.below]),[['CSI',true],['NPS',true]]);
-assert(dash.includes('attentionWithCX(m.opportunities,networkCX,5)'));
-assert(dash.includes('attentionWithCX(issues,cxRows,5)'));
+assert(dash.includes('attentionWithCX(m,networkCX,2)'));
+assert(dash.includes('attentionWithCX(v,cxRows,2)'));
 for(const f of ['netlify/functions/auth-update-user.js','netlify/functions/auth-reset-password.js'])assert(fs.readFileSync(f,'utf8').includes('ADMIN_PEER_PROTECTED'));
 const create=fs.readFileSync('netlify/functions/auth-create-user.js','utf8');assert(create.includes('role, accessLevel, organizationType, unit:'));
 console.log('R50_ADMIN_CX_CONTRACT_PASS');

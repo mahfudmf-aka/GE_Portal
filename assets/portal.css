@@ -4648,7 +4648,7 @@ body:has(#dashboardRoot) .ge-cx-score b{display:block;margin:6px 0 2px;color:#08
 body:has(#dashboardRoot) .ge-cx-score em{color:#708399;font-size:10px;font-style:normal}
 body:has(#dashboardRoot) .ge-cx-trend{min-width:0}
 body:has(#dashboardRoot) .ge-cx-trend-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;color:#173f68;font-size:11px;font-weight:750}
-body:has(#dashboardRoot) .ge-cx-chart{width:100%;height:155px;display:block;overflow:visible}
+body:has(#dashboardRoot) .ge-cx-chart{width:100%;height:auto;display:block;overflow:visible}
 body:has(#dashboardRoot) .ge-cx-legend{display:flex;gap:15px;align-items:center;color:#4e6680;font-size:10px}
 body:has(#dashboardRoot) .ge-cx-legend span{display:inline-flex;align-items:center;gap:5px}
 body:has(#dashboardRoot) .ge-cx-legend i{width:18px;height:3px;border-radius:3px;background:#246dca}
@@ -5303,7 +5303,7 @@ html body .ge-combo-toggle-r12::after{line-height:40px!important}
 /* R34 — dashboard density/alignment pass against approved Management & BO references. */
 .ge-ref-dashboard{font-size:11px!important}
 .ge-ref-dashboard .ge-dash-grid{align-items:stretch!important;gap:10px!important;margin-bottom:10px!important}
-.ge-ref-dashboard .ge-dash-panel{min-height:0!important;height:auto!important;padding:10px 12px!important;border-radius:9px!important;overflow:hidden!important}
+.ge-ref-dashboard .ge-dash-panel{min-height:0!important;height:auto!important;padding:10px 12px!important;border-radius:9px!important;overflow:visible!important}
 .ge-ref-dashboard .ge-dash-panel-head{padding-bottom:7px!important;margin-bottom:8px!important}
 .ge-ref-dashboard .ge-dash-panel-head h2{font-size:12px!important;letter-spacing:0!important}
 .ge-ref-dashboard .ge-dash-kpis{min-height:84px!important;margin-bottom:10px!important}
@@ -5314,7 +5314,8 @@ html body .ge-combo-toggle-r12::after{line-height:40px!important}
 .ge-ref-dashboard .ge-dash-kpi-icon{width:34px!important;height:34px!important;min-width:34px!important}
 .management-pov.ge-ref-dashboard>.ge-dash-grid-3:nth-of-type(2){grid-template-columns:1.08fr 1.02fr .9fr!important}
 .management-pov.ge-ref-dashboard>.ge-dash-grid-3:nth-of-type(3){grid-template-columns:1.05fr 1fr .95fr!important}
-.management-pov.ge-ref-dashboard .ge-dash-grid-3 .ge-dash-panel{min-height:245px!important;max-height:285px!important}
+.management-pov.ge-ref-dashboard .ge-dash-grid-3:not(.ge-management-row1) .ge-dash-panel{min-height:245px!important;max-height:285px!important}
+.management-pov.ge-ref-dashboard .ge-management-row1 .ge-dash-panel{min-height:410px!important;max-height:none!important}
 .management-pov.ge-ref-dashboard .ge-dash-grid-2 .ge-dash-panel{min-height:155px!important;max-height:185px!important}
 .ge-ref-dashboard .ge-dash-table{table-layout:fixed!important;font-size:8px!important}
 .ge-ref-dashboard .ge-dash-table th,.ge-ref-dashboard .ge-dash-table td{padding:5px 6px!important;line-height:1.25!important}
@@ -5335,7 +5336,8 @@ html body .ge-combo-toggle-r12::after{line-height:40px!important}
 .ge-ref-dashboard .ge-dash-note{font-size:7px!important;margin:8px 0 0!important}
 .branch-pov.ge-ref-dashboard .ge-dash-bo-head{min-height:72px!important;padding:10px 14px!important;margin-bottom:8px!important;border-radius:9px!important;background:linear-gradient(100deg,#eef7ff 0%,#dbeeff 55%,#f7fbff 100%)!important}
 .branch-pov.ge-ref-dashboard .ge-dash-bo-head h1{font-size:20px!important}.branch-pov.ge-ref-dashboard .ge-dash-bo-head small,.branch-pov.ge-ref-dashboard .ge-dash-bo-head p{font-size:9px!important}
-.branch-pov.ge-ref-dashboard .ge-dash-grid-3 .ge-dash-panel{min-height:220px!important;max-height:270px!important}
+.branch-pov.ge-ref-dashboard .ge-dash-grid-3 .ge-dash-panel:not(.cx-panel){min-height:220px!important;max-height:270px!important}
+.branch-pov.ge-ref-dashboard .cx-panel{min-height:410px!important;max-height:none!important}
 .branch-pov.ge-ref-dashboard .ge-dash-table-wrap{max-height:195px!important}
 .ge-admin-combined .ge-dash-mode-label{margin:10px 0 6px!important;font-size:9px!important}
 @media(min-width:1400px){.ge-ref-dashboard .ge-dash-grid-3{grid-template-columns:1.08fr 1fr .92fr!important}.branch-pov.ge-ref-dashboard .ge-dash-grid-3{grid-template-columns:1.12fr .88fr .96fr!important}}
@@ -5367,7 +5369,7 @@ html body .ge-combo-toggle-r12::after{line-height:40px!important}
 
 /* R39 — P1-P8 dashboard composition */
 .ge-ref-dashboard{--ge-navy:#062a61;--ge-blue:#1769d2;--ge-line:#d9e4f0;--ge-soft:#f5f8fc}
-.ge-ref-dashboard .ge-dash-panel{min-height:250px;border:1px solid #d6e1ed;border-radius:14px;background:#fff;box-shadow:0 3px 12px rgba(8,42,87,.05);overflow:hidden}
+.ge-ref-dashboard .ge-dash-panel{min-height:250px;border:1px solid #d6e1ed;border-radius:14px;background:#fff;box-shadow:0 3px 12px rgba(8,42,87,.05);overflow:visible}
 .ge-ref-dashboard .ge-dash-panel-head{padding:14px 16px 10px;border-bottom:1px solid var(--ge-line)}
 .ge-ref-dashboard .ge-dash-panel-head h2{font-size:15px;color:var(--ge-navy);letter-spacing:.01em}
 .ge-ref-dashboard .ge-dash-kpis{gap:0;border:1px solid #d6e1ed;border-radius:14px;background:#fff;overflow:hidden;margin-bottom:12px}
@@ -5376,8 +5378,8 @@ html body .ge-combo-toggle-r12::after{line-height:40px!important}
 .ge-ref-dashboard .ge-dash-kpi b{color:var(--ge-navy);font-size:25px}
 .ge-ref-dashboard .ge-dash-kpi-icon{width:11px;height:11px;border-radius:50%;background:var(--ge-blue)}
 .ge-ref-dashboard .ge-dash-kpi.purple .ge-dash-kpi-icon{background:#6d43c5}.ge-ref-dashboard .ge-dash-kpi.green .ge-dash-kpi-icon{background:#21a366}.ge-ref-dashboard .ge-dash-kpi.orange .ge-dash-kpi-icon,.ge-ref-dashboard .ge-dash-kpi.amber .ge-dash-kpi-icon{background:#e4a11b}.ge-ref-dashboard .ge-dash-kpi.red .ge-dash-kpi-icon{background:#d83a3a}.ge-ref-dashboard .ge-dash-kpi.teal .ge-dash-kpi-icon{background:#13899b}.ge-ref-dashboard .ge-dash-kpi.navy .ge-dash-kpi-icon{background:#062a61}
-.ge-attention-list,.ge-decision-list{padding:4px 16px}.ge-attention-item,.ge-decision-item{display:flex;align-items:center;gap:12px;min-height:54px;border-bottom:1px solid #e2eaf3;text-decoration:none;color:#123b68}.ge-attention-item>div,.ge-decision-item>div{min-width:0;flex:1}.ge-attention-item b,.ge-decision-item b{display:block;font-size:13px}.ge-attention-item small,.ge-decision-item small{display:block;color:#70859e;margin-top:3px}.ge-priority{min-width:60px;text-align:center;border-radius:6px;padding:6px 8px;font-size:11px;font-weight:700;color:#fff}.ge-priority.critical,.ge-priority.high{background:#df3b3b}.ge-priority.medium{background:#ef981c}.ge-priority.low{background:#d9ad25}.ge-mini-action{border:1px solid #c9d9eb;border-radius:6px;padding:5px 9px;color:#0755a6;font-size:11px;font-weight:700}
-.ge-cx-top{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px 4px}.ge-cx-metric{border:1px solid #d6e1ed;border-radius:10px;padding:12px;text-decoration:none;color:#123b68;background:#f9fbfe}.ge-cx-metric b{display:block;font-size:28px;color:#062a61;margin:4px 0}.ge-cx-metric span{font-size:11px;color:#70859e}.ge-chart-drill{display:block;padding:0 12px 10px;text-decoration:none}.ge-cx-chart svg{width:100%;height:145px}.ge-cx-chart .grid{stroke:#dfe8f1;stroke-width:1}.ge-cx-chart text{fill:#6f8299;font-size:9px}.ge-cx-chart .csi-line{fill:none;stroke:#1769d2;stroke-width:3}.ge-cx-chart .nps-line{fill:none;stroke:#21a366;stroke-width:3}.ge-chart-legend{display:flex;gap:18px;padding:6px 4px;color:#365a7d;font-size:11px}.ge-chart-legend span:before{content:'';display:inline-block;width:18px;height:3px;margin-right:5px;vertical-align:middle;background:#1769d2}.ge-chart-legend .nps:before{background:#21a366}
+.ge-attention-list,.ge-decision-list{padding:4px 16px}.ge-attention-item,.ge-decision-item{display:flex;align-items:center;gap:12px;min-height:54px;border-bottom:1px solid #e2eaf3;text-decoration:none;color:#123b68}.ge-attention-item>div,.ge-decision-item>div{min-width:0;flex:1}.ge-attention-item b,.ge-decision-item b{display:block;font-size:13px}.ge-attention-item small,.ge-decision-item small{display:block;color:#70859e;margin-top:3px}.ge-priority{min-width:60px;text-align:center;border-radius:6px;padding:6px 8px;font-size:11px;font-weight:700;color:#fff}.ge-priority.critical,.ge-priority.high{background:#df3b3b}.ge-priority.medium{background:#ef981c}.ge-priority.low{background:#24a063}.ge-mini-action{border:1px solid #c9d9eb;border-radius:6px;padding:5px 9px;color:#0755a6;font-size:11px;font-weight:700}
+.ge-cx-top{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px 4px}.ge-cx-metric{border:1px solid #d6e1ed;border-radius:10px;padding:12px;text-decoration:none;color:#123b68;background:#f9fbfe}.ge-cx-metric b{display:block;font-size:28px;color:#062a61;margin:4px 0}.ge-cx-metric span{font-size:11px;color:#70859e}.ge-chart-drill{display:block;padding:0 12px 10px;text-decoration:none}.ge-cx-chart svg{width:100%;height:195px}.ge-cx-chart .grid{stroke:#dfe8f1;stroke-width:1}.ge-cx-chart text{fill:#6f8299;font-size:9px}.ge-cx-chart .csi-line{fill:none;stroke:#1769d2;stroke-width:3}.ge-cx-chart .nps-line{fill:none;stroke:#21a366;stroke-width:3}.ge-chart-legend{display:flex;gap:18px;padding:6px 4px;color:#365a7d;font-size:11px}.ge-chart-legend span:before{content:'';display:inline-block;width:18px;height:3px;margin-right:5px;vertical-align:middle;background:#1769d2}.ge-chart-legend .nps:before{background:#21a366}.ge-chart-legend b{margin-left:auto;color:#0c3368;font-size:11px}.ge-cx-chart .c-dot{fill:#1769d2;stroke:#fff;stroke-width:1.5}.ge-cx-chart .n-dot{fill:#21a366;stroke:#fff;stroke-width:1.5}
 .ge-viz-donut{width:132px;height:132px;border-radius:50%;background:conic-gradient(#2f6b89 0 var(--d1),#dca62d var(--d1) var(--d2),#d95046 var(--d2) 100%);display:grid;place-items:center;position:relative}.ge-viz-donut:after{content:'';position:absolute;inset:25px;background:#fff;border-radius:50%}.ge-viz-donut>div{z-index:1;text-align:center}.ge-viz-donut b{display:block;font-size:24px;color:#062a61}.ge-viz-donut small{font-size:10px;color:#6f8299}
 .ge-cost-kpis,.ge-budget-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 16px}.ge-cost-kpis a,.ge-budget-kpis a{border:1px solid #d6e1ed;border-radius:9px;padding:10px;text-decoration:none;color:#365a7d}.ge-cost-kpis b,.ge-budget-kpis b{display:block;color:#062a61;font-size:16px;margin-top:6px}.ge-cost-drivers,.ge-budget-visual{padding:4px 16px 14px}.ge-cost-drivers>div,.ge-budget-visual>div{display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e2eaf3;padding:8px 0}.ge-budget-kpis{grid-template-columns:repeat(5,1fr)}
 .ge-station-dashboard-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:4px 0 14px}.ge-station-filter{min-width:280px}.ge-station-filter label{display:block;font-size:11px;font-weight:700;color:#58718e;margin-bottom:5px}.ge-station-filter select{width:100%;min-height:42px;border:1px solid #bfcfe1;border-radius:9px;background:#fff;padding:0 36px 0 12px;color:#062a61}
