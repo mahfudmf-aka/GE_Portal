@@ -1,0 +1,10 @@
+'use strict';
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const code=fs.readFileSync('assets/master-reference.js','utf8');
+const elements=new Map(),tabs=['airlines','gha','alignment','aircraft','costs','touchpoints'].map(refTab=>({dataset:{refTab},classList:{toggle(){}}}));
+function el(id){if(!elements.has(id))elements.set(id,{id,innerHTML:'',textContent:'',value:'',hidden:false,onclick:null,oninput:null,insertAdjacentElement(){},addEventListener(){}});return elements.get(id)}
+const document={readyState:'complete',getElementById:el,querySelectorAll(sel){return sel==='[data-ref-tab]'?tabs:[]},createElement(){return {className:'',textContent:'',onclick:null}}};
+const data={airlines:[{id:'a1',iata:'SV',name:'Saudia',status:'Active'}],touchpoints:[{id:'tp1',name:'Check-In & Drop Baggage',journeys:['Pre-Flight'],aliases:['Check-in'],status:'Active'}],initiatives:[],customerExperience:[]};
+const window={gxCanManage:()=>true};const context={window,document,location:{pathname:'/app.html'},GEStore:{waitAuth:async()=>{},hydrate:async()=>data},console,setTimeout};
+vm.runInNewContext(code,context);
+(async()=>{await window.GXMasterReference.init();tabs.find(x=>x.dataset.refTab==='touchpoints').onclick();assert(el('refHead').innerHTML.includes('Journey Areas'));assert(el('refRows').innerHTML.includes('Check-In &amp; Drop Baggage'));assert(!el('refRows').innerHTML.includes('Saudia'));assert.strictEqual(el('refAdd').textContent,'+ Add Ground Touch Point');await window.GXMasterReference.init();assert(el('refRows').innerHTML.includes('Check-In &amp; Drop Baggage'));console.log('R56_MASTER_RENDER_INTERACTION_PASS')})().catch(e=>{console.error(e);process.exitCode=1});

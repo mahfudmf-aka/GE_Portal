@@ -75,3 +75,8 @@ await import('./r52-attention-decision-contract.js');
 await import('./r54-ground-integration-contract.js');
 
 await import('./r55-regression-contract.js');
+
+await import('./r56-checklist-bo-master-contract.js');
+
+await import('./r56-master-render-interaction.js');
+await import('./r57-form-management-workflow.js');
