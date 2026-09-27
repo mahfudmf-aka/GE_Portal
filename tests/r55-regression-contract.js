@@ -1,0 +1,16 @@
+'use strict';
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const dashboard=fs.readFileSync('assets/dashboard-firestore.js','utf8');
+const source=dashboard.replace(/\}\)\(\);\s*$/,'window.__test={branch};})();');
+const window={addEventListener(){},__geDashboardStation:'CGK'};
+vm.runInNewContext(source,{window,document:{readyState:'loading',addEventListener(){}},console,setTimeout,localStorage:{getItem:()=>null},location:{}});
+const m={ins:[],opportunities:[],reviews:[],outcomes:[],events:[],airports:[],lounges:[],gha:[],assets:[],fac:[],std:[],align:[],materials:[],cx:[],budget:[],touchpoints:[]};
+const html=window.__test.branch(m,{role:'Branch Office',scopeType:'ASSIGNED',airports:['CGK']});
+assert(html.includes('ATTENTION — CGK')&&html.includes('CUSTOMER EXPERIENCE — CGK'));
+const master=fs.readFileSync('assets/master-reference.js','utf8');
+assert(master.includes('window.__GXMasterReferenceInitialized')&&master.includes('Cross-Journey / End-to-End')&&master.includes('Supporting / Enabler'));
+const business=fs.readFileSync('assets/edition1-business-runtime.js','utf8');
+assert(business.includes("String(u.accessLevel||'')==='Admin'")&&business.includes('geInitiativeProgressAllowedV224(x)'));
+const api=fs.readFileSync('netlify/functions/edition1-data.js','utf8');
+assert(api.includes("code:'HIERARCHY_FORBIDDEN'")&&api.includes("const editable=new Set(['real','remark'])")&&api.includes("db.collection('users').doc(String(prev.createdBy))"));
+console.log('R55_REGRESSION_CONTRACT_PASS');

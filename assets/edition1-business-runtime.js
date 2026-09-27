@@ -4222,14 +4222,13 @@ window.addEventListener('DOMContentLoaded',()=>{geApplyBulkVisitorUIV223()});
    V2.24 — Initiative Governance, Due Date Warning & Timeline
    ============================================================== */
 function geInitiativeUserV224(){return typeof gxGetSession==='function'?(gxGetSession()||{}):{}}
-function geInitiativeAdminV224(){return ['Super Admin','Admin'].includes(geInitiativeUserV224().role)}
-function geInitiativeCanProgressV224(){
-  const role=geInitiativeUserV224().role;
-  return ['Super Admin','Admin','Staff','Branch Office'].includes(role);
-}
+function geInitiativeAdminV224(){const u=geInitiativeUserV224();return u.role==='Super Admin'||(!['External User','External','Collaborator'].includes(u.role)&&(u.role==='Admin'||String(u.accessLevel||'')==='Admin'))}
+function geInitiativeCanProgressV224(){const u=geInitiativeUserV224();return geInitiativeAdminV224()||(!['External User','External','Collaborator'].includes(u.role)&&String(u.accessLevel||'')==='Editor')}
+function geInitiativeProgressAllowedV224(x){const u=geInitiativeUserV224();return geInitiativeCanProgressV224()&&geInitiativeScopedV224(x)&&(geInitiativeAdminV224()||String(x.createdByAccessLevel||'').toLowerCase()!=='admin'&&String(x.createdByRole||'')!=='Super Admin')}
+
 function geInitiativeScopedV224(x){
   const s=geInitiativeUserV224();
-  if(!s||['Super Admin','Admin'].includes(s.role)||s.scopeType==='ALL')return true;
+  if(!s||geInitiativeAdminV224()||s.scopeType==='ALL')return true;
   if(!x.airport)return true;
   return typeof gxAirportAllowed==='function'?gxAirportAllowed(x.airport):true;
 }
@@ -4257,7 +4256,7 @@ function geInitiativeManageButtonsV224(x){
   if(geInitiativeAdminV224()){
     parts.push(`<button class="btn secondary compact-btn" onclick="openInitiativeModalV224(${x.id})">Update</button>`);
     parts.push(`<button class="btn danger compact-btn" onclick="deleteInitiativeV224(${x.id})">Hapus</button>`);
-  }else if(geInitiativeCanProgressV224()&&geInitiativeScopedV224(x)){
+  }else if(geInitiativeProgressAllowedV224(x)){
     parts.push(`<button class="btn secondary compact-btn" onclick="openInitiativeProgressV224(${x.id})">Edit Progress</button>`);
   }
   return `<div class="initiative-actions-v224">${parts.join('')}</div>`;

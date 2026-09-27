@@ -77,7 +77,7 @@ function canWrite(actor,c){
   return canModule(actor,c) && (WRITE_LEVELS.has(String(actor.accessLevel||'')) || actor.role==='Admin');
 }
 function allowedStations(actor){
-  if (actor.role==='Super Admin' || String(actor.scopeType||'').toUpperCase()==='ALL') return null;
+  if (actor.role==='Super Admin' || (['Head Office','GE Team','Ground Experience Team'].includes(actor.role) && String(actor.accessLevel||'')==='Admin') || String(actor.scopeType||'').toUpperCase()==='ALL') return null;
   const a=Array.isArray(actor.airports)?actor.airports:[];
   return new Set(a.map(x=>String(x).trim().toUpperCase()).filter(Boolean));
 }
@@ -139,6 +139,11 @@ async function readCollection(db,actor,c){
   }
   let rows=docs.map(d=>({id:d.id,...sanitize(d.data())}));
   if(c==='users') rows=rows.map(x=>{delete x.password;delete x.passwordHash;delete x.temporaryPassword;return x});
+  if(c==='initiatives' && !isExternalActor(actor) && !isOperationalAdmin(actor) && actor.role!=='Super Admin'){
+    const ids=[...new Set(rows.map(x=>String(x.createdBy||'')).filter(Boolean))];
+    const creators=new Map(await Promise.all(ids.map(async id=>{const user=await db.collection('users').doc(id).get();return [id,user.exists?user.data():null]})));
+    rows=rows.map(x=>({...x,createdByAccessLevel:creators.get(String(x.createdBy))?.accessLevel||x.createdByAccessLevel||'',createdByRole:creators.get(String(x.createdBy))?.role||x.createdByRole||''}));
+  }
   if(c!=='inbox' && c!=='users' && c!=='auditLogs' && !(['initiatives','projectEvents'].includes(c)&&isExternalActor(actor))) rows=rows.filter(x=>inScope(actor,x));
   return rows;
 }
@@ -159,6 +164,7 @@ async function writeOne(db,actor,collection,action,id,raw){
   if(action==='DELETE'){
     const snap=await ref.get(); if(!snap.exists) return {id:ref.id,deleted:false};
     const prev=snap.data()||{}; if(isExternalActor(actor)&&!ownsRecord(actor,prev)) throw Object.assign(new Error('External users can only delete their own records.'),{statusCode:403,code:'OWNERSHIP_FORBIDDEN'}); if(!isExternalActor(actor)&&!inScope(actor,prev)) throw Object.assign(new Error('Record outside account scope.'),{statusCode:403,code:'SCOPE_FORBIDDEN'});
+    if(collection==='initiatives' && !isExternalActor(actor) && actor.role!=='Super Admin' && !isOperationalAdmin(actor)) throw Object.assign(new Error('Admin access required to delete initiatives.'),{statusCode:403,code:'HIERARCHY_FORBIDDEN'});
     await ref.delete();
     await bumpCacheVersion(db,collection);
     await db.collection('auditLogs').add({actorId:actor.id,actorRole:actor.role,name:actor.name||actor.username||actor.email||actor.id,username:actor.username||actor.email||'',module:collection,object:ref.id,detail:`${collection} ${action.toLowerCase()}`,targetType:`EDITION1_${collection.toUpperCase()}`,targetId:ref.id,action:'Delete',timestamp:FieldValue.serverTimestamp(),result:'SUCCESS'});
@@ -167,11 +173,21 @@ async function writeOne(db,actor,collection,action,id,raw){
   const data=cleanData(raw); const existing=await ref.get(); const prev=existing.exists?existing.data()||{}:{};
   if(isExternalActor(actor) && existing.exists && !ownsRecord(actor,prev)) throw Object.assign(new Error('External users can only update their own records.'),{statusCode:403,code:'OWNERSHIP_FORBIDDEN'});
   if(!isExternalActor(actor) && existing.exists && !inScope(actor,prev)) throw Object.assign(new Error('Record outside account scope.'),{statusCode:403,code:'SCOPE_FORBIDDEN'});
+  if(collection==='initiatives' && existing.exists && !isExternalActor(actor) && actor.role!=='Super Admin' && !isOperationalAdmin(actor)){
+    const creator=prev.createdBy?(await db.collection('users').doc(String(prev.createdBy)).get()):null;
+    const owner=creator?.exists?creator.data():null;
+    if(!owner || isOperationalAdmin(owner) || owner.role==='Super Admin') throw Object.assign(new Error('Initiative milik Admin hanya dapat diubah oleh Admin.'),{statusCode:403,code:'HIERARCHY_FORBIDDEN'});
+    const editable=new Set(['real','remark']);
+    for(const [key,value] of Object.entries(data)){
+      if(key==='createdByAccessLevel'||key==='createdByRole')continue;
+      if(!editable.has(key) && JSON.stringify(sanitize(value))!==JSON.stringify(sanitize(prev[key]))) throw Object.assign(new Error('Hanya progress dan remark yang dapat diubah oleh Editor.'),{statusCode:403,code:'HIERARCHY_FORBIDDEN'});
+    }
+  }
   if(isExternalActor(actor) && collection==='initiatives'){delete data.touchPoint;delete data.touchpoint;delete data.touchPoints;delete data.touchpoints;delete data.station;delete data.stations;data.ownerUserId=actor.id;data.visibility='EXTERNAL_PRIVATE';data.initiativeScope='GENERAL';}
   if(isExternalActor(actor) && collection==='projectEvents'){data.ownerUserId=actor.id;data.visibility='EXTERNAL_PRIVATE';}
   const station=stationOf({...prev,...data}); if(!isExternalActor(actor) && station && !inScope(actor,{airport:station,stationCode:station})) throw Object.assign(new Error('Station outside account scope.'),{statusCode:403,code:'SCOPE_FORBIDDEN'});
   const now=FieldValue.serverTimestamp();
-  const next={...data,updatedAt:now,updatedBy:actor.id}; if(!existing.exists){next.createdAt=now;next.createdBy=actor.id}
+  const next={...data,updatedAt:now,updatedBy:actor.id}; if(!existing.exists){next.createdAt=now;next.createdBy=actor.id;if(collection==='initiatives'){next.createdByRole=actor.role;next.createdByAccessLevel=actor.accessLevel||''}}else if(collection==='initiatives'){next.createdByRole=prev.createdByRole||'';next.createdByAccessLevel=prev.createdByAccessLevel||''}
   if(action==='CREATE' && existing.exists) throw Object.assign(new Error('Record already exists.'),{statusCode:409,code:'ALREADY_EXISTS'});
   await ref.set(next,{merge:action==='UPDATE'});
   await bumpCacheVersion(db,collection);

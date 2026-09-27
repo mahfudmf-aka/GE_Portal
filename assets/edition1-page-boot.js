@@ -67,7 +67,7 @@ async function boot(){
   if(!hasAccess()){const target=typeof gxDefaultPage==='function'?gxDefaultPage():'app.html?page=index';if(new URL(target,location.href).href!==location.href)location.replace(target);return}
   showStatus('Mengambil data dari Firebase / Firestore…');
   await store.hydrate(cfg.collections);
-  if(page==='inisiatif'&&['Super Admin','Admin'].includes(String(session().role||''))) await store.hydrate(['users']);
+  if(page==='inisiatif'&&(session().role==='Super Admin'||session().role==='Admin'||String(session().accessLevel||'')==='Admin')) await store.hydrate(['users']);
   rerender();
   const d=store.get();
   const total=cfg.collections.reduce((n,k)=>{const v=d[k];return n+(Array.isArray(v)?v.length:(v&&typeof v==='object'?1:0))},0);
