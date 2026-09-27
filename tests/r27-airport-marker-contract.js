@@ -8,5 +8,5 @@ ok(rt.includes('mapProviderTypeR32')&&rt.includes('Ground Handling Agent'),'prov
 ok(rt.includes("provider-active")&&rt.includes("provider-expired"),'provider marker state missing');
 ok(rt.includes('r27-selected-pointer'),'selected marker pointer missing');
 ok(css.includes('.r32-marker.provider-active')&&css.includes('.r32-marker.provider-expired'),'provider marker colors missing');
-ok(reg.includes('edition1-business-runtime.js?v=r41')&&reg.includes('portal.css?v=r41'),'map cache bust missing');
+ok(reg.includes('edition1-business-runtime.js?v=r42')&&reg.includes('portal.css?v=r42'),'map cache bust missing');
 console.log('R27_AIRPORT_MARKER_CONTRACT_PASS');
