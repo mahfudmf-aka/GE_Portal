@@ -9,5 +9,5 @@ assert(app.indexOf("for(const item of def.scripts||[])")<app.indexOf('  reveal()
 assert(app.includes('outlet.replaceChildren(n);reveal()'),'Route error must reveal an actionable message');
 assert(shell.includes("item('monitoring-assessment.html','Monitoring & Assessment'"),'Assessment navigation is missing');
 for(const pov of ['ge-team','admin','management','superadmin'])assert(shell.includes("group('SERVICE GOVERNANCE',governanceItems())"),'Governance group must expose the Assessment route');
-assert(shell.includes("page=airport-experience&view=overview")&&shell.includes("page=airport-experience&view=map"),'Network and Map view identities missing');
+assert(shell.includes("item('airport-experience.html','Network & Map'"),'Combined Network and Map navigation missing');
 console.log('R46_NAVIGATION_READINESS_PASS');

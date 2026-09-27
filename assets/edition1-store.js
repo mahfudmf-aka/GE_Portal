@@ -10,7 +10,7 @@
     airportSystems:[],skyPriority:[],touchpointStandards:[],gasoMaster:[],gasoServiceSupport:[],gasoPlanningService:[],
     personnel:[],articles:[],announcements:[],faqs:[],inbox:[],auditLogs:[],users:[],lounges:[],
     airlines:[],groundHandlers:[],serviceAlignments:[],airportCosts:[],aircraftConfigs:[],assets:[],facilities:[],
-    standardContent:{},portalManagerR2:{},contactMessages:[],guestbook:[]
+    standardContent:{},portalManagerR2:{},contactMessages:[],guestbook:[],monitoringTemplates:[],monitoringAssessments:[]
   };
   const baseline={}; let hydrated=false; let pending=Promise.resolve();
   const CACHE_DB='GE_E1_CACHE_V30'; const CACHE_STORE='collections';

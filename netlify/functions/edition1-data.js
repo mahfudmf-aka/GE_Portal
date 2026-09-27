@@ -7,7 +7,8 @@ const COLLECTIONS = new Set([
   'stationMaterials','boSpaces','serviceProcurement','airportSystems','skyPriority','touchpointStandards',
   'gasoMaster','gasoServiceSupport','gasoPlanningService','personnel','articles','announcements','faqs',
   'inbox','auditLogs','users','lounges','standardContent','portalManager','contactMessages','guestbook',
-  'airlines','groundHandlers','serviceAlignments','airportCosts','aircraftConfigs','assets','facilities'
+  'airlines','groundHandlers','serviceAlignments','airportCosts','aircraftConfigs','assets','facilities',
+  'monitoringTemplates','monitoringAssessments'
 ]);
 const DATA_GROUP_BY_COLLECTION = Object.fromEntries([...COLLECTIONS].map(name => [name, name]));
 const METADATA_COLLECTIONS = new Set(['standardContent','portalManager']);
@@ -39,7 +40,7 @@ const MODULE_BY_COLLECTION = {
   news:'news', articles:'news', announcements:'news', faqs:'news', contactMessages:'contact', guestbook:'contact',
   touchpoints:'services', skyPriority:'services', touchpointStandards:'services', standardContent:'services',
   portalManager:'admin', auditLogs:'admin', users:'admin', airlines:'data', groundHandlers:'data', serviceAlignments:'services', airportCosts:'planning', aircraftConfigs:'data', assets:'planning', facilities:'planning',
-  events:'calendar'
+  monitoringTemplates:'services', monitoringAssessments:'services', events:'calendar'
 };
 function active(actor){return actor && String(actor.status || 'Active').toLowerCase() !== 'inactive';}
 function isOperationalAdmin(actor){ return actor?.role === 'Admin' || String(actor?.accessLevel||'') === 'Admin'; }

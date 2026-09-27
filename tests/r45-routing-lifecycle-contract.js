@@ -10,11 +10,9 @@ for(const route of ['airport-experience','station-360','service-experience','cap
  assert(shell.includes(`'${route}.html'`),`${route}: shell gate missing`);
  assert(auth.includes(`'${route}.html':'services'`),`${route}: access gate missing`);
 }
-for(const [route,view] of [['airport-experience','overview'],['airport-experience','map']]){
- assert(shell.includes(`page=${route}&view=${view}`),`${view}: unique navigation target missing`);
-}
+assert(shell.includes("item('airport-experience.html','Network & Map'"),'Combined Network and Map navigation target missing');
 assert(shell.includes('ge-airport-parent')&&shell.includes('const airportChildren='),'Airport parent must not be a clickable active route');
-assert(app.includes("outlet.querySelector('[data-section=map]')")&&app.includes("outlet.querySelector('[data-section=network]')"),'Map and overview must use the same outlet with distinct views');
+assert(!app.includes("outlet.querySelector('[data-section=map]')?.toggleAttribute('hidden'"),'Network and Map must remain visible in the same page');
 assert(app.includes("await loadSrc('assets/r43-airport-experience-foundation.js?v=r45')")&&foundation.includes('window.geInitR43=boot'),'R43 page enhancer must boot explicitly');
 assert(!foundation.includes("document.addEventListener('DOMContentLoaded',()=>setTimeout(boot"),'R43 enhancer must not depend on a synthetic page load');
 for(const match of shell.matchAll(/item\('([^']+\.html(?:\?[^']*)?)'/g)){

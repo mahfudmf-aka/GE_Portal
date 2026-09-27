@@ -23,10 +23,9 @@ const NAV_SVG={
 function icon(x){const key=({'⌂':'home','◎':'cx','↔':'journey','✈':'network','⌾':'station','⚙':'initiative','✧':'opportunity','◇':'scenario','▦':'calendar','▣':'budget','◉':'budget','✓':'readiness','▤':'document','≡':'standard','⬡':'data','◫':'data','♙':'user','◷':'history','☎':'support','⇧':'data','◈':'station'})[x]||'standard';return `<span class="ni" aria-hidden="true"><svg viewBox="0 0 20 20">${NAV_SVG[key]}</svg></span>`;}
 const path=()=>{const file=(location.pathname.split('/').pop()||'app.html').toLowerCase();if(file==='login.html')return'login.html';if(file==='app.html'){const route=String(new URLSearchParams(location.search).get('page')||'index').trim().toLowerCase();const aliases=(window.P40_CLEAN_ALIASES||{});const canonical=(aliases[route]||route).split('?')[0];return `${canonical}.html`;}return file;};
 const cleanHref=(href)=>{const raw=String(href||'');const m=raw.match(/^([^?#]+)\.html(?:\?([^#]*))?/);if(!m||m[1]==='login'||m[1]==='change-password')return href;if(m[1]==='app'){const q=new URLSearchParams(m[2]||'');const requested=String(q.get('page')||'index').trim().toLowerCase();const aliases=(window.P40_CLEAN_ALIASES||{});const canonical=((aliases[requested]||requested).split('?')[0]||'index');q.set('page',canonical==='app'?'index':canonical);return 'app.html?'+q.toString();}const alias=(window.P40_CLEAN_ALIASES||{})[m[1]]||m[1];const parts=alias.split('?'),q=new URLSearchParams(parts[1]||'');new URLSearchParams(m[2]||'').forEach((v,k)=>q.set(k,v));q.set('page',parts[0]);return 'app.html?'+q.toString()};
-const item=(href,label,i,sub=false)=>{const target=cleanHref(href),u=new URL(target,location.href),targetPage=(u.searchParams.get('page')||href.replace(/\.html.*$/,'')).toLowerCase()+'.html';const view=u.searchParams.get('view');const currentView=(new URLSearchParams(location.search).get('view')==='network'?'overview':new URLSearchParams(location.search).get('view'))||'overview';const active=path()===targetPage&&(!view||view===currentView)&&!(targetPage==='airport-experience.html'&&!view&&currentView!=='overview');return `<a class="ge-nav-link ${sub?'ge-nav-sub':''} ${active?'active':''}" href="${target}" title="${label}">${icon(i)}<span>${label}</span></a>`};
+const item=(href,label,i,sub=false)=>{const target=cleanHref(href),u=new URL(target,location.href),targetPage=(u.searchParams.get('page')||href.replace(/\.html.*$/,'')).toLowerCase()+'.html';return `<a class="ge-nav-link ${sub?'ge-nav-sub':''} ${path()===targetPage?'active':''}" href="${target}" title="${label}">${icon(i)}<span>${label}</span></a>`};
 const airportChildren=()=>`<div class="ge-nav-section ge-airport-parent">AIRPORT EXPERIENCE NETWORK</div>${[
- item('app.html?page=airport-experience&view=overview','Network Overview','✈',true),
- item('app.html?page=airport-experience&view=map','Experience Map','✈',true),
+ item('airport-experience.html','Network & Map','✈',true),
  item('station-360.html','Station 360','⌾',true),
  item('service-experience.html','Service Experience','◎',true),
  item('capability-classification.html','Capability & Classification','◈',true)
@@ -146,7 +145,7 @@ function cleanNavigation(){
    }
    section.style.display=has?'':'none';
  });
- side.querySelectorAll('.ge-nav-link[href]').forEach(a=>{const u=new URL(a.getAttribute('href')||'',location.href);const ap=(u.searchParams.get('page')||u.pathname.split('/').pop()?.replace(/\.html$/,'')||'index').toLowerCase()+'.html';const view=u.searchParams.get('view');const currentView=(new URLSearchParams(location.search).get('view')==='network'?'overview':new URLSearchParams(location.search).get('view'))||'overview';a.classList.toggle('active',path()===ap&&(!view||view===currentView)&&!(ap==='airport-experience.html'&&!view&&currentView!=='overview'));});
+ side.querySelectorAll('.ge-nav-link[href]').forEach(a=>{const u=new URL(a.getAttribute('href')||'',location.href);const ap=(u.searchParams.get('page')||u.pathname.split('/').pop()?.replace(/\.html$/,'')||'index').toLowerCase()+'.html';a.classList.toggle('active',path()===ap);});
 }
 function ensureShell(){
  if(path()==='login.html'||!finalUserPages.has(path())) return null;
