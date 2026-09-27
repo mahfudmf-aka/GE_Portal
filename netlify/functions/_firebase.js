@@ -62,7 +62,7 @@ function normalizeAccessLevel(value, role) {
 }
 
 function hasUserManagementPermission(actor) {
-  return actor?.role === 'Super Admin' || (['Head Office','GE Team','Ground Experience Team'].includes(actor?.role) && actor?.accessLevel === 'Admin' && actor?.userManagementEnabled === true);
+  return actor?.role === 'Super Admin' || (['Head Office','GE Team','Ground Experience Team'].includes(actor?.role) && actor?.accessLevel === 'Admin');
 }
 
 

@@ -6,7 +6,7 @@ const list=JSON.parse(master.match(/const csiGroundCatalog=(\[.*?\]);/)[1]);asse
 assert(master.includes("x.sourceType==='CSI'?'':")&&master.includes("sourceType:'Initiative'"));
 assert(master.includes('const selected=tab')&&master.includes('rows(selected)')&&master.includes('selected===\'touchpoints\''));
 assert(server.includes('CSI_TOUCHPOINT_LOCKED')&&server.includes('attentionSettings'));
-assert(auth.includes("s.userManagementEnabled===true")&&auth.includes("permission==='data'"));
+assert(auth.includes("gxHasUserManagementPermission()")&&auth.includes("permission==='data'"));
 assert(sidebar.includes('Attention Rules')&&app.includes("route==='attention-settings'"));
 assert(dash.includes('attentionSettings')&&dash.includes('metricGapSignals'));
 const logic=dash.slice(dash.indexOf('function attentionLevel('),dash.indexOf('function initiativeUrgency('));const configured=vm.runInNewContext(logic+'attentionLevel',{D:()=>({attentionSettings:{indicators:[{key:'touchpoint_gap',lower:-2,upper:2}]}})});assert.strictEqual(configured(-2.1),'high');assert.strictEqual(configured(-2),'medium');assert.strictEqual(configured(2),'medium');assert.strictEqual(configured(2.1),'low');

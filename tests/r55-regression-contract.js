@@ -8,7 +8,7 @@ const m={ins:[],opportunities:[],reviews:[],outcomes:[],events:[],airports:[],lo
 const html=window.__test.branch(m,{role:'Branch Office',scopeType:'ASSIGNED',airports:['CGK']});
 assert(html.includes('ATTENTION — CGK')&&html.includes('CUSTOMER EXPERIENCE — CGK'));
 const master=fs.readFileSync('assets/master-reference.js','utf8');
-assert(master.includes('window.__GXMasterReferenceInitialized')&&master.includes('Cross-Journey / End-to-End')&&master.includes('Supporting / Enabler'));
+assert(master.includes('current.dataset.gxMasterBound')&&master.includes('Cross-Journey / End-to-End')&&master.includes('Supporting / Enabler'));
 const business=fs.readFileSync('assets/edition1-business-runtime.js','utf8');
 assert(business.includes("String(u.accessLevel||'')==='Admin'")&&business.includes('geInitiativeProgressAllowedV224(x)'));
 const api=fs.readFileSync('netlify/functions/edition1-data.js','utf8');

@@ -46,7 +46,7 @@ function active(actor){return actor && String(actor.status || 'Active').toLowerC
 function isOperationalAdmin(actor){ return actor?.role === 'Admin' || String(actor?.accessLevel||'') === 'Admin'; }
 function canModule(actor, collection){
   if (actor.role === 'Super Admin') return true;
-  if (collection === 'users') return actor.role === 'Super Admin' || (['Head Office','GE Team','Ground Experience Team'].includes(actor.role) && actor.accessLevel === 'Admin' && actor.userManagementEnabled === true);
+  if (collection === 'users') return actor.role === 'Super Admin' || (['Head Office','GE Team','Ground Experience Team'].includes(actor.role) && actor.accessLevel === 'Admin');
   if (collection === 'portalManager') return false; // Super Admin handled above.
   if (collection === 'auditLogs') return actor.role==='Super Admin';
   const module=MODULE_BY_COLLECTION[collection];
@@ -70,7 +70,7 @@ function canRead(actor,c){
 function canWrite(actor,c){
   if (!active(actor)) return false;
   if(c==='attentionSettings') return actor.role==='Super Admin'||(['Head Office','GE Team','Ground Experience Team'].includes(actor.role)&&actor.accessLevel==='Admin');
-  if (c==='users') return actor.role==='Super Admin' || (['Head Office','GE Team','Ground Experience Team'].includes(actor.role) && actor.accessLevel==='Admin' && actor.userManagementEnabled === true);
+  if (c==='users') return actor.role==='Super Admin' || (['Head Office','GE Team','Ground Experience Team'].includes(actor.role) && actor.accessLevel==='Admin');
   if (c==='auditLogs') return actor.role==='Super Admin';
   if (isExternalActor(actor)) return ['initiatives','projectEvents'].includes(c);
   if (c==='formSubmissions' && !isExternalActor(actor)) return true;
