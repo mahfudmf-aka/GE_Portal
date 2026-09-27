@@ -80,3 +80,4 @@ await import('./r56-checklist-bo-master-contract.js');
 
 await import('./r56-master-render-interaction.js');
 await import('./r57-form-management-workflow.js');
+await import('./r58-catalog-rules-access.js');

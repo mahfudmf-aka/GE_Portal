@@ -77,14 +77,14 @@ function navFor(s){
   group('SERVICE GOVERNANCE',governanceItems()),
   group('IMPROVEMENT & PLANNING',[item('improvement-intake.html','Improvement Opportunity','✧'),item('inisiatif.html','Initiative & Improvement','⚙'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
-  group('DATA',[item('data.html','Data Management','⬡'),...(window.gxHasUserManagementPermission?.()?[item('admin.html','User & Access','♙')]:[])]),
+  group('DATA',[...((s?.accessLevel==='Admin')?[]:[item('data.html','Data Management','⬡')]),...(window.gxHasUserManagementPermission?.()?[item('admin.html','User & Access','♙')]:[])]),
   commonSupport].join('');
  if(pov==='admin') {
   const extraPerms=new Set([...(Array.isArray(s?.permissions)?s.permissions:[]),...(Array.isArray(s?.tabs)?s.tabs:[])].map(x=>String(x).toLowerCase()));
   const improve=[item('inisiatif.html','Initiative & Improvement','⚙'),item('calendar.html','Calendar & Project Tracking','▦'),...planning];
   if(extraPerms.has('improvement-opportunity')) improve.splice(1,0,item('improvement-intake.html','Improvement Opportunity','✧'));
   const cost=[item('budget-cost.html','Budget & Cost','▣')];if(extraPerms.has('cost-intelligence'))cost.push(item('cost-intelligence.html','Cost Intelligence','◉'));
-  const adminData=[item('master-data.html','Master Data & Partners','◫')];if(window.gxHasUserManagementPermission?.())adminData.push(item('admin.html','User & Access','♙'));if(extraPerms.has('data'))adminData.splice(1,0,item('data.html','Data Management','⬡'));
+  const adminData=[item('master-data.html','Master Data & Partners','◫'),item('app.html?page=attention-settings','Attention Rules','◉')];if(window.gxHasUserManagementPermission?.())adminData.push(item('admin.html','User & Access','♙'));if(extraPerms.has('data')&&s?.role==='Super Admin')adminData.splice(1,0,item('data.html','Data Management','⬡'));
   const decision=[];if(extraPerms.has('management-outcome'))decision.push(item('management-outcome.html','Management Outcome','◷'));
   return [item('index.html','Ground Experience Admin Dashboard','⌂'),group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),airportChildren()]),group('SERVICE GOVERNANCE',governanceItems()),group('IMPROVEMENT & PLANNING',improve),group('BUDGET & COST',cost),...(decision.length?[group('REPORTS / DECISION SUPPORT',decision)]:[]),group('DATA & ADMINISTRATION',adminData),commonSupport].join('');
  }
@@ -102,7 +102,7 @@ function navFor(s){
   group('SERVICE GOVERNANCE',governanceItems()),
   group('IMPROVEMENT & PLANNING',[item('inisiatif.html','Initiative & Improvement','⚙'),item('improvement-intake.html','Improvement Opportunity','✧'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
-  group('DATA & ADMINISTRATION',[item('master-data.html','Master Data & Partners','◫'),item('data.html','Data Management','⬡'),item('admin.html','User & Access','♙'),item('portal-management.html','Portal Management','⚙'),item('audit-log.html','Audit Log','◷')]),
+  group('DATA & ADMINISTRATION',[item('master-data.html','Master Data & Partners','◫'),item('app.html?page=attention-settings','Attention Rules','◉'),item('data.html','Data Management','⬡'),item('admin.html','User & Access','♙'),item('portal-management.html','Portal Management','⚙'),item('audit-log.html','Audit Log','◷')]),
   commonSupport].join('');
  return [group('DASHBOARD',[item('index.html','Dashboard','⌂')]),commonSupport].join('');
 }

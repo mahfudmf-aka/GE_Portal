@@ -66,7 +66,7 @@ async function boot(){
   await waitFirebase();
   if(!hasAccess()){const target=typeof gxDefaultPage==='function'?gxDefaultPage():'app.html?page=index';if(new URL(target,location.href).href!==location.href)location.replace(target);return}
   showStatus('Mengambil data dari Firebase / Firestore…');
-  await store.hydrate(cfg.collections);
+  await store.hydrate(page==='admin'&&session().role!=='Super Admin'?cfg.collections.filter(x=>x!=='auditLogs'):cfg.collections);
   if(page==='inisiatif'&&(session().role==='Super Admin'||session().role==='Admin'||String(session().accessLevel||'')==='Admin')) await store.hydrate(['users']);
   rerender();
   const d=store.get();

@@ -8,10 +8,10 @@ const COLLECTIONS = new Set([
   'gasoMaster','gasoServiceSupport','gasoPlanningService','personnel','articles','announcements','faqs',
   'inbox','auditLogs','users','lounges','standardContent','portalManager','contactMessages','guestbook',
   'airlines','groundHandlers','serviceAlignments','airportCosts','aircraftConfigs','assets','facilities',
-  'monitoringTemplates','monitoringAssessments','formTemplates','monitoringWorks','formSubmissions','customerExperience'
+  'monitoringTemplates','monitoringAssessments','formTemplates','monitoringWorks','formSubmissions','customerExperience','attentionSettings'
 ]);
 const DATA_GROUP_BY_COLLECTION = Object.fromEntries([...COLLECTIONS].map(name => [name, name]));
-const METADATA_COLLECTIONS = new Set(['standardContent','portalManager']);
+const METADATA_COLLECTIONS = new Set(['standardContent','portalManager','attentionSettings']);
 function dataRef(db, collection, id) {
   const group = DATA_GROUP_BY_COLLECTION[collection] || collection;
   if (METADATA_COLLECTIONS.has(collection)) return db.collection('portalMetadata').doc(group).collection('records').doc(id);
@@ -40,15 +40,15 @@ const MODULE_BY_COLLECTION = {
   news:'news', articles:'news', announcements:'news', faqs:'news', contactMessages:'contact', guestbook:'contact',
   touchpoints:'services', skyPriority:'services', touchpointStandards:'services', standardContent:'services',
   portalManager:'admin', auditLogs:'admin', users:'admin', airlines:'data', groundHandlers:'data', serviceAlignments:'services', airportCosts:'planning', aircraftConfigs:'data', assets:'planning', facilities:'planning',
-  monitoringTemplates:'services', monitoringAssessments:'services', formTemplates:'services', monitoringWorks:'services', formSubmissions:'services', customerExperience:'services', events:'calendar'
+  monitoringTemplates:'services', monitoringAssessments:'services', formTemplates:'services', monitoringWorks:'services', formSubmissions:'services', customerExperience:'services', attentionSettings:'services', events:'calendar'
 };
 function active(actor){return actor && String(actor.status || 'Active').toLowerCase() !== 'inactive';}
 function isOperationalAdmin(actor){ return actor?.role === 'Admin' || String(actor?.accessLevel||'') === 'Admin'; }
 function canModule(actor, collection){
   if (actor.role === 'Super Admin') return true;
-  if (collection === 'users') return actor.role === 'Super Admin' || (['Head Office','GE Team','Ground Experience Team'].includes(actor.role) && actor.accessLevel === 'Admin');
+  if (collection === 'users') return actor.role === 'Super Admin' || (['Head Office','GE Team','Ground Experience Team'].includes(actor.role) && actor.accessLevel === 'Admin' && actor.userManagementEnabled === true);
   if (collection === 'portalManager') return false; // Super Admin handled above.
-  if (collection === 'auditLogs') return isOperationalAdmin(actor);
+  if (collection === 'auditLogs') return actor.role==='Super Admin';
   const module=MODULE_BY_COLLECTION[collection];
   if (!module) return true;
   if (isExternalActor(actor)) return ['initiatives','calendar','project-tracking','news','contact','inbox'].includes(module);
@@ -69,8 +69,9 @@ function canRead(actor,c){
 }
 function canWrite(actor,c){
   if (!active(actor)) return false;
-  if (c==='users') return actor.role==='Super Admin' || (['Head Office','GE Team','Ground Experience Team'].includes(actor.role) && actor.accessLevel==='Admin');
-  if (c==='auditLogs') return actor.role==='Super Admin' || isOperationalAdmin(actor);
+  if(c==='attentionSettings') return actor.role==='Super Admin'||(['Head Office','GE Team','Ground Experience Team'].includes(actor.role)&&actor.accessLevel==='Admin');
+  if (c==='users') return actor.role==='Super Admin' || (['Head Office','GE Team','Ground Experience Team'].includes(actor.role) && actor.accessLevel==='Admin' && actor.userManagementEnabled === true);
+  if (c==='auditLogs') return actor.role==='Super Admin';
   if (isExternalActor(actor)) return ['initiatives','projectEvents'].includes(c);
   if (c==='formSubmissions' && !isExternalActor(actor)) return true;
   if (c==='inbox') return ADMIN_ROLES.has(actor.role) || WRITE_LEVELS.has(String(actor.accessLevel||''));
@@ -165,7 +166,7 @@ async function writeOne(db,actor,collection,action,id,raw){
   if(isExternalActor(actor) && !['initiatives','projectEvents'].includes(collection)) throw Object.assign(new Error(`Write access denied for ${collection}.`),{statusCode:403,code:'FORBIDDEN'});
   if(action==='DELETE'){
     const snap=await ref.get(); if(!snap.exists) return {id:ref.id,deleted:false};
-    const prev=snap.data()||{}; if(isExternalActor(actor)&&!ownsRecord(actor,prev)) throw Object.assign(new Error('External users can only delete their own records.'),{statusCode:403,code:'OWNERSHIP_FORBIDDEN'}); if(!isExternalActor(actor)&&!inScope(actor,prev)) throw Object.assign(new Error('Record outside account scope.'),{statusCode:403,code:'SCOPE_FORBIDDEN'});
+    const prev=snap.data()||{}; if(collection==='touchpoints'&&prev.sourceType==='CSI') throw Object.assign(new Error('CSI touch point cannot be deleted.'),{statusCode:403,code:'CSI_TOUCHPOINT_LOCKED'}); if(isExternalActor(actor)&&!ownsRecord(actor,prev)) throw Object.assign(new Error('External users can only delete their own records.'),{statusCode:403,code:'OWNERSHIP_FORBIDDEN'}); if(!isExternalActor(actor)&&!inScope(actor,prev)) throw Object.assign(new Error('Record outside account scope.'),{statusCode:403,code:'SCOPE_FORBIDDEN'});
     if(collection==='initiatives' && !isExternalActor(actor) && actor.role!=='Super Admin' && !isOperationalAdmin(actor)) throw Object.assign(new Error('Admin access required to delete initiatives.'),{statusCode:403,code:'HIERARCHY_FORBIDDEN'});
     await ref.delete();
     await bumpCacheVersion(db,collection);
@@ -173,6 +174,7 @@ async function writeOne(db,actor,collection,action,id,raw){
     return {id:ref.id,deleted:true};
   }
   const data=cleanData(raw); const existing=await ref.get(); const prev=existing.exists?existing.data()||{}:{};
+  if(collection==='touchpoints'&&existing.exists&&prev.sourceType==='CSI'&&String(data.name||'')!==String(prev.name||'')) throw Object.assign(new Error('CSI touch point name is immutable.'),{statusCode:403,code:'CSI_TOUCHPOINT_LOCKED'});
   if(isExternalActor(actor) && existing.exists && !ownsRecord(actor,prev)) throw Object.assign(new Error('External users can only update their own records.'),{statusCode:403,code:'OWNERSHIP_FORBIDDEN'});
   if(!isExternalActor(actor) && existing.exists && !inScope(actor,prev)) throw Object.assign(new Error('Record outside account scope.'),{statusCode:403,code:'SCOPE_FORBIDDEN'});
   if(collection==='initiatives' && existing.exists && !isExternalActor(actor) && actor.role!=='Super Admin' && !isOperationalAdmin(actor)){

@@ -59,6 +59,7 @@ exports.handler = async (event) => {
       role,
       accessLevel,
       organizationType,
+      userManagementEnabled: actor.role==='Super Admin' ? (body.userManagementEnabled===true && ['Head Office','GE Team','Ground Experience Team'].includes(role) && accessLevel==='Admin') : !!current.userManagementEnabled,
       permissions: organizationType === 'External' ? ['initiatives','support'] : (Array.isArray(body.permissions) && body.permissions.length ? body.permissions.map(String).filter(x => USER_MODULES.includes(x)) : (Array.isArray(current.permissions) && current.permissions.length ? current.permissions : defaultUserPermissions(role))),
       unit,
       scopeType: String(body.scopeType ?? current.scopeType ?? 'CUSTOM'),

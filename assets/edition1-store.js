@@ -10,7 +10,7 @@
     airportSystems:[],skyPriority:[],touchpointStandards:[],gasoMaster:[],gasoServiceSupport:[],gasoPlanningService:[],
     personnel:[],articles:[],announcements:[],faqs:[],inbox:[],auditLogs:[],users:[],lounges:[],
     airlines:[],groundHandlers:[],serviceAlignments:[],airportCosts:[],aircraftConfigs:[],assets:[],facilities:[],
-    standardContent:{},portalManagerR2:{},contactMessages:[],guestbook:[],monitoringTemplates:[],monitoringAssessments:[],formTemplates:[],monitoringWorks:[],formSubmissions:[],customerExperience:[]
+    standardContent:{},portalManagerR2:{},attentionSettings:{},contactMessages:[],guestbook:[],monitoringTemplates:[],monitoringAssessments:[],formTemplates:[],monitoringWorks:[],formSubmissions:[],customerExperience:[]
   };
   const baseline={}; let hydrated=false; let pending=Promise.resolve();
   const CACHE_DB='GE_E1_CACHE_V30'; const CACHE_STORE='collections';
@@ -31,6 +31,7 @@
   const clone=x=>x===undefined?undefined:JSON.parse(JSON.stringify(x));
   function collKey(k){if(k==='portalManagerR2')return 'portalManager';return MAP[k]||k}
   function normalizeCollection(key,rows){
+    if(key==='attentionSettings') return Array.isArray(rows)?(rows[0]||{}):{};
     if(key==='standardContent') return Array.isArray(rows)?(rows[0]||{}):{};
     if(key==='portalManagerR2') return Array.isArray(rows)?(rows[0]||{}):{};
     const out=Array.isArray(rows)?rows.map(x=>{const y={...x};if(typeof y.id==='string'&&/^\d+$/.test(y.id))y.id=Number(y.id);return y}):[];
@@ -59,7 +60,7 @@
     if(!fb?.db)throw new Error(msg);
     const out={};
     for(const key of list){
-      if(key==='standardContent'||key==='portalManager'){
+      if(key==='standardContent'||key==='portalManager'||key==='attentionSettings'){
         const snap=await fb.db.collection('portalMetadata').doc(key).collection('records').doc('global').get();
         out[key]=snap.exists?[{id:'global',...snap.data()}]:[];
       }else if(key==='users'){
@@ -103,7 +104,7 @@
     const keys=Object.keys(snapshot);
     for(const key of keys){
       const collection=collKey(key);
-      if(key==='standardContent'||key==='portalManagerR2'){
+      if(key==='standardContent'||key==='portalManagerR2'||key==='attentionSettings'){
         const prev=baseline[key]||{}; const next=snapshot[key]||{};
         if(!same(prev,next)) await apiPost({collection,action:'UPDATE',id:'global',data:next});
         baseline[key]=clone(next); continue;
@@ -129,7 +130,7 @@
     // be interpreted as DELETE for collections that were never loaded on this page.
     for(const k of Object.keys(next||{})){
       if(!Object.prototype.hasOwnProperty.call(baseline,k)) continue;
-      if(Array.isArray(next[k])||k==='standardContent'||k==='portalManagerR2')snapshot[k]=clone(next[k]);
+      if(Array.isArray(next[k])||k==='standardContent'||k==='portalManagerR2'||k==='attentionSettings')snapshot[k]=clone(next[k]);
     }
     const previous=pending.catch(()=>undefined); pending=previous.then(()=>persistSnapshot(snapshot)).catch(err=>{console.error('[Edition1 Firebase Store]',err);window.dispatchEvent(new CustomEvent('gx-data-save-error',{detail:err}));throw err});
     return next;

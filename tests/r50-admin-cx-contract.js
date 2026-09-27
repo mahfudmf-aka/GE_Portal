@@ -12,5 +12,5 @@ assert.deepStrictEqual(JSON.parse(JSON.stringify(signals([{status:'Published',pe
 assert(dash.includes('attentionWithCX(m,networkCX,10)'));
 assert(dash.includes('boTaskAttention(m,s,selected)'));
 for(const f of ['netlify/functions/auth-update-user.js','netlify/functions/auth-reset-password.js'])assert(fs.readFileSync(f,'utf8').includes('ADMIN_PEER_PROTECTED'));
-const create=fs.readFileSync('netlify/functions/auth-create-user.js','utf8');assert(create.includes('role, accessLevel, organizationType, unit:'));
+const create=fs.readFileSync('netlify/functions/auth-create-user.js','utf8');assert(create.includes('role, accessLevel, organizationType, userManagementEnabled:'));
 console.log('R50_ADMIN_CX_CONTRACT_PASS');

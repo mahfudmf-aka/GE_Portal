@@ -62,7 +62,7 @@ exports.handler = async (event) => {
         username, email,
         name: fullName || username,
         employeeNo,
-        role, accessLevel, organizationType, unit: String(body.unit || '').trim(),
+        role, accessLevel, organizationType, userManagementEnabled:actor.role==='Super Admin'&&body.userManagementEnabled===true&&['Head Office','GE Team','Ground Experience Team'].includes(role)&&accessLevel==='Admin', unit: String(body.unit || '').trim(),
         scopeType: requestedScopeType,
         airports: Array.isArray(body.airports) ? body.airports.map(x => String(x).trim().toUpperCase()).filter(Boolean) : [],
         loungeIds: Array.isArray(body.loungeIds) ? body.loungeIds.map(String) : [],

@@ -17,9 +17,13 @@
   // app.html is the SPA host, never a logical page. Recover stale/legacy ?page=app links before rendering.
   if(route==='app'){route='index';params.set('page','index');history.replaceState(null,'','app.html?'+params.toString());}
   const alias=(window.P40_CLEAN_ALIASES||{})[route];if(alias){const parts=String(alias).split('?');route=parts[0];if(parts[1])new URLSearchParams(parts[1]).forEach((v,k)=>{if(!params.has(k))params.set(k,v)});params.set('page',route);history.replaceState(null,'','app.html?'+params.toString());}
+  if(route==='attention-settings'&&!window.gxHasPermission?.('attention-settings')){outlet.innerHTML='<div class="clean-page-error"><h2>Akses tidak tersedia</h2></div>';reveal();return;}
+  if(['portal-management','audit-log'].includes(route)&&window.gxGetSession?.()?.role!=='Super Admin'){outlet.innerHTML='<div class="clean-page-error"><h2>Akses khusus Super Admin</h2></div>';reveal();return;}
+  if(route==='data'&&['Head Office','GE Team','Ground Experience Team'].includes(window.gxGetSession?.()?.role)&&window.gxGetSession?.()?.accessLevel==='Admin'){outlet.innerHTML='<div class="clean-page-error"><h2>Data Management tidak tersedia untuk GE Admin</h2></div>';reveal();return;}
   const def=window.P40_CLEAN_PAGES[route];
   if(!def){outlet.innerHTML='<div class="clean-page-error"><h2>Page tidak ditemukan</h2><p>'+route+'</p></div>';reveal();return;}
   document.title=def.title+' — Ground Experience Portal'; outlet.innerHTML=def.html;
+  if(route==='admin'&&window.gxGetSession?.()?.role!=='Super Admin'){outlet.querySelectorAll('.admin-section-tab').forEach(b=>{if(/Activity Log|Portal Management/.test(b.textContent))b.remove()});outlet.querySelector('#adminSectionAudit')?.remove();outlet.querySelector('#adminSectionPortal')?.remove();}
   if(route==='index'){const dashboard=outlet.querySelector('#dashboardRoot');if(dashboard&&!dashboard.children.length)dashboard.innerHTML='<section class="ge-dash-panel"><h2>Memuat dashboard…</h2><p>Mengambil data terbaru untuk tampilan Anda.</p></section>';}
   // The destination exists now. Data loading and page scripts continue inside its content outlet.
   reveal();
@@ -31,10 +35,13 @@
   if(['station-360','service-experience','capability-classification'].includes(route)){await loadSrc('assets/edition1-store.js?v=r47');try{await window.GEStore?.hydrate(['monitoringTemplates','monitoringAssessments','formTemplates','formSubmissions','airports','serviceAlignments','facilities','assets','airportSystems','lounges','personnel','touchpoints','customerExperience']);}catch(e){console.warn('[Airport Experience source]',e);}}
   if(['airport-experience','station-360','service-experience','capability-classification','monitoring-assessment'].includes(route)){await loadSrc('assets/r43-airport-experience-foundation.js?v=r56');}
   if(route==='monitoring-assessment'){await loadSrc('assets/form-management.js?v=r57');await window.geFormManagementInit?.();}
+  if(['inisiatif','calendar','monitoring-assessment','service-experience','capability-classification'].includes(route)&&window.gxCanManage?.()){await loadSrc('assets/edition1-store.js?v=r58');await loadSrc('assets/master-reference.js?v=r58');await window.GXMasterReference?.syncCatalog();}
   if(route==='master-data')await window.GXMasterReference?.init();
+  if(route==='attention-settings'){await loadSrc('assets/attention-settings.js?v=r58');await window.geAttentionSettingsInit?.();}
+  await loadSrc('assets/portal-favicon.js?v=r58');window.gePortalFaviconInit?.();
   // Canonical runtime pages are initialized explicitly by edition1-page-boot.
   // Re-firing DOMContentLoaded here re-runs global legacy listeners and can create duplicate handlers/recursive render chains.
-  const canonicalExplicitBoot=new Set(['index','calendar','airport-experience','inisiatif','lounge-list','standar','admin','berita','service-planning','branch-office-planning','gaso-planning','planning-documents','data','master-data']);
+  const canonicalExplicitBoot=new Set(['index','calendar','airport-experience','inisiatif','lounge-list','standar','admin','berita','service-planning','branch-office-planning','gaso-planning','planning-documents','data','master-data','attention-settings']);
   if(!canonicalExplicitBoot.has(route)) document.dispatchEvent(new Event('DOMContentLoaded',{bubbles:true}));
   if(window.geInitR43&&['airport-experience','station-360','service-experience','capability-classification','monitoring-assessment'].includes(route))setTimeout(window.geInitR43,300);
   if(route==='airport-experience'&&params.get('focus')==='map')setTimeout(()=>outlet.querySelector('#interactiveMap')?.scrollIntoView({block:'start'}),100);
