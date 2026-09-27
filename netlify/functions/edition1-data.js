@@ -8,7 +8,7 @@ const COLLECTIONS = new Set([
   'gasoMaster','gasoServiceSupport','gasoPlanningService','personnel','articles','announcements','faqs',
   'inbox','auditLogs','users','lounges','standardContent','portalManager','contactMessages','guestbook',
   'airlines','groundHandlers','serviceAlignments','airportCosts','aircraftConfigs','assets','facilities',
-  'monitoringTemplates','monitoringAssessments'
+  'monitoringTemplates','monitoringAssessments','customerExperience'
 ]);
 const DATA_GROUP_BY_COLLECTION = Object.fromEntries([...COLLECTIONS].map(name => [name, name]));
 const METADATA_COLLECTIONS = new Set(['standardContent','portalManager']);
@@ -22,7 +22,7 @@ function dataQuery(db, collection) {
   if (METADATA_COLLECTIONS.has(collection)) return db.collection('portalMetadata').doc(group).collection('records');
   return db.collection('portalData').doc(group).collection('records');
 }
-const READ_ROLES = new Set(['Super Admin','Admin','Management','Head Office','GE Team','Branch Office','Staff','Viewer','Approver','Editor','External User','External','Collaborator','Lounge Staff','Lounge Luar Biasa']);
+const READ_ROLES = new Set(['Super Admin','Admin','Management','Head Office','GE Team','Ground Experience Team','Branch Office','Staff','Viewer','Approver','Editor','External User','External','Collaborator','Lounge Staff','Lounge Luar Biasa']);
 const WRITE_LEVELS = new Set(['Editor','Admin']);
 const ADMIN_ROLES = new Set(['Super Admin','Admin']);
 const EXTERNAL_ROLES = new Set(['External User','External','Collaborator','Partner']);
@@ -40,13 +40,13 @@ const MODULE_BY_COLLECTION = {
   news:'news', articles:'news', announcements:'news', faqs:'news', contactMessages:'contact', guestbook:'contact',
   touchpoints:'services', skyPriority:'services', touchpointStandards:'services', standardContent:'services',
   portalManager:'admin', auditLogs:'admin', users:'admin', airlines:'data', groundHandlers:'data', serviceAlignments:'services', airportCosts:'planning', aircraftConfigs:'data', assets:'planning', facilities:'planning',
-  monitoringTemplates:'services', monitoringAssessments:'services', events:'calendar'
+  monitoringTemplates:'services', monitoringAssessments:'services', customerExperience:'services', events:'calendar'
 };
 function active(actor){return actor && String(actor.status || 'Active').toLowerCase() !== 'inactive';}
 function isOperationalAdmin(actor){ return actor?.role === 'Admin' || String(actor?.accessLevel||'') === 'Admin'; }
 function canModule(actor, collection){
   if (actor.role === 'Super Admin') return true;
-  if (collection === 'users') return isOperationalAdmin(actor);
+  if (collection === 'users') return actor.role === 'Super Admin' || (['Head Office','GE Team','Ground Experience Team'].includes(actor.role) && actor.accessLevel === 'Admin');
   if (collection === 'portalManager') return false; // Super Admin handled above.
   if (collection === 'auditLogs') return isOperationalAdmin(actor);
   const module=MODULE_BY_COLLECTION[collection];
@@ -69,7 +69,8 @@ function canRead(actor,c){
 }
 function canWrite(actor,c){
   if (!active(actor)) return false;
-  if (c==='users' || c==='auditLogs') return actor.role==='Super Admin' || isOperationalAdmin(actor);
+  if (c==='users') return actor.role==='Super Admin' || (['Head Office','GE Team','Ground Experience Team'].includes(actor.role) && actor.accessLevel==='Admin');
+  if (c==='auditLogs') return actor.role==='Super Admin' || isOperationalAdmin(actor);
   if (c==='inbox') return ADMIN_ROLES.has(actor.role) || WRITE_LEVELS.has(String(actor.accessLevel||''));
   if (isExternalActor(actor)) return ['initiatives','projectEvents'].includes(c);
   if (actor.role==='Super Admin' || isOperationalAdmin(actor)) return true;

@@ -38,7 +38,7 @@ function dashboardPOV(s){
  const access=String(s?.accessLevel||'').trim().toLowerCase();
  if(r==='super admin'||r==='superadmin')return 'superadmin';
  if(isExternalPortalUser(s))return 'external';
- if(r==='admin'||access==='admin')return 'admin';
+ if(r==='admin')return 'admin';
  if(r==='management')return 'management';
  if(['ge team','ground experience team','head office','headoffice','staff'].includes(r))return 'ge-team';
  if(['branch office','branchoffice','bo'].includes(r))return 'branch';
@@ -80,14 +80,14 @@ function navFor(s){
   group('SERVICE GOVERNANCE',governanceItems()),
   group('IMPROVEMENT & PLANNING',[item('improvement-intake.html','Improvement Opportunity','✧'),item('inisiatif.html','Initiative & Improvement','⚙'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
-  group('DATA',[item('data.html','Data Management','⬡')]),
+  group('DATA',[item('data.html','Data Management','⬡'),...(window.gxHasUserManagementPermission?.()?[item('admin.html','User & Access','♙')]:[])]),
   commonSupport].join('');
  if(pov==='admin') {
   const extraPerms=new Set([...(Array.isArray(s?.permissions)?s.permissions:[]),...(Array.isArray(s?.tabs)?s.tabs:[])].map(x=>String(x).toLowerCase()));
   const improve=[item('inisiatif.html','Initiative & Improvement','⚙'),item('calendar.html','Calendar & Project Tracking','▦'),...planning];
   if(extraPerms.has('improvement-opportunity')) improve.splice(1,0,item('improvement-intake.html','Improvement Opportunity','✧'));
   const cost=[item('budget-cost.html','Budget & Cost','▣')];if(extraPerms.has('cost-intelligence'))cost.push(item('cost-intelligence.html','Cost Intelligence','◉'));
-  const adminData=[item('master-data.html','Master Data & Partners','◫')];if(['Admin','Super Admin'].includes(s?.role))adminData.push(item('admin.html','User & Access','♙'));if(extraPerms.has('data'))adminData.splice(1,0,item('data.html','Data Management','⬡'));
+  const adminData=[item('master-data.html','Master Data & Partners','◫')];if(window.gxHasUserManagementPermission?.())adminData.push(item('admin.html','User & Access','♙'));if(extraPerms.has('data'))adminData.splice(1,0,item('data.html','Data Management','⬡'));
   const decision=[];if(extraPerms.has('management-outcome'))decision.push(item('management-outcome.html','Management Outcome','◷'));
   return [item('index.html','Ground Experience Admin Dashboard','⌂'),group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),airportChildren()]),group('SERVICE GOVERNANCE',governanceItems()),group('IMPROVEMENT & PLANNING',improve),group('BUDGET & COST',cost),...(decision.length?[group('REPORTS / DECISION SUPPORT',decision)]:[]),group('DATA & ADMINISTRATION',adminData),commonSupport].join('');
  }

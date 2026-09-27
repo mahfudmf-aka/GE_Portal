@@ -62,14 +62,11 @@ function normalizeAccessLevel(value, role) {
 }
 
 function hasUserManagementPermission(actor) {
-  // Ground Experience Admin is an operational administrator by contract.
-  // User-management is therefore intrinsic to the Admin role; module permissions
-  // control navigation/business modules, not the ability to administer accounts.
-  return actor?.role === 'Super Admin' || actor?.role === 'Admin';
+  return actor?.role === 'Super Admin' || (['Head Office','GE Team','Ground Experience Team'].includes(actor?.role) && actor?.accessLevel === 'Admin');
 }
 
 
-async function requireActor(event, allowedRoles = ['Admin', 'Super Admin']) {
+async function requireActor(event, allowedRoles = ['Super Admin', 'Head Office', 'GE Team', 'Ground Experience Team']) {
   const token = bearer(event);
   if (!token) throw Object.assign(new Error('Authentication required.'), { statusCode: 401, code: 'AUTH_REQUIRED' });
 
@@ -103,7 +100,7 @@ function validateUserScopeShape(scopeType, airports = []) {
 
 function userManagementScopeAllowed(actor, requestedScopeType, requestedAirports = [], requestedLoungeIds = []) {
   if (actor?.role === 'Super Admin') return true;
-  if (actor?.role !== 'Admin') return false;
+  if (!hasUserManagementPermission(actor)) return false;
   if (String(actor.scopeType || 'ALL') === 'ALL') return true;
   const actorAirports = new Set((Array.isArray(actor.airports) ? actor.airports : []).map(x => String(x).trim().toUpperCase()).filter(Boolean));
   const actorLounges = new Set((Array.isArray(actor.loungeIds) ? actor.loungeIds : []).map(String));

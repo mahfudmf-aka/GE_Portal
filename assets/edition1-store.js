@@ -10,7 +10,7 @@
     airportSystems:[],skyPriority:[],touchpointStandards:[],gasoMaster:[],gasoServiceSupport:[],gasoPlanningService:[],
     personnel:[],articles:[],announcements:[],faqs:[],inbox:[],auditLogs:[],users:[],lounges:[],
     airlines:[],groundHandlers:[],serviceAlignments:[],airportCosts:[],aircraftConfigs:[],assets:[],facilities:[],
-    standardContent:{},portalManagerR2:{},contactMessages:[],guestbook:[],monitoringTemplates:[],monitoringAssessments:[]
+    standardContent:{},portalManagerR2:{},contactMessages:[],guestbook:[],monitoringTemplates:[],monitoringAssessments:[],customerExperience:[]
   };
   const baseline={}; let hydrated=false; let pending=Promise.resolve();
   const CACHE_DB='GE_E1_CACHE_V30'; const CACHE_STORE='collections';
@@ -138,7 +138,7 @@
     const requested=[...new Set(keys)];
     // Non-Super Admin pages use a persistent per-user/per-scope cache. This makes page-to-page
     // navigation instant and avoids re-reading entire Firestore collections on every page load.
-    if(cacheAllowed()){
+    if(cacheAllowed()&&!requested.includes('customerExperience')){
       let allCached=true;
       for(const key of requested){
         const cached=await readCache(key); if(!cached){allCached=false;continue}

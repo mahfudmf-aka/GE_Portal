@@ -7,7 +7,7 @@ const shell=fs.readFileSync('assets/portal-shell.js','utf8');
 const dash=fs.readFileSync('assets/dashboard-firestore.js','utf8');
 const boot=fs.readFileSync('assets/edition1-page-boot.js','utf8');
 must(api.includes("db.collection('users').get()"),'users must read authoritative root /users');
-must(auth.includes("actor?.role === 'Super Admin' || actor?.role === 'Admin'"),'Admin must have user-management contract');
+must(auth.includes("['Head Office','GE Team','Ground Experience Team'].includes(actor?.role) && actor?.accessLevel === 'Admin'"),'HO/GE Team with Admin access must have user-management contract');
 must(store.includes("GE_E1_CACHE_V30"),'stale pre-R30 cache must be isolated');
 must(shell.includes("return 'admin'"),'Admin dashboard POV missing');
 must(shell.includes('Ground Experience Admin Dashboard'),'Admin dashboard/navigation missing');

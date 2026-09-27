@@ -11,7 +11,7 @@
   if(!window.GX_AUTH_READY) throw new Error('Authentication bootstrap tidak tersedia.');
   await window.GX_AUTH_READY;
   if(!window.gxGetSession?.()) return; // auth bootstrap is redirecting to login or access fallback.
-  if(window.gxCurrentPageKey?.()==='admin.html'&&!window.gxHasUserManagementPermission?.()){outlet.innerHTML='<div class="clean-page-error"><h2>Akses User &amp; Role tidak tersedia</h2><p>Akun ini belum memiliki role Admin atau Super Admin. Hubungi Super Admin untuk penetapan role yang sesuai.</p></div>';reveal();return;}
+  if(window.gxCurrentPageKey?.()==='admin.html'&&!window.gxHasUserManagementPermission?.()){outlet.innerHTML='<div class="clean-page-error"><h2>Akses User &amp; Role tidak tersedia</h2><p>Hanya Super Admin atau HO/GE Team dengan access level Admin yang dapat mengelola pengguna.</p></div>';reveal();return;}
 
   const params=new URLSearchParams(location.search); let route=String(params.get('page')||'index').trim().toLowerCase();
   // app.html is the SPA host, never a logical page. Recover stale/legacy ?page=app links before rendering.
@@ -23,6 +23,7 @@
   // Route-specific styles not already in the canonical shell.
   for(const href of def.styles||[]){ if([...document.styleSheets].some(x=>x.href&&x.href.includes(href.split('?')[0]))) continue; const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l); }
   function loadSrc(src){return new Promise((resolve,reject)=>{const existing=[...document.scripts].find(x=>x.src&&x.src.includes(src.split('?')[0]));if(existing&&((src.includes('edition1-store.js')&&window.GEStore)||!src.includes('edition1-store.js')))return resolve();const attempt=(url,fallback)=>{const s=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(done)return;done=true;s.remove();if(fallback)attempt(src.split('?')[0],false);else reject(new Error('Timeout memuat '+src));},6000);s.src=url;s.onload=()=>{if(done)return;done=true;clearTimeout(timer);resolve();};s.onerror=()=>{if(done)return;done=true;clearTimeout(timer);s.remove();if(fallback)attempt(src.split('?')[0],false);else reject(new Error('Gagal memuat '+src));};document.body.appendChild(s);};attempt(src,true);});}
+  if(['cx-import','customer-experience'].includes(route)){await loadSrc('assets/edition1-store.js?v=r49');await window.GEStore.hydrate(['customerExperience']);}
   for(const item of def.scripts||[]){ if(item.src){await loadSrc(item.src);} else if(item.code){(0,eval)(item.code);} }
   if(['station-360','service-experience','capability-classification'].includes(route)){await loadSrc('assets/edition1-store.js?v=r47');try{await window.GEStore?.hydrate(['monitoringTemplates','monitoringAssessments','airports','serviceAlignments','facilities','assets','airportSystems','lounges','personnel']);}catch(e){console.warn('[Airport Experience source]',e);}}
   if(['airport-experience','station-360','service-experience','capability-classification','monitoring-assessment'].includes(route)){await loadSrc('assets/r43-airport-experience-foundation.js?v=r45');}
