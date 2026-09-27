@@ -39,6 +39,7 @@ function dashboardPOV(s){
  if(r==='super admin'||r==='superadmin')return 'superadmin';
  if(isExternalPortalUser(s))return 'external';
  if(r==='admin')return 'admin';
+ if(['head office','headoffice','ge team','ground experience team'].includes(r)&&access==='admin')return 'admin';
  if(r==='management')return 'management';
  if(['ge team','ground experience team','head office','headoffice','staff'].includes(r))return 'ge-team';
  if(['branch office','branchoffice','bo'].includes(r))return 'branch';
@@ -56,11 +57,7 @@ function navFor(s){
   group('LOUNGE OPERATION',[item('lounge-access.html','Lounge Access','◉'),item('lounge-visitor.html','Visitor & Report','▤')]),
   commonSupport].join('');
  if(pov==='external') {
-  const perms=new Set([...(Array.isArray(s?.permissions)?s.permissions:[]),...(Array.isArray(s?.tabs)?s.tabs:[])].map(x=>String(x).toLowerCase()));
   const extra=[];
-  if(perms.has('services')) extra.push(group('ADDITIONAL ACCESS',[item('customer-experience.html','Customer Experience','◎')]));
-  if(perms.has('planning')) extra.push(group('ADDITIONAL PLANNING',[item('planning-workspace.html','Planning Workspace','◇')]));
-  if(perms.has('data')) extra.push(group('ADDITIONAL DATA',[item('data.html','Data Management','⬡')]));
   return [
    group('COLLABORATION',[item('inisiatif.html','Initiative','⚙'),item('calendar.html','Calendar & Project Tracking','▦')]),
    group('INFORMATION',[item('berita.html','Berita & Informasi','▣'),item('kontak.html','Contact Support','☎')]),

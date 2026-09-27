@@ -46,12 +46,12 @@ function gxHasPermission(permission){
  if(role==='super admin'||role==='superadmin')return true;
  if(gxIsExternal()){
    if(['initiatives','calendar','project-tracking','news','contact','inbox'].includes(permission))return true;
-   return gxUserPermissions().includes(permission)||gxUserTabs().includes(permission)||gxUserTabs().includes('ALL');
+   return false;
  }
  if(role==='admin'||access==='admin'){
    const defaults=new Set(['home','services','initiatives','calendar','project-tracking','planning','budget','master','user-admin','news','contact','inbox']);
    if(defaults.has(permission))return true;
-   return gxUserPermissions().includes(permission)||gxUserTabs().includes(permission)||gxUserTabs().includes('ALL');
+   return false;
  }
  const p=gxUserPermissions();if(p.length)return p.includes(permission);
  return gxHasTab(permission)

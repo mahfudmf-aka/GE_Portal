@@ -28,6 +28,7 @@ exports.handler = async (event) => {
     if (roleChanged && !ROLES.includes(role)) return bad(400, 'INVALID_ROLE', 'Legacy Role hanya dapat dipertahankan tanpa perubahan atau dikoreksi ke Role organisasi yang didukung.');
     if (body.accessLevel && !USER_ACCESS_LEVELS.includes(String(body.accessLevel).trim())) return bad(400, 'INVALID_ACCESS_LEVEL', 'Access Level tidak valid.');
     if (!hasUserManagementPermission(actor)) return bad(403, 'USER_MANAGEMENT_PERMISSION_REQUIRED', 'Akun tidak memiliki permission User Management.');
+    if (actor.role !== 'Super Admin' && (String(current.accessLevel||'') === 'Admin' || current.role === 'Admin')) return bad(403, 'ADMIN_PEER_PROTECTED', 'Admin HO tidak dapat mengubah akun admin lain.');
     const requestedScopeType = String(body.scopeType ?? current.scopeType ?? 'CUSTOM').trim();
     const scopeAirports = body.airports ?? current.airports;
     const scopeShapeError = validateUserScopeShape(requestedScopeType, scopeAirports);
@@ -36,7 +37,8 @@ exports.handler = async (event) => {
 
     const status = String(body.status || current.status || 'Active') === 'Inactive' ? 'Inactive' : 'Active';
     const organizationType = String(body.organizationType ?? current.organizationType ?? 'Internal').trim() || 'Internal';
-    if (!['Internal','Branch Office','Partner'].includes(organizationType)) return bad(400, 'INVALID_ORGANIZATION_TYPE', 'Organization Type tidak valid.');
+    if (!['Internal','External'].includes(organizationType)) return bad(400, 'INVALID_ORGANIZATION_TYPE', 'Organization Type harus Internal atau External.');
+    if (organizationType === 'External' && !['Viewer','Editor'].includes(accessLevel)) return bad(403, 'EXTERNAL_ACCESS_RESTRICTED', 'External hanya dapat memiliki access level Viewer atau Editor.');
     const fullName = String(body.fullName ?? current.name ?? '').trim();
     const employeeNo = String(body.employeeNo ?? current.employeeNo ?? '').trim();
     const unit = String(body.unit ?? current.unit ?? '').trim();
@@ -57,12 +59,12 @@ exports.handler = async (event) => {
       role,
       accessLevel,
       organizationType,
-      permissions: Array.isArray(body.permissions) && body.permissions.length ? body.permissions.map(String).filter(x => USER_MODULES.includes(x)) : (Array.isArray(current.permissions) && current.permissions.length ? current.permissions : defaultUserPermissions(role)),
+      permissions: organizationType === 'External' ? ['initiatives','support'] : (Array.isArray(body.permissions) && body.permissions.length ? body.permissions.map(String).filter(x => USER_MODULES.includes(x)) : (Array.isArray(current.permissions) && current.permissions.length ? current.permissions : defaultUserPermissions(role))),
       unit,
       scopeType: String(body.scopeType ?? current.scopeType ?? 'CUSTOM'),
       airports: Array.isArray(body.airports) ? body.airports.map(x => String(x).trim().toUpperCase()).filter(Boolean) : (current.airports || []),
       loungeIds: Array.isArray(body.loungeIds) ? body.loungeIds.map(String) : (current.loungeIds || []),
-      tabs: Array.isArray(body.tabs) && body.tabs.length ? body.tabs.map(String) : (Array.isArray(current.tabs) && current.tabs.length ? current.tabs : defaultUserPermissions(role)),
+      tabs: organizationType === 'External' ? ['initiatives','support'] : (Array.isArray(body.tabs) && body.tabs.length ? body.tabs.map(String) : (Array.isArray(current.tabs) && current.tabs.length ? current.tabs : defaultUserPermissions(role))),
       status,
       updatedAt: new Date().toISOString()
     };

@@ -15,5 +15,5 @@ ok(dash.includes('DATA & MASTER COMPLETENESS'),'R44 data completeness panel miss
 ok(dash.includes('RECENT SYSTEM ACTIVITY'),'R44 recent activity panel missing');
 ok(!dash.includes('class="ge-pov-dashboard superadmin-pov ge-ref-dashboard r43-superadmin"'),'R43 superadmin dashboard still active');
 ok(/portal\.css\?v=r(?:44|45)/.test(app),'R44 CSS cache identity missing');
-ok(reg.includes('dashboard-firestore.js?v=r44'),'R44 dashboard cache identity missing');
+ok(/dashboard-firestore\.js\?v=r(?:44|50)/.test(reg),'R44 dashboard cache identity missing');
 console.log('R44_SIDEBAR_SUPERADMIN_CONTRACT_PASS');

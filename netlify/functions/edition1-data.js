@@ -51,12 +51,12 @@ function canModule(actor, collection){
   if (collection === 'auditLogs') return isOperationalAdmin(actor);
   const module=MODULE_BY_COLLECTION[collection];
   if (!module) return true;
+  if (isExternalActor(actor)) return ['initiatives','calendar','project-tracking','news','contact','inbox'].includes(module);
   if (isOperationalAdmin(actor)) return true;
   const p=(Array.isArray(actor.permissions)?actor.permissions:[]).map(String);
   const t=(Array.isArray(actor.tabs)?actor.tabs:[]).map(String);
   if (p.length) return p.includes(module) || p.includes('ALL') || p.includes('all');
   if (t.length) return t.includes(module) || t.includes('ALL') || t.includes('all');
-  if (isExternalActor(actor)) return ['initiatives','calendar','project-tracking','news','contact','inbox'].includes(module) || p.includes(module) || t.includes(module);
   return true;
 }
 function canRead(actor,c){
@@ -71,8 +71,8 @@ function canWrite(actor,c){
   if (!active(actor)) return false;
   if (c==='users') return actor.role==='Super Admin' || (['Head Office','GE Team','Ground Experience Team'].includes(actor.role) && actor.accessLevel==='Admin');
   if (c==='auditLogs') return actor.role==='Super Admin' || isOperationalAdmin(actor);
-  if (c==='inbox') return ADMIN_ROLES.has(actor.role) || WRITE_LEVELS.has(String(actor.accessLevel||''));
   if (isExternalActor(actor)) return ['initiatives','projectEvents'].includes(c);
+  if (c==='inbox') return ADMIN_ROLES.has(actor.role) || WRITE_LEVELS.has(String(actor.accessLevel||''));
   if (actor.role==='Super Admin' || isOperationalAdmin(actor)) return true;
   return canModule(actor,c) && (WRITE_LEVELS.has(String(actor.accessLevel||'')) || actor.role==='Admin');
 }
