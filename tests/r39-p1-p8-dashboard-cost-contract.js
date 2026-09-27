@@ -2,7 +2,7 @@ const fs=require('fs'),assert=require('assert');
 const D=fs.readFileSync('assets/dashboard-firestore.js','utf8'),A=fs.readFileSync('assets/auth.js','utf8'),B=fs.readFileSync('assets/edition1-business-runtime.js','utf8'),C=fs.readFileSync('assets/portal.css','utf8'),N=fs.readFileSync('assets/portal-shell.js','utf8');
 assert(D.includes("opportunity:'app.html?page=improvement-intake'"),'Management Attention must drill to Improvement Opportunity');
 assert(D.includes("outcome:'app.html?page=management-outcome'"),'Decision Required must drill to P5 Management Outcome');
-assert(D.includes("airport:'app.html?page=airport-experience&view=network'"),'Network dashboard must drill to network view');
+assert(D.includes("airport:'app.html?page=airport-experience&view=overview'"),'Network dashboard must drill to network view');
 assert(D.includes("cost:'app.html?page=cost-intelligence'"),'Cost Intelligence drilldown missing');
 assert(D.includes('BUDGET & FINANCIAL')&&D.includes('COST INTELLIGENCE'),'Management cost panels must remain');
 assert(D.includes('Head Office / All Network'),'HO/BO dashboard selector must support network view');
