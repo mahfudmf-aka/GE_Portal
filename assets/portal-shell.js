@@ -69,8 +69,8 @@ function navFor(s){
   group('DOCUMENTS / SUPPORT',[item('kontak.html','Support / Reference','☎')])].join('');
  if(pov==='ge-team') return [
   item('index.html','GE Team Dashboard','⌂'),
-  group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈')]),
-  group('SERVICE GOVERNANCE',[item('standar.html','Readiness & Standards','≡')]),
+  group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈'),item('map.html','Experience Map','⌖'),item('station-360.html','Station 360','⌾'),item('service-experience.html','Service Experience','◈'),item('capability-classification.html','Capability & Classification','◇')]),
+  group('SERVICE GOVERNANCE',[item('standar.html','Readiness & Standards','≡'),item('monitoring-assessment.html','Monitoring & Assessment','✓')]),
   group('IMPROVEMENT & PLANNING',[item('improvement-intake.html','Improvement Opportunity','✧'),item('inisiatif.html','Initiative & Improvement','⚙'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
   group('DATA',[item('data.html','Data Management','⬡')]),
@@ -82,7 +82,7 @@ function navFor(s){
   const cost=[item('budget-cost.html','Budget & Cost','▣')];if(extraPerms.has('cost-intelligence'))cost.push(item('cost-intelligence.html','Cost Intelligence','◉'));
   const adminData=[item('master-data.html','Master Data & Partners','◫'),item('admin.html','User & Access','♙')];if(extraPerms.has('data'))adminData.splice(1,0,item('data.html','Data Management','⬡'));
   const decision=[];if(extraPerms.has('management-outcome'))decision.push(item('management-outcome.html','Management Outcome','◷'));
-  return [item('index.html','Ground Experience Admin Dashboard','⌂'),group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈')]),group('SERVICE GOVERNANCE',[item('standar.html','Readiness & Standards','≡')]),group('IMPROVEMENT & PLANNING',improve),group('BUDGET & COST',cost),...(decision.length?[group('REPORTS / DECISION SUPPORT',decision)]:[]),group('DATA & ADMINISTRATION',adminData),commonSupport].join('');
+  return [item('index.html','Ground Experience Admin Dashboard','⌂'),group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈'),item('map.html','Experience Map','⌖'),item('station-360.html','Station 360','⌾'),item('service-experience.html','Service Experience','◈'),item('capability-classification.html','Capability & Classification','◇')]),group('SERVICE GOVERNANCE',[item('standar.html','Readiness & Standards','≡'),item('monitoring-assessment.html','Monitoring & Assessment','✓')]),group('IMPROVEMENT & PLANNING',improve),group('BUDGET & COST',cost),...(decision.length?[group('REPORTS / DECISION SUPPORT',decision)]:[]),group('DATA & ADMINISTRATION',adminData),commonSupport].join('');
  }
  if(pov==='management') return [
   item('index.html','Management Dashboard','⌂'),
@@ -93,8 +93,8 @@ function navFor(s){
   commonSupport].join('');
  if(pov==='superadmin') return [
   item('index.html','Super Admin / System Dashboard','⌂'),
-  group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈')]),
-  group('SERVICE GOVERNANCE',[item('standar.html','Readiness & Standards','≡')]),
+  group('CUSTOMER & AIRPORT EXPERIENCE',[item('customer-experience.html','Customer Experience','◎'),item('network-stations.html','Airport Experience Network','✈'),item('map.html','Experience Map','⌖'),item('station-360.html','Station 360','⌾'),item('service-experience.html','Service Experience','◈'),item('capability-classification.html','Capability & Classification','◇')]),
+  group('SERVICE GOVERNANCE',[item('standar.html','Readiness & Standards','≡'),item('monitoring-assessment.html','Monitoring & Assessment','✓')]),
   group('IMPROVEMENT & PLANNING',[item('inisiatif.html','Initiative & Improvement','⚙'),item('improvement-intake.html','Improvement Opportunity','✧'),item('calendar.html','Calendar & Project Tracking','▦'),...planning]),
   group('BUDGET & COST',[item('budget-cost.html','Budget & Cost','▣'),item('cost-intelligence.html','Cost Intelligence','◉')]),
   group('DATA & ADMINISTRATION',[item('master-data.html','Master Data & Partners','◫'),item('data.html','Data Management','⬡'),item('admin.html','User & Access','♙'),item('portal-management.html','Portal Management','⚙'),item('audit-log.html','Audit Log','◷')]),

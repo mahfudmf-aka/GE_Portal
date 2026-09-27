@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+const need=(f,s,m)=>{const x=fs.readFileSync(f,'utf8');if(!x.includes(s))throw new Error(m)};
+need('assets/r43-airport-experience-foundation.js','REQUIRED → CURRENT → ASSESSED → EXPERIENCED','Station 360 four-layer foundation missing');
+need('assets/clean-page-registry.js','Monitoring & Assessment','Monitoring page missing');
+need('assets/clean-page-registry.js','Service Experience','Service Experience page missing');
+need('assets/clean-page-registry.js','Capability & Classification','Capability page missing');
+need('assets/portal-shell.js','monitoring-assessment.html','Monitoring sidebar route missing');
+need('assets/portal.css','rgba(255,255,255,.85)','85% sidebar treatment missing');
+need('assets/portal.css','r43-map-filter-row','single-row map filter contract missing');
+console.log('R43_AIRPORT_EXPERIENCE_FOUNDATION_PASS');
