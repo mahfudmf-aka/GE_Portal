@@ -1,0 +1,6 @@
+'use strict';
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const app=fs.readFileSync('app.html','utf8'),source=app.slice(app.indexOf('function loadSrc('),app.indexOf("if(['cx-import'",app.indexOf('function loadSrc(')));
+const scripts=[],timers=[],document={scripts,body:{appendChild(s){scripts.push(s)}},createElement(){return {src:'',remove(){const i=scripts.indexOf(this);if(i>=0)scripts.splice(i,1)}}}};
+const loadSrc=vm.runInNewContext(source+'loadSrc',{document,window:{},setTimeout:(fn,delay)=>(timers.push({fn,delay}),timers.length),clearTimeout:()=>{},Promise,Error});
+(async()=>{const late=loadSrc('assets/edition1-business-runtime.js?v=r56');assert.strictEqual(timers[0].delay,45000);assert.strictEqual(scripts.length,1);assert(scripts[0].src.endsWith('?v=r56'));scripts[0].onload();await late;assert.strictEqual(scripts.length,1,'A successful late load must not append a legacy fallback');const slow=loadSrc('assets/other-page.js?v=r62');assert.strictEqual(timers[1].delay,20000);timers[1].fn();await assert.rejects(slow,/Timeout setelah 20 detik/);assert.strictEqual(scripts.length,1,'Timed-out script should be removed without an unversioned fallback');console.log('R62_SCRIPT_LOADER_PASS')})().catch(e=>{console.error(e);process.exitCode=1});

@@ -83,3 +83,5 @@ await import('./r57-form-management-workflow.js');
 await import('./r58-catalog-rules-access.js');
 
 await import('./r60-attention-ground-interaction.js');
+
+await import('./r62-script-loader.js');
