@@ -25,7 +25,6 @@ html body.final-v257.final-shell-r5>.shell>.side .ge-sidebar-toggle{position:sti
 html.ge-precollapsed body.final-v257.final-shell-r5>.shell{grid-template-columns:64px minmax(0,1fr)!important}
 
 /* R3 runtime/UI normalization */
-html body.final-v257.final-shell-r5>.shell>.side{background:linear-gradient(180deg,rgba(0,25,67,.985),rgba(2,30,70,.985))!important;scrollbar-width:thin!important;scrollbar-color:rgba(255,255,255,.28) transparent!important}
 html body.final-v257.final-shell-r5 .ge-nav-link.active{background:#123f78!important;box-shadow:inset 3px 0 #86a9cf!important}
 html body.final-v257.final-shell-r5 .map-region-cards button.active,html body.final-v257.final-shell-r5 .map-chip.active{background:#062b63!important;border-color:#062b63!important}
 html body.final-v257.final-shell-r5 .p26-account-modal{width:min(960px,calc(100vw - 48px))!important;max-height:calc(100dvh - 48px)!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
@@ -42,7 +41,7 @@ html body.final-v257.final-shell-r5 .ge-planning-tabs a.active,html body.final-v
 
 /* Keep shell geometry stable while auth/page runtime boots; avoids wide-sidebar bridge frame. */
 body.e1-page>.shell{display:grid!important;grid-template-columns:206px minmax(0,1fr)!important;min-height:calc(100vh - 74px)!important}
-body.e1-page>.shell>.side{width:206px!important;box-sizing:border-box!important;background:#001943!important}
+body.e1-page>.shell>.side{width:206px!important;box-sizing:border-box!important}
 html.ge-precollapsed body.e1-page>.shell{grid-template-columns:62px minmax(0,1fr)!important}
 html.ge-precollapsed body.e1-page>.shell>.side{width:62px!important}
 .ge-p29-view-toggle{margin-left:auto;display:inline-flex;gap:4px;padding:3px;border:1px solid #d8e3ef;border-radius:8px;background:#f7f9fc}.ge-p29-view-toggle button{height:32px;padding:0 12px;border:0;border-radius:6px;background:transparent;color:#496f88;font-weight:700;cursor:pointer}.ge-p29-view-toggle button.active{background:#062b63;color:#fff}.lounge-table-fallback-v237{display:none!important}.lounge-table-fallback-v237.ge-p29-table-visible{display:block!important}.ge-p29-detail-mode #loungeCardGridV237{display:none!important}
