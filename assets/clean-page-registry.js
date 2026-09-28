@@ -22,3 +22,34 @@ window.P40_CLEAN_PAGES['attention-settings']={title:'Management Attention Rules'
     ];
   }
 })();
+/* R70 Station 360 consumes the same source records as Capability & Classification. */
+(function(){
+  const page=window.P40_CLEAN_PAGES?.['station-360'];
+  if(!page)return;
+  page.html+='<section class="ge-card r70-station-summary" id="r70StationSummary"><h2>Required → Current · Capability</h2><p id="r70StationMessage">Memuat requirement dan kondisi station…</p><div id="r70StationSources"></div></section>';
+  page.scripts.push({src:'assets/edition1-store.js?v=r70'},{src:'assets/requirement-engine.js?v=r70'},{src:'assets/station-requirement-summary.js?v=r70'});
+  page.styles=['assets/portal.css?v=r70'];
+})();
+
+/* R70 source-backed requirement and current capability workspace. */
+(function(){
+  const page=window.P40_CLEAN_PAGES?.['capability-classification'];
+  if(!page)return;
+  page.html=`<section id="r70RequirementWorkspace" class="r70-workspace">
+    <div class="ge-page-head"><div><h1>Capability &amp; Classification</h1><p>Requirement → Current Capability → pemenuhan per station. Klasifikasi BO memerlukan aturan bobot dan ambang yang disepakati.</p></div></div>
+    <div class="r70-body"><div class="ge-card r70-controls">
+      <label>Requirement Source <select id="r70Source" class="ge-input"><option>Garuda</option><option selected>SkyTeam</option><option>Interline</option><option>Airport Class</option><option>Agreement / SLA</option></select></label>
+      <label>Station <select id="r70Station" class="ge-input"><option value="">Memuat…</option></select></label>
+      <label>Airline Partner <select id="r70Airline" class="ge-input"><option value="">Seluruh partner</option></select></label>
+    </div>
+    <div class="ge-card"><div class="r70-heading"><h2>Reference Alignment Existing</h2><button id="r70ImportCapabilities" type="button" class="ge-btn">Tinjau nama Capability → ID</button></div><p id="r70SourceSummary">Memuat…</p><p>Record alignment dipertahankan. Duplikasi record tidak menggandakan requirement atau denominator penilaian.</p></div>
+    <div class="ge-card r70-score-card"><div><small>Capability Fulfilment</small><strong id="r70Score">Belum dapat dinilai</strong><p id="r70ScoreNote"></p></div><div id="r70Counts" class="r70-counts"></div></div>
+    <section class="ge-card"><h2>Network Summary · HO</h2><p id="r70NetworkSummary"></p><div class="ge-table-wrap"><table><thead><tr><th>Station</th><th>Requirement berlaku</th><th>Available</th><th>Partial</th><th>Gap</th><th>Belum diverifikasi</th><th>Fulfilment</th></tr></thead><tbody id="r70NetworkRows"></tbody></table></div></section>
+    <section class="ge-card"><div class="r70-heading"><h2>Requirement Matrix</h2><button id="r70AddRequirement" type="button" class="ge-btn primary">+ Tambah Requirement</button></div><p>Aktifkan hanya bila source, capability, dan cakupan station telah diverifikasi. Bobot kosong tetap tersimpan sebagai draft penilaian.</p><div class="ge-table-wrap"><table><thead><tr><th>Requirement</th><th>Capability ID</th><th>Cakupan</th><th>Bobot</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="r70ReqRows"></tbody></table></div></section>
+    <section class="ge-card"><div class="r70-heading"><h2>Current Capability per Station</h2><button id="r70AddCurrent" type="button" class="ge-btn primary">+ Catat Capability</button></div><p>Tautkan kondisi ke ID record Lounge/Tenant, System, Material, People, Document, atau referensi bukti.</p><div class="ge-table-wrap"><table><thead><tr><th>Station</th><th>Capability ID</th><th>Kondisi</th><th>Sumber</th><th>Aksi</th></tr></thead><tbody id="r70CurrentRows"></tbody></table></div></section>
+    <section class="ge-card"><h2>Required vs Current</h2><div class="ge-table-wrap"><table><thead><tr><th>Requirement</th><th>Capability</th><th>3 Pilar</th><th>Current</th><th>Bukti</th></tr></thead><tbody id="r70ResultRows"></tbody></table></div></section>
+    </div><p id="r70Status" role="status" aria-live="polite"></p><div id="r70Dialog" hidden></div>
+  </section>`;
+  page.scripts=[{src:'assets/edition1-store.js?v=r70'},{src:'assets/requirement-engine.js?v=r70'},{src:'assets/capability-requirements.js?v=r70'}];
+  page.styles=['assets/portal.css?v=r70'];
+})();

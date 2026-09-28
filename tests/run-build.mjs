@@ -85,3 +85,4 @@ await import('./r58-catalog-rules-access.js');
 await import('./r60-attention-ground-interaction.js');
 
 await import('./r62-script-loader.js');
+await import('./r70-requirement-engine.js');

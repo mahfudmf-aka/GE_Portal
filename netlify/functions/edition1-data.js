@@ -9,7 +9,7 @@ const COLLECTIONS = new Set([
   'inbox','auditLogs','users','lounges','standardContent','portalManager','contactMessages','guestbook',
   'airlines','groundHandlers','serviceAlignments','airportCosts','aircraftConfigs','assets','facilities',
   'monitoringTemplates','monitoringAssessments','formTemplates','monitoringWorks','formSubmissions','customerExperience','attentionSettings',
-  'referenceCatalog'
+  'referenceCatalog','requirementMatrix','stationCapabilities'
 ]);
 const DATA_GROUP_BY_COLLECTION = Object.fromEntries([...COLLECTIONS].map(name => [name, name]));
 const METADATA_COLLECTIONS = new Set(['standardContent','portalManager','attentionSettings']);
@@ -41,7 +41,7 @@ const MODULE_BY_COLLECTION = {
   news:'news', articles:'news', announcements:'news', faqs:'news', contactMessages:'contact', guestbook:'contact',
   touchpoints:'services', skyPriority:'services', touchpointStandards:'services', standardContent:'services',
   portalManager:'admin', auditLogs:'admin', users:'admin', airlines:'data', groundHandlers:'data', serviceAlignments:'services', airportCosts:'planning', aircraftConfigs:'data', assets:'planning', facilities:'planning',
-  monitoringTemplates:'services', monitoringAssessments:'services', formTemplates:'services', monitoringWorks:'services', formSubmissions:'services', customerExperience:'services', attentionSettings:'services', referenceCatalog:'data', events:'calendar'
+  monitoringTemplates:'services', monitoringAssessments:'services', formTemplates:'services', monitoringWorks:'services', formSubmissions:'services', customerExperience:'services', attentionSettings:'services', referenceCatalog:'data', requirementMatrix:'services', stationCapabilities:'services', events:'calendar'
 };
 function active(actor){return actor && String(actor.status || 'Active').toLowerCase() !== 'inactive';}
 function isOperationalAdmin(actor){ return actor?.role === 'Admin' || String(actor?.accessLevel||'') === 'Admin'; }
@@ -70,6 +70,7 @@ function canRead(actor,c){
 }
 function canWrite(actor,c){
   if (!active(actor)) return false;
+  if (c==='requirementMatrix' || c==='stationCapabilities') return actor.role==='Super Admin'||(['Head Office','GE Team','Ground Experience Team'].includes(actor.role)&&actor.accessLevel==='Admin');
   if(c==='attentionSettings') return actor.role==='Super Admin'||(['Head Office','GE Team','Ground Experience Team'].includes(actor.role)&&actor.accessLevel==='Admin');
   if (c==='users') return actor.role==='Super Admin' || (['Head Office','GE Team','Ground Experience Team'].includes(actor.role) && actor.accessLevel==='Admin');
   if (c==='auditLogs') return actor.role==='Super Admin';

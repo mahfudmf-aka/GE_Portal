@@ -5588,3 +5588,27 @@ html body.final-v257.final-shell-r5.e1-page .ge-sidebar-toggle:hover{background:
 .ge-planning-family a:hover,.ge-planning-family a:focus-visible{background:#edf4fb;outline:2px solid #7699bd;outline-offset:1px}
 .ge-planning-family p{line-height:1.5;color:#4d637b}
 @media(max-width:700px){.ge-planning-hierarchy{grid-template-columns:1fr}}
+
+/* R70 requirement/current matrix in the existing portal theme. */
+.r70-workspace{display:grid;gap:1rem}
+.r70-workspace .ge-card{padding:1.15rem;min-width:0}
+.r70-controls{display:flex;gap:.8rem;flex-wrap:wrap;align-items:end}
+.r70-controls label{display:grid;gap:.35rem;min-width:180px;flex:1}
+.r70-score-card{display:flex;justify-content:space-between;gap:1.5rem;flex-wrap:wrap}
+.r70-score-card strong{display:block;font-size:2rem;color:#173b60;margin:.3rem 0}
+.r70-counts{display:flex;flex-wrap:wrap;gap:.5rem;align-content:center}
+.r70-counts span{padding:.5rem .7rem;background:#eef3f9;border-radius:.55rem;color:#173b60}
+.r70-heading{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.r70-workspace .ge-table-wrap{overflow:auto}
+.r70-workspace table{width:100%;border-collapse:collapse}
+.r70-workspace th,.r70-workspace td{padding:.7rem;border-bottom:1px solid #dbe3eb;text-align:left;vertical-align:top}
+#r70Dialog[hidden]{display:none}
+.r70-backdrop{position:fixed;inset:0;background:#071e38aa;z-index:1150;display:grid;place-items:center;padding:1rem}
+.r70-modal{width:min(800px,100%);max-height:90vh;overflow:auto;background:#fff;color:#102b4b;border-radius:1rem;padding:1.4rem;box-shadow:0 20px 70px #071e3850}
+.r70-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem}
+.r70-form label{display:grid;gap:.35rem;min-width:0}
+.r70-form input,.r70-form select,.r70-form textarea{width:100%;min-width:0;box-sizing:border-box;padding:.7rem;border:1px solid #b9c9d8;border-radius:.45rem;background:#fff;color:#102b4b}
+.r70-modal-actions{display:flex;justify-content:flex-end;gap:.7rem;margin-top:1rem}
+@media(max-width:680px){.r70-controls label{min-width:100%}.r70-form{grid-template-columns:1fr}.r70-modal{padding:.9rem}}
+.r70-station-summary{margin-top:16px;padding:20px}.r70-station-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.r70-station-grid article{display:grid;gap:8px;padding:16px;border:1px solid #dbe5ef;border-radius:12px}.r70-station-grid span,.r70-station-grid small{line-height:1.5}
+.ge-planning-family .ge-planning-child,.ge-planning-portfolio-counts button{font:inherit;color:inherit;cursor:pointer;background:#fff;border:1px solid #d9e5ef;border-radius:10px;padding:10px 14px;text-align:left}.ge-planning-family .ge-planning-child:hover,.ge-planning-family .ge-planning-child[aria-pressed=true],.ge-planning-portfolio-counts button:hover{background:#e9f2fb;border-color:#8bb5d8}.ge-planning-portfolio-counts button{display:grid;gap:4px}
