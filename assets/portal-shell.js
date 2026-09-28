@@ -203,7 +203,7 @@ function setupAccountControls(s){
  const renderNotifications=()=>{const rows=notifications();const unread=rows.filter(x=>String(x.status||'').toUpperCase()!=='READ').length;if(badge){badge.textContent=unread>99?'99+':String(unread);badge.hidden=!unread}if(list)list.innerHTML=rows.length?rows.map(x=>`<div class="ge-notify-item"><b>${String(x.subject||x.title||x.type||'Notification').replace(/[&<>]/g,'')}</b><span>${String(x.message||x.detail||'').replace(/[&<>]/g,'')}</span></div>`).join(''):'<div class="ge-notify-empty">No notifications available.</div>'};
  const closeAll=()=>{up?.classList.remove('open');np?.classList.remove('open');umb?.setAttribute('aria-expanded','false')};
  umb?.addEventListener('click',e=>{e.stopPropagation();np?.classList.remove('open');up?.classList.toggle('open');umb.setAttribute('aria-expanded',up.classList.contains('open')?'true':'false')});
- nb?.addEventListener('click',e=>{e.stopPropagation();up?.classList.remove('open');np?.classList.toggle('open');renderNotifications()});
+ nb?.addEventListener('click',async e=>{e.stopPropagation();up?.classList.remove('open');np?.classList.toggle('open');try{await window.GEStore?.hydrate?.(['inbox'])}catch(err){console.warn('[Notifications]',err)}renderNotifications()});
  nc?.addEventListener('click',closeAll);
  document.getElementById('geMenuNotifications')?.addEventListener('click',e=>{e.stopPropagation();up?.classList.remove('open');np?.classList.add('open');renderNotifications()});
  document.getElementById('geLogoutBtn')?.addEventListener('click',()=>gxLogout());

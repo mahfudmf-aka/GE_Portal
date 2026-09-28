@@ -12,7 +12,7 @@
     airlines:[],groundHandlers:[],serviceAlignments:[],airportCosts:[],aircraftConfigs:[],assets:[],facilities:[],
     standardContent:{},portalManagerR2:{},attentionSettings:{},contactMessages:[],guestbook:[],monitoringTemplates:[],monitoringAssessments:[],formTemplates:[],monitoringWorks:[],formSubmissions:[],customerExperience:[]
   };
-  const baseline={}; let hydrated=false; let pending=Promise.resolve();
+  const baseline={}; let hydrated=false; let pending=Promise.resolve(); let localRevision=0;
   const CACHE_DB='GE_E1_CACHE_V30'; const CACHE_STORE='collections';
   function session(){return typeof window.gxGetSession==='function'?(window.gxGetSession()||{}):window.GX_CURRENT_USER||{}}
   function cacheAllowed(){return !!String(session().uid||session().id||session().email||'').trim()}
@@ -124,6 +124,7 @@
     if(cacheAllowed()) await clearManifestCache()
   }
   function save(next){
+    localRevision++;
     const snapshot={};
     // Only persist collections that this page actually hydrated. The runtime shares
     // one in-memory state object, so sending untouched empty arrays could otherwise
@@ -151,11 +152,13 @@
         // R29 stale-while-revalidate: cached data is returned immediately. Firestore/network
         // validation is never on the critical path for page rendering on a previously loaded device.
         // The tiny manifest check runs behind the page and refreshes IndexedDB only when data changed.
+        const refreshRevision=localRevision;
         Promise.resolve().then(async()=>{
           try{
             const local=await readManifestCache(); const remote=await apiManifest();
             if(local && Number(local.version||0)===Number(remote.version||0)){await writeManifestCache(remote);return}
             const result=await apiGet(requested);
+            if(localRevision!==refreshRevision)return;
             for(const key of requested){const apiKey=collKey(key),rows=normalizeCollection(key,result[apiKey]||[]);if(key==='projectEvents'){state.events=rows;baseline.events=clone(rows)}else{state[key]=rows;baseline[key]=clone(rows)};await writeCache(key,result[apiKey]||[])}
             await writeManifestCache(remote);
             window.dispatchEvent(new CustomEvent('gx-data-background-refresh',{detail:{collections:requested}}));
