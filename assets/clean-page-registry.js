@@ -14,9 +14,11 @@ window.P40_CLEAN_PAGES['attention-settings']={title:'Management Attention Rules'
   if(master&&!master.scripts.some(x=>x.src?.includes('reference-id-catalog.js')))
     master.scripts.push({src:'assets/reference-id-catalog.js?v=r68'});
   if(planning){
-    if(!planning.scripts.some(x=>x.src?.includes('edition1-store.js')))
-      planning.scripts.unshift({src:'assets/edition1-store.js?v=r67'});
-    if(!planning.scripts.some(x=>x.src?.includes('planning-portfolio.js')))
-      planning.scripts.push({src:'assets/planning-portfolio.js?v=r67'});
+    planning.html='<section class="ge-page-head"><div><div class="ge-eyebrow">IMPROVEMENT &amp; PLANNING</div><h1>Planning Workspace</h1><p>Portfolio seluruh layanan, ruang, material, sistem, dan dokumen berdasarkan BO/Station atau GASO. Record existing tetap dikelola pada halaman child.</p></div></section>';
+    planning.scripts=[
+      {src:'assets/edition1-store.js?v=r69'},
+      {src:'assets/access-assistance-p32.js?v=32.1'},
+      {src:'assets/planning-portfolio.js?v=r69'}
+    ];
   }
 })();

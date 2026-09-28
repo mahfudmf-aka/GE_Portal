@@ -5577,3 +5577,14 @@ html body.final-v257.final-shell-r5.e1-page .ge-sidebar-toggle:hover{background:
 .ge-id-modal label{display:grid;margin:.7rem 0;gap:.3rem}
 .ge-id-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1rem}
 @media(max-width:700px){.ge-id-catalog,.ge-planning-portfolio{padding:.8rem}.ge-id-catalog .ge-ref-toolbar>*,.ge-planning-portfolio-filters>*{width:100%}}
+
+/* R69 Planning Workspace hierarchy, using the existing portal palette. */
+.ge-planning-hierarchy{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:.9rem;margin:1.2rem 0}
+.ge-planning-family{background:#fff;border:1px solid #dbe3eb;border-radius:.85rem;padding:1rem;min-width:0}
+.ge-planning-family h3{display:flex;align-items:baseline;justify-content:space-between;gap:.5rem;margin:0 0 .8rem;color:#102b4b;font-size:1.04rem}
+.ge-planning-family h3 small{font-size:.76rem;font-weight:500;white-space:nowrap;color:#5b7188}
+.ge-planning-family>div{display:grid;gap:.25rem}
+.ge-planning-family a{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.52rem .6rem;border-radius:.45rem;color:#173b60;text-decoration:none}
+.ge-planning-family a:hover,.ge-planning-family a:focus-visible{background:#edf4fb;outline:2px solid #7699bd;outline-offset:1px}
+.ge-planning-family p{line-height:1.5;color:#4d637b}
+@media(max-width:700px){.ge-planning-hierarchy{grid-template-columns:1fr}}

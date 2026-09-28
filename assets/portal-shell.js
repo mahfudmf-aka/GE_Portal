@@ -122,7 +122,7 @@ function planningContext(){
  return'';
 }
 function planningTabs(){
- if(!PLANNING_PAGES.has(path()))return;
+ if(!PLANNING_PAGES.has(path())||path()==='planning-workspace.html')return;
  const main=document.querySelector('body > .shell > .main');if(!main||main.querySelector('.ge-planning-tabs'))return;
  const context=planningContext();
  const wrap=document.createElement('nav');wrap.className='ge-planning-tabs';wrap.setAttribute('aria-label','Planning Workspace');
