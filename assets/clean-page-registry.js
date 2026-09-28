@@ -12,7 +12,7 @@ window.P40_CLEAN_PAGES['attention-settings']={title:'Management Attention Rules'
   const master=pages['master-data'];
   const planning=pages['planning-workspace'];
   if(master&&!master.scripts.some(x=>x.src?.includes('reference-id-catalog.js')))
-    master.scripts.push({src:'assets/reference-id-catalog.js?v=r67'});
+    master.scripts.push({src:'assets/reference-id-catalog.js?v=r68'});
   if(planning){
     if(!planning.scripts.some(x=>x.src?.includes('edition1-store.js')))
       planning.scripts.unshift({src:'assets/edition1-store.js?v=r67'});
