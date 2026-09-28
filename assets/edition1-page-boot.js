@@ -13,9 +13,9 @@ const config={
  'calendar':{perm:'initiatives',collections:['initiatives','projectEvents','touchpoints','inbox','airports']},
  'planning-documents':{perm:'planning',collections:['documents','initiatives']},
  'data':{perm:'data',collections:['airports','personnel']},
- 'admin':{perm:'admin',collections:['users','inbox','auditLogs','airports','lounges']},
+ 'admin':{perm:'admin',collections:['users','inbox','contactMessages','auditLogs','airports','lounges']},
  'berita':{perm:'news',collections:['articles','announcements','faqs','news','documents']},
- 'kontak':{perm:'contact',collections:['inbox']},
+ 'kontak':{perm:'contact',collections:['contactMessages','inbox']},
  'lounge-list':{perm:'planning',collections:['lounges','loungeVisitors','serviceProcurement','documents']},
  'branch-office-planning':{perm:'planning',collections:['lounges','boSpaces','serviceProcurement','airportSystems','stationMaterials','documents']},
  'gaso-planning':{perm:'planning',collections:['gasoMaster','gasoServiceSupport','gasoPlanningService','airports','documents']},
@@ -44,13 +44,14 @@ async function waitStore(){
 function hasAccess(){if(cfg.perm==='admin')return window.gxHasUserManagementPermission?.()||session().role==='Super Admin';return window.gxHasPermission?.(cfg.perm)!==false}
 function rerender(){
  if(page==='standar'){const panel=new URLSearchParams(location.search).get('panel');const panelButton=panel?document.querySelector(`[data-standard-panel="${panel}"]`):null;if(panel&&window.showStandardPanel)window.showStandardPanel(panel,panelButton);window.renderTouchpointStandards?.();window.renderPersonnelReadiness?.();window.renderSkyPriority?.();window.geEnsureStandardModalV248?.();window.geApplyStandardContentV248?.();window.renderAnnouncementLibraryV246?.()}
- else if(page==='inisiatif'){window.geInitInitiativeCanonical?.();window.geApplyInitiativePresentationV224?.()}
+ else if(page==='inisiatif'){window.geInitInitiativeCanonical?.();window.geApplyInitiativePresentationV224?.();const id=new URLSearchParams(location.search).get('initiative');if(id)window.openInitiativeTimelineV224?.(id)}
  else if(page==='service-planning'){window.geRenderPlanningPage?.();window.renderStationMaterials?.()}
  else if(page==='calendar'){window.geUpgradeCalendarModalV252?.();window.geUpgradeReminderV253?.();window.geCalBuildFiltersV2533?.();window.geCalRenderV2533?.();window.geBindCalendarControlsCanonical?.();window.geInitCalendarWorkspaceCanonical?.()}
  else if(page==='planning-documents'){window.renderPlanningDocuments?.()}
  else if(page==='data'){window.renderAirports?.();window.renderPersonnel?.();window.renderDocumentsAdmin?.()}
- else if(page==='admin'){window.renderAdminOverview?.();window.renderAdminInbox?.();window.renderAuditLogs?.();window.p26RenderUsers?.();window.pmLoadPageR2?.()}
+ else if(page==='admin'){window.renderAdminOverview?.();window.renderAdminInbox?.();window.renderAuditLogs?.();window.p26RenderUsers?.();window.pmLoadPageR2?.();const params=new URLSearchParams(location.search),id=params.get('support'),message=params.get('inbox');if(id||message)window.showAdminSection?.('inbox',null);if(id)window.openSupportConversation?.(id);else if(message)window.openInboxDetail?.(message)}
  else if(page==='berita'){window.renderArticles?.();window.renderAnnouncements?.();window.renderFaqs?.();window.renderAnnouncementLibraryV246?.()}
+ else if(page==='kontak'){if(!document.getElementById('supportConversations')){const el=document.createElement('section');el.id='supportConversations';el.className='card contact-form-card';document.querySelector('.contact-layout')?.after(el)}window.supportList?.();const id=new URLSearchParams(location.search).get('support');if(id)window.openSupportConversation?.(id)}
  else if(page==='lounge-list'){window.renderLounges?.();window.renderLoungeVisitors?.();window.renderLoungePriceSummaryV243?.();window.renderLoungeCardsV237?.();window.geInitFilterCombosR8?.('lounge')}
  else if(page==='branch-office-planning'){window.geRenderPlanningPage?.();window.renderAirportSystems?.();window.renderLoungeProcurement?.();window.renderBOSpaces?.()}
  else if(page==='gaso-planning'){window.renderGasoAllV231?.()}
@@ -69,6 +70,8 @@ async function boot(){
   await store.hydrate(page==='admin'&&session().role!=='Super Admin'?cfg.collections.filter(x=>x!=='auditLogs'):cfg.collections);
   if(page==='inisiatif'&&(session().role==='Super Admin'||session().role==='Admin'||String(session().accessLevel||'')==='Admin')) await store.hydrate(['users']);
   rerender();
+  window.dispatchEvent(new Event('gx-inbox-ready'));
+  if(!cfg.collections.includes('inbox'))store.hydrate(['inbox']).then(()=>window.dispatchEvent(new Event('gx-inbox-ready'))).catch(e=>console.warn('[Inbox notifications]',e));
   const d=store.get();
   const total=cfg.collections.reduce((n,k)=>{const v=d[k];return n+(Array.isArray(v)?v.length:(v&&typeof v==='object'?1:0))},0);
   showStatus(`Terhubung • Firestore • ${store.projectId||window.GX_FIREBASE_CONFIG?.projectId||'ground-experience-portal'} • ${total} record terhidrasi`);setTimeout(()=>showStatus(''),1400);

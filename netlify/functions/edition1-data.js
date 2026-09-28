@@ -132,7 +132,9 @@ async function readCollection(db,actor,c){
     const ownInitiatives=await readCollection(db,actor,'initiatives');
     const ownIds=new Set(ownInitiatives.map(x=>String(x.id)));
     const snap=await dataQuery(db,c).get(); docs=snap.docs.filter(d=>{const row=d.data()||{};return ownsRecord(actor,row)||ownIds.has(String(row.initiativeId||row.projectId||''));});
-  } else if(c==='inbox' && !ADMIN_ROLES.has(actor.role)){
+  } else if(c==='contactMessages' && !isOperationalAdmin(actor) && actor.role!=='Super Admin'){
+    const snap=await dataQuery(db,c).where('ownerUserId','==',String(actor.id)).get(); docs=snap.docs;
+  } else if(c==='inbox' && actor.role!=='Super Admin' && !isOperationalAdmin(actor)){
     const snap=await dataQuery(db,c).where('recipientId','==',String(actor.id)).get(); docs=snap.docs;
   } else if(c==='users'){
     const snap=await db.collection('users').get(); docs=snap.docs;
@@ -140,13 +142,14 @@ async function readCollection(db,actor,c){
     const snap=await dataQuery(db,c).get(); docs=snap.docs;
   }
   let rows=docs.map(d=>({id:d.id,...sanitize(d.data())}));
+  if(c==='inbox' && (isOperationalAdmin(actor)||actor.role==='Super Admin')) rows=rows.filter(x=>!x.recipientId||String(x.recipientId)===String(actor.id));
   if(c==='users') rows=rows.map(x=>{delete x.password;delete x.passwordHash;delete x.temporaryPassword;return x});
   if(c==='initiatives' && !isExternalActor(actor) && !isOperationalAdmin(actor) && actor.role!=='Super Admin'){
     const ids=[...new Set(rows.map(x=>String(x.createdBy||'')).filter(Boolean))];
     const creators=new Map(await Promise.all(ids.map(async id=>{const user=await db.collection('users').doc(id).get();return [id,user.exists?user.data():null]})));
     rows=rows.map(x=>({...x,createdByAccessLevel:creators.get(String(x.createdBy))?.accessLevel||x.createdByAccessLevel||'',createdByRole:creators.get(String(x.createdBy))?.role||x.createdByRole||''}));
   }
-  if(c!=='inbox' && c!=='users' && c!=='auditLogs' && !(['initiatives','projectEvents'].includes(c)&&isExternalActor(actor))) rows=rows.filter(x=>inScope(actor,x));
+  if(c!=='inbox' && c!=='contactMessages' && c!=='users' && c!=='auditLogs' && !(['initiatives','projectEvents'].includes(c)&&isExternalActor(actor))) rows=rows.filter(x=>inScope(actor,x));
   return rows;
 }
 function cleanId(id){ const s=String(id||'').trim(); if(!s||s.length>200) throw Object.assign(new Error('Invalid document id.'),{statusCode:400,code:'INVALID_ID'}); return s; }
@@ -159,7 +162,7 @@ async function bumpCacheVersion(db,collection){
 }
 async function writeOne(db,actor,collection,action,id,raw){
   if(!COLLECTIONS.has(collection)) throw Object.assign(new Error(`Collection not allowed: ${collection}`),{statusCode:400,code:'COLLECTION_NOT_ALLOWED'});
-  if(!(collection==='inbox' && action==='CREATE') && !canWrite(actor,collection)) throw Object.assign(new Error(`Write access denied for ${collection}.`),{statusCode:403,code:'FORBIDDEN'});
+  if(!(collection==='inbox' && ['CREATE','UPDATE'].includes(action)) && !(collection==='contactMessages' && action==='CREATE' && !isExternalActor(actor)) && !canWrite(actor,collection)) throw Object.assign(new Error(`Write access denied for ${collection}.`),{statusCode:403,code:'FORBIDDEN'});
   if(['users','auditLogs'].includes(collection) && !(actor.role==='Super Admin'||isOperationalAdmin(actor))) throw Object.assign(new Error('Administrative access required.'),{statusCode:403,code:'FORBIDDEN'});
   if(collection==='formSubmissions' && !isOperationalAdmin(actor) && actor.role!=='Super Admin' && action!=='CREATE') throw Object.assign(new Error('Submitted forms cannot be edited by the submitter.'),{statusCode:403,code:'SUBMISSION_IMMUTABLE'});
   const ref=dataRef(db,collection,id?cleanId(id):db.collection('portalData').doc().id);
@@ -174,6 +177,36 @@ async function writeOne(db,actor,collection,action,id,raw){
     return {id:ref.id,deleted:true};
   }
   const data=cleanData(raw); const existing=await ref.get(); const prev=existing.exists?existing.data()||{}:{};
+  if(collection==='inbox' && action==='UPDATE'){if(!existing.exists||String(prev.recipientId||'')!==String(actor.id)||Object.keys(data).some(k=>k!=='status'&&JSON.stringify(data[k])!==JSON.stringify(prev[k]))||!['Read','Handled'].includes(String(data.status)))throw Object.assign(new Error('Only your own inbox read state can change.'),{statusCode:403});}
+  let inboxAudience=[];
+  if(collection==='inbox' && action==='CREATE' && !isOperationalAdmin(actor) && actor.role!=='Super Admin'){
+    if(!['Article Proposal','Suggestion / Guest Book'].includes(String(data.type)))throw Object.assign(new Error('Inbox category is not available for submission.'),{statusCode:403});
+    if(!String(data.subject||'').trim()||!String(data.body||'').trim())throw Object.assign(new Error('Subject and content required.'),{statusCode:400});
+    data.senderArea=Array.isArray(actor.airports)?actor.airports.join(', '):actor.unit||'';
+    const users=await db.collection('users').get();inboxAudience=users.docs.filter(doc=>{const u=doc.data()||{};return u.status!=='Inactive'&&(u.role==='Super Admin'||isOperationalAdmin(u))}).map(doc=>doc.id);
+    if(!inboxAudience.length)throw Object.assign(new Error('No support administrator is available.'),{statusCode:409});
+    data.destination=`app.html?page=admin&inbox=${encodeURIComponent(ref.id)}`;data.recipientId=inboxAudience.shift();data.senderId=String(actor.id);data.senderName=actor.name||actor.username||actor.email||String(actor.id);data.senderArea=Array.isArray(actor.airports)?actor.airports.join(', '):actor.unit||'';data.status='Unread';
+  }
+  if(collection==='contactMessages'){
+    const admin=isOperationalAdmin(actor)||actor.role==='Super Admin';
+    if(action==='CREATE'){
+      if(admin) throw Object.assign(new Error('Support request must originate from a user.'),{statusCode:403});
+      if(!String(data.subject||'').trim()||!String(data.message||'').trim())throw Object.assign(new Error('Subject and message required.'),{statusCode:400});
+      data.ownerUserId=String(actor.id);data.senderName=actor.name||actor.username||actor.email||String(actor.id);data.senderArea=Array.isArray(actor.airports)?actor.airports.join(', '):actor.unit||'';
+      data.messages=[{actorId:String(actor.id),senderName:actor.name||actor.username||actor.email||String(actor.id),body:String(data.message),at:data.messages?.[0]?.at||new Date().toISOString()}];
+      data.status='Open';
+    }else{
+      if(!existing.exists || (!admin && String(prev.ownerUserId)!==String(actor.id)))throw Object.assign(new Error('Support conversation access denied.'),{statusCode:403});
+      if(String(data.ownerUserId||'')!==String(prev.ownerUserId||''))throw Object.assign(new Error('Conversation owner cannot change.'),{statusCode:403});
+      const prior=Array.isArray(prev.messages)?prev.messages:[];
+      const messages=Array.isArray(data.messages)?data.messages:[];
+      if(messages.length!==prior.length+1 || messages.slice(0,-1).some((m,i)=>String(m.actorId)!==String(prior[i]?.actorId)||String(m.body)!==String(prior[i]?.body)||String(m.at)!==String(prior[i]?.at)) || String(messages.at(-1)?.actorId)!==String(actor.id) || !String(messages.at(-1)?.body||'').trim())throw Object.assign(new Error('Only a new reply can be added.'),{statusCode:403});
+      data.messages=[...prior,{actorId:String(actor.id),senderName:actor.name||actor.username||actor.email||String(actor.id),body:String(messages.at(-1).body),at:messages.at(-1).at||new Date().toISOString()}];
+      for(const key of Object.keys(data))if(key!=='messages')delete data[key];
+      data.subject=prev.subject;data.senderName=prev.senderName;data.senderArea=prev.senderArea;data.ownerUserId=prev.ownerUserId;data.status=prev.status||'Open';
+    }
+  }
+
   if(collection==='touchpoints'&&existing.exists&&prev.sourceType==='CSI'&&String(data.name||'')!==String(prev.name||'')) throw Object.assign(new Error('CSI touch point name is immutable.'),{statusCode:403,code:'CSI_TOUCHPOINT_LOCKED'});
   if(isExternalActor(actor) && existing.exists && !ownsRecord(actor,prev)) throw Object.assign(new Error('External users can only update their own records.'),{statusCode:403,code:'OWNERSHIP_FORBIDDEN'});
   if(!isExternalActor(actor) && existing.exists && !inScope(actor,prev)) throw Object.assign(new Error('Record outside account scope.'),{statusCode:403,code:'SCOPE_FORBIDDEN'});
@@ -195,6 +228,17 @@ async function writeOne(db,actor,collection,action,id,raw){
   if(action==='CREATE' && existing.exists) throw Object.assign(new Error('Record already exists.'),{statusCode:409,code:'ALREADY_EXISTS'});
   await ref.set(next,{merge:action==='UPDATE'});
   await bumpCacheVersion(db,collection);
+  if(collection==='inbox' && inboxAudience.length)await Promise.all(inboxAudience.map(uid=>dataRef(db,'inbox',`${ref.id}:${uid}`).set({...next,recipientId:uid},{merge:false})));
+  if(collection==='contactMessages'){
+    const admin=isOperationalAdmin(actor)||actor.role==='Super Admin';
+    const audience=admin?[String(prev.ownerUserId)]:[];
+    if(!admin){const users=await db.collection('users').get();users.docs.forEach(doc=>{const u=doc.data()||{};if(u.status!=='Inactive' && (u.role==='Super Admin'||(isOperationalAdmin(u)&&(!Array.isArray(u.airports)||!u.airports.length||!data.senderArea||u.airports.some(code=>String(data.senderArea).split(/[,;]+/).map(x=>x.trim()).includes(String(code))))) ))audience.push(doc.id)})}
+    const last=(data.messages||[]).at(-1)||{};
+    await Promise.all([...new Set(audience)].filter(Boolean).map(async uid=>{
+      const messageId=`support:${ref.id}:${data.messages.length}:${uid}`;
+      await dataRef(db,'inbox',messageId).set({type:'Contact Support',subject:`${admin?'Balasan Bantuan':'Permintaan Bantuan'}: ${data.subject}`,title:`${admin?'Balasan Bantuan':'Permintaan Bantuan'}: ${data.subject}`,body:String(last.body||''),message:String(last.body||''),senderName:actor.name||actor.username||actor.email||String(actor.id),senderArea:data.senderArea||'',senderId:String(actor.id),recipientId:uid,relatedType:'contactMessages',referenceId:ref.id,status:'Unread',createdAt:new Date().toISOString(),destination:`app.html?page=${admin?'kontak':'admin'}&support=${encodeURIComponent(ref.id)}`},{merge:false});
+    }));
+  }
   const out=await ref.get();
   await db.collection('auditLogs').add({actorId:actor.id,actorRole:actor.role,name:actor.name||actor.username||actor.email||actor.id,username:actor.username||actor.email||'',module:collection,object:ref.id,detail:`${collection} ${action.toLowerCase()}`,targetType:`EDITION1_${collection.toUpperCase()}`,targetId:ref.id,action:action.charAt(0)+action.slice(1).toLowerCase(),timestamp:FieldValue.serverTimestamp(),result:'SUCCESS'});
   return {id:ref.id,...sanitize(out.data())};

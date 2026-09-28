@@ -2162,33 +2162,42 @@ function submitInbox(type,subject,body,extra={}){
 function inboxFiltered(){
  const q=(document.getElementById('inboxSearch')?.value||'').toLowerCase();
  const type=document.getElementById('inboxTypeFilter')?.value||'',status=document.getElementById('inboxStatusFilter')?.value||'';
- return (data.inbox||[]).filter(x=>(!q||`${x.senderName} ${x.subject} ${x.body}`.toLowerCase().includes(q))&&(!type||x.type===type)&&(!status||x.status===status));
+ return (data.inbox||[]).filter(x=>(!q||`${x.senderName||''} ${x.subject||x.title||''} ${x.body||x.message||''}`.toLowerCase().includes(q))&&(!type||x.type===type)&&(!status||x.status===status));
 }
 function renderAdminInbox(){
  const t=document.getElementById('adminInboxRows');if(!t)return;
- t.innerHTML=inboxFiltered().map((x,i)=>`<tr class="${x.status==='Unread'?'unread-row':''}">
-  <td>${i+1}</td><td>${geDateTime(x.createdAt)}</td><td><span class="inbox-type">${x.type}</span></td>
-  <td><b>${x.senderName||'-'}</b><small>${x.senderRole||''}</small></td><td>${x.senderArea||'-'}</td><td>${x.subject||'-'}</td>
-  <td><span class="pill">${x.status}</span></td><td class="inbox-actions">
-    <button class="btn secondary compact-btn" onclick="openInboxDetail(${x.id})">Buka</button>
-    ${x.type==='Article Proposal'&&x.status!=='Handled'?`<button class="btn compact-btn" onclick="reviewProposal(${x.id})">Review</button>`:''}
-    <button class="btn danger compact-btn" onclick="deleteInbox(${x.id})">Hapus</button>
-  </td></tr>`).join('');
+ const filter=document.getElementById('inboxTypeFilter');if(filter){const current=filter.value;filter.innerHTML='<option value="">Semua Jenis</option>'+[...new Set((data.inbox||[]).map(x=>x.type).filter(Boolean))].sort().map(v=>`<option value="${geEsc(v)}">${geEsc(v)}</option>`).join('');filter.value=current}
+ t.innerHTML=inboxFiltered().map((x,i)=>`<tr class="${x.status==='Unread'?'unread-row':''}" data-inbox-id="${geEsc(x.id)}" style="cursor:pointer">
+ <td>${i+1}</td><td>${geDateTime(x.createdAt)}</td><td><span class="inbox-type">${geEsc(x.type||'-')}</span></td>
+ <td><b>${geEsc(x.senderName||x.from||'-')}</b><small>${geEsc(x.senderRole||'')}</small></td><td>${geEsc(x.senderArea||x.area||'-')}</td><td>${geEsc(x.subject||x.title||'-')}</td>
+ <td><span class="pill">${geEsc(x.status||'Unread')}</span></td><td class="inbox-actions">
+ <button class="btn secondary compact-btn" data-inbox-open="${geEsc(x.id)}">Buka</button>
+ ${x.type==='Article Proposal'&&x.status!=='Handled'?`<button class="btn compact-btn" data-inbox-review="${geEsc(x.id)}">Review</button>`:''}
+ <button class="btn danger compact-btn" data-inbox-delete="${geEsc(x.id)}">Hapus</button>
+ </td></tr>`).join('')||'<tr><td colspan="8">Belum ada pesan sesuai filter.</td></tr>';
+ if(!t.dataset.bound){t.dataset.bound='1';t.addEventListener('click',e=>{const row=e.target.closest('[data-inbox-id]');if(!row)return;const id=row.dataset.inboxId;if(e.target.closest('[data-inbox-delete]'))deleteInbox(id);else if(e.target.closest('[data-inbox-review]'))reviewProposal(id);else openInboxDetail(id)})}
  if(typeof geEnhanceAllTables==='function')setTimeout(geEnhanceAllTables,0);renderAdminOverview();
 }
-function openInboxDetail(id){
- const x=(data.inbox||[]).find(v=>v.id===id);if(!x)return;
- if(x.status==='Unread'){x.status='Read';save()}
- const body=document.getElementById('inboxDetailBody');
- body.innerHTML=`<div class="inbox-detail-head"><span class="inbox-type">${x.type}</span><h2>${geEsc(x.subject||'-')}</h2>
-  <p>Dari <b>${geEsc(x.senderName||'-')}</b> • ${geEsc(x.senderRole||'')} • ${geDateTime(x.createdAt)}</p></div>
-  <div class="inbox-body-content">${x.type==='Article Proposal'?geSanitizeHTML(x.body):`<p>${geEsc(x.body||'').replace(/\n/g,'<br>')}</p>`}</div>
-  <div class="modal-actions">${x.type==='Article Proposal'&&x.status!=='Handled'?`<button class="btn" onclick="closeInboxDetail();reviewProposal(${x.id})">Review & Publish</button>`:''}<button class="btn secondary" onclick="markInboxHandled(${x.id});closeInboxDetail()">Tandai Selesai</button></div>`;
+function findInbox(id){return(data.inbox||[]).find(v=>String(v.id)===String(id))}
+async function openInboxDetail(id){
+ const x=findInbox(id);if(!x)return;
+ if(x.status==='Unread'){x.status='Read';window.GEStore?.save?.(data);try{await window.GEStore?.flush?.()}catch(e){console.warn('[Inbox read]',e)}}
+ const body=document.getElementById('inboxDetailBody');if(!body)return;
+ const related=x.referenceId||x.relatedId||x.articleId;
+ const support=x.relatedType==='contactMessages'||x.type==='Contact Support';
+ body.innerHTML=`<div class="inbox-detail-head"><span class="inbox-type">${geEsc(x.type||'-')}</span><h2>${geEsc(x.subject||x.title||'-')}</h2>
+ <p>Dari <b>${geEsc(x.senderName||x.from||'-')}</b> • ${geEsc(x.senderArea||x.area||'-')} • ${geDateTime(x.createdAt)}</p></div>
+ <div class="inbox-body-content">${x.type==='Article Proposal'?geSanitizeHTML(x.body||''):`<p>${geEsc(x.body||x.message||'').replace(/\n/g,'<br>')}</p>`}</div>
+ <div class="modal-actions">${support&&related?`<button class="btn" id="inboxSupportOpen">Buka Percakapan</button>`:''}${x.type==='Article Proposal'&&x.status!=='Handled'?`<button class="btn" id="inboxReviewOpen">Review Artikel</button>`:''}${x.type==='Task Assignment'&&related?`<button class="btn" id="inboxTaskOpen">Lihat Task</button>`:''}<button class="btn secondary" id="inboxCloseButton">Tutup</button></div>`;
+ body.querySelector('#inboxSupportOpen')?.addEventListener('click',()=>{closeInboxDetail();openSupportConversation(related)});
+ body.querySelector('#inboxReviewOpen')?.addEventListener('click',()=>{closeInboxDetail();reviewProposal(id)});
+ body.querySelector('#inboxTaskOpen')?.addEventListener('click',()=>location.assign(`app.html?page=inisiatif&initiative=${encodeURIComponent(related)}`));
+ body.querySelector('#inboxCloseButton')?.addEventListener('click',closeInboxDetail);
  document.getElementById('inboxDetailModal').classList.add('show');renderAdminInbox();
 }
 function closeInboxDetail(){document.getElementById('inboxDetailModal')?.classList.remove('show')}
-function markInboxHandled(id){const x=(data.inbox||[]).find(v=>v.id===id);if(x){x.status='Handled';save();renderAdminInbox()}}
-function deleteInbox(id){if(confirm('Hapus pesan ini?')){data.inbox=data.inbox.filter(x=>x.id!==id);save();renderAdminInbox()}}
+function markInboxHandled(id){const x=findInbox(id);if(x){x.status='Handled';save();renderAdminInbox()}}
+function deleteInbox(id){if(confirm('Hapus pesan ini?')){data.inbox=data.inbox.filter(x=>String(x.id)!==String(id));save();renderAdminInbox()}}
 
 /* ---------- Audit ---------- */
 function geDateTime(v){try{return new Date(v).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'})}catch(e){return v||'-'}}
@@ -2303,23 +2312,22 @@ async function saveArticle(){
  if(f){coverKey='article_cover_'+Date.now();await GEFiles.put(coverKey,f)}
  if(x){x.title=title;x.content=content;x.authorInitial=initial;x.coverKey=coverKey;x.updatedAt=new Date().toISOString()}
  else data.articles.unshift({id:Date.now(),title,content,authorInitial:initial,coverKey,createdBy:u.name||u.username,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),status:'Published'});
- const proposalId=Number(articleEditorModal.dataset.proposalId||0);
- if(proposalId){const p=(data.inbox||[]).find(v=>v.id===proposalId);if(p)p.status='Handled'}
+ const proposalId=articleEditorModal.dataset.proposalId||'';
+ if(proposalId){const p=(data.inbox||[]).find(v=>String(v.id)===String(proposalId));if(p)p.status='Handled';const article=(data.articles||[]).find(v=>v.title===title&&v.content===content);if(article)article.proposalId=proposalId}
  save();closeArticleEditor();renderArticles();renderAdminOverview();
 }
 function deleteArticle(id){if(geIsAdmin()&&confirm('Hapus artikel ini?')){data.articles=data.articles.filter(x=>x.id!==id);save();renderArticles()}}
 function openArticleProposal(){if(!geIsBranchOffice())return;proposalTitle.value='';proposalAuthorInitial.value='';proposalContentEditor.innerHTML='';articleProposalModal.classList.add('show')}
 function closeArticleProposal(){articleProposalModal?.classList.remove('show')}
-function submitArticleProposal(){
+async function submitArticleProposal(){
  if(!geIsBranchOffice())return;
  const title=proposalTitle.value.trim(),content=geSanitizeHTML(proposalContentEditor.innerHTML);
  if(!title||!content){alert('Judul dan isi artikel wajib diisi.');return}
- submitInbox('Article Proposal',title,content,{title,authorInitial:proposalAuthorInitial.value.trim(),senderArea:(geAuditUser().airports||[]).join(', ')||geAuditUser().unit});
- closeArticleProposal();alert('Proposal artikel berhasil dikirim ke Admin/Pengelola.');
+ try{submitInbox('Article Proposal','Usulan Artikel: '+title,content,{title,authorInitial:proposalAuthorInitial.value.trim()});await window.GEStore.flush();closeArticleProposal();alert('Proposal artikel berhasil dikirim ke Admin/Pengelola.')}catch(error){alert('Proposal artikel gagal dikirim: '+error.message)}
 }
 function reviewProposal(id){
- const p=(data.inbox||[]).find(x=>x.id===id);if(!p||!geIsAdmin())return;
- openArticleEditor(null,id);articleTitle.value=p.title||p.subject||'';articleAuthorInitial.value=p.authorInitial||'';articleContentEditor.innerHTML=geSanitizeHTML(p.body);
+ const p=(data.inbox||[]).find(x=>String(x.id)===String(id));if(!p||!geIsAdmin())return;
+ openArticleEditor(null,id);articleTitle.value=p.title||String(p.subject||'').replace(/^Usulan Artikel: /,'');articleAuthorInitial.value=p.authorInitial||'';articleContentEditor.innerHTML=geSanitizeHTML(p.body);
  closeInboxDetail();
 }
 
@@ -2346,15 +2354,24 @@ function saveFaq(){if(!geIsAdmin())return;const question=faqQuestion.value.trim(
 function deleteFaq(id){if(geIsAdmin()&&confirm('Hapus FAQ ini?')){data.faqs=data.faqs.filter(x=>x.id!==id);save();renderFaqs()}}
 
 /* ---------- Contact / Guestbook ---------- */
-function submitContactMessage(){
- const name=contactName.value.trim(),email=contactEmail.value.trim(),subject=contactSubject.value.trim(),body=contactMessage.value.trim();if(!name||!email||!subject||!body)return;
- submitInbox('Message',subject,body,{senderName:name,email,senderArea:geAuditUser().unit||(geAuditUser().airports||[]).join(', ')});
- contactMessageForm.reset();alert('Pesan berhasil dikirim ke Admin/Pengelola.');
+function supportActor(){const u=geAuditUser();return {id:String(u.uid||u.id||''),name:u.name||u.username||u.email||'User',area:u.unit||(u.airports||[]).join(', ')||''}}
+function supportList(){const holder=document.getElementById('supportConversations');if(!holder)return;holder.innerHTML='<h3>Percakapan Bantuan</h3>'+((data.contactMessages||[]).length?(data.contactMessages||[]).map(x=>`<button type="button" class="btn secondary" data-support-id="${geEsc(x.id)}" style="display:block;margin:8px 0;width:100%;text-align:left">${geEsc(x.subject||'Permintaan Bantuan')} · ${geEsc(x.status||'Open')}</button>`).join(''):'<p>Belum ada percakapan.</p>');holder.querySelectorAll('[data-support-id]').forEach(b=>b.onclick=()=>openSupportConversation(b.dataset.supportId))}
+function openSupportConversation(id){
+ const x=(data.contactMessages||[]).find(v=>String(v.id)===String(id));if(!x){alert('Percakapan tidak tersedia atau akses Anda telah berubah.');return}
+ let modal=document.getElementById('supportConversationModal');if(!modal){modal=document.createElement('div');modal.id='supportConversationModal';modal.className='modal-backdrop';modal.innerHTML='<div class="modal-card" style="max-width:720px;max-height:85vh;overflow:auto"><button type="button" class="modal-x" id="supportClose">×</button><div id="supportConversationBody"></div></div>';document.body.appendChild(modal);modal.querySelector('#supportClose').onclick=()=>modal.classList.remove('show')}
+ modal.querySelector('#supportConversationBody').innerHTML=`<h2>${geEsc(x.subject)}</h2><p>${geEsc(x.senderName||'-')} · ${geEsc(x.senderArea||'-')}</p><div>${(x.messages||[]).map(m=>`<div class="card" style="padding:12px;margin:8px 0"><b>${geEsc(m.senderName||'User')}</b><small> · ${geDateTime(m.at)}</small><p>${geEsc(m.body||'').replace(/\n/g,'<br>')}</p></div>`).join('')}</div><form id="supportReplyForm"><label>Balasan<textarea id="supportReplyText" required rows="3"></textarea></label><button class="btn" type="submit">Kirim Balasan</button></form>`;
+ modal.querySelector('#supportReplyForm').onsubmit=async e=>{e.preventDefault();const input=modal.querySelector('#supportReplyText'),reply=input.value.trim();if(!reply)return;const actor=supportActor(),button=e.target.querySelector('button');button.disabled=true;try{x.messages=[...(x.messages||[]),{actorId:actor.id,senderName:actor.name,body:reply,at:new Date().toISOString()}];window.GEStore.save(data);await window.GEStore.flush();openSupportConversation(id);supportList()}catch(error){x.messages.pop();alert('Balasan gagal disimpan: '+error.message)}finally{button.disabled=false}};
+ modal.classList.add('show');
 }
-function submitGuestbook(){
+async function submitContactMessage(){
+ const name=contactName.value.trim(),email=contactEmail.value.trim(),subject=contactSubject.value.trim(),body=contactMessage.value.trim();if(!name||!email||!subject||!body)return;
+ const actor=supportActor(),row={id:String(Date.now())+'-'+Math.random().toString(36).slice(2,7),subject,message:body,senderName:actor.name,senderArea:actor.area,email,ownerUserId:actor.id,status:'Open',messages:[{actorId:actor.id,senderName:actor.name,body,at:new Date().toISOString()}]};
+ data.contactMessages=data.contactMessages||[];data.contactMessages.unshift(row);
+ try{window.GEStore.save(data);await window.GEStore.flush();contactMessageForm.reset();supportList();openSupportConversation(row.id);alert('Permintaan bantuan berhasil dikirim. Balasan akan muncul di percakapan ini.')}catch(error){data.contactMessages=data.contactMessages.filter(x=>x!==row);alert('Permintaan bantuan gagal dikirim: '+error.message)}
+}
+async function submitGuestbook(){
  const name=guestbookName.value.trim(),body=guestbookMessage.value.trim();if(!name||!body)return;
- submitInbox('Guestbook','Saran / Buku Tamu',body,{senderName:name,senderArea:geAuditUser().unit||(geAuditUser().airports||[]).join(', ')});
- guestbookForm.reset();alert('Saran berhasil dikirim ke Admin/Pengelola.');
+ const actor=supportActor();try{submitInbox('Suggestion / Guest Book','Saran Baru: '+body.slice(0,50),body,{senderName:actor.name,senderArea:actor.area,recipientId:''});await window.GEStore.flush();guestbookForm.reset();alert('Saran berhasil dikirim.')}catch(error){alert('Saran gagal dikirim: '+error.message)}
 }
 
 /* ---------- Page initialization ---------- */
@@ -5580,7 +5597,7 @@ deletePersonnel = async function(id){
 deleteInbox = async function(id){
   const x=(data.inbox||[]).find(v=>v.id===id);if(!x)return;
   if(!await geConfirmDeleteV234({title:'Hapus Pesan?',item:x.subject||x.name||'Pesan Masuk',message:'Pesan akan dihapus dari Admin / Pengelola.'}))return;
-  data.inbox=data.inbox.filter(v=>v.id!==id);save();renderAdminInbox();
+  data.inbox=data.inbox.filter(v=>String(v.id)!==String(id));save();renderAdminInbox();
 };
 
 deleteArticle = async function(id){
@@ -9571,6 +9588,11 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
   if(typeof saveInitiativeV224==='function') window.saveInitiativeV224=saveInitiativeV224;
   if(typeof setJourneyFilter==='function') window.setJourneyFilter=setJourneyFilter;
   if(typeof closeInboxDetail==='function') window.closeInboxDetail=closeInboxDetail;
+  if(typeof openInboxDetail==='function') window.openInboxDetail=openInboxDetail;
+  if(typeof openSupportConversation==='function') window.openSupportConversation=openSupportConversation;
+  if(typeof supportList==='function') window.supportList=supportList;
+  if(typeof submitContactMessage==='function') window.submitContactMessage=submitContactMessage;
+  if(typeof submitGuestbook==='function') window.submitGuestbook=submitGuestbook;
   if(typeof downloadAuditCSV==='function') window.downloadAuditCSV=downloadAuditCSV;
   if(typeof pmAssetListR2==='function') window.pmAssetListR2=pmAssetListR2;
   if(typeof pmLoadPageR2==='function') window.pmLoadPageR2=pmLoadPageR2;
@@ -9673,7 +9695,7 @@ function assignment(kind,refId,title,userId,dueDate){
  const d=store();d.inbox=Array.isArray(d.inbox)?d.inbox:[];
  const key=`${kind}:${refId}:${userId}`;
  if(d.inbox.some(x=>x.assignmentKey===key&&!x.archived))return false;
- d.inbox.unshift({id:String(Date.now())+'-'+Math.random().toString(36).slice(2,7),assignmentKey:key,type:'Task Assignment',title:`Anda ditugaskan: ${title}`,message:`Anda ditetapkan sebagai PIC ${kind}. Tenggat: ${dueDate||'belum ditentukan'}.`,recipientId:String(userId),userId:String(userId),status:'Unread',createdAt:new Date().toISOString(),dueDate:dueDate||'',referenceType:kind,referenceId:String(refId)});
+ const actor=typeof gxGetSession==='function'?(gxGetSession()||{}):window.GX_CURRENT_USER||{};const related=(d.initiatives||[]).find(x=>String(x.id)===String(refId).split(':')[0]);const subject=`Penugasan PIC: ${title}`;d.inbox.unshift({id:String(Date.now())+'-'+Math.random().toString(36).slice(2,7),assignmentKey:key,type:'Task Assignment',subject,title:subject,body:`Anda ditetapkan sebagai PIC ${kind}. Tenggat: ${dueDate||'belum ditentukan'}.`,message:`Anda ditetapkan sebagai PIC ${kind}. Tenggat: ${dueDate||'belum ditentukan'}.`,senderId:String(actor.uid||actor.id||''),senderName:actor.name||actor.username||actor.email||'System',senderArea:related?.airport||'',recipientId:String(userId),userId:String(userId),status:'Unread',createdAt:new Date().toISOString(),dueDate:dueDate||'',referenceType:kind,referenceId:String(refId).split(':')[0],destination:`app.html?page=inisiatif&initiative=${encodeURIComponent(String(refId).split(':')[0])}`});
  window.GEStore.save(d);return true;
 }
 function setv(id,v){const e=document.getElementById(id);if(e)e.value=v??''}
