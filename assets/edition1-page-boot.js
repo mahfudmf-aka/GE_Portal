@@ -44,7 +44,7 @@ async function waitStore(){
 function hasAccess(){if(cfg.perm==='admin')return window.gxHasUserManagementPermission?.()||session().role==='Super Admin';return window.gxHasPermission?.(cfg.perm)!==false}
 function rerender(){
  if(page==='standar'){const panel=new URLSearchParams(location.search).get('panel');const panelButton=panel?document.querySelector(`[data-standard-panel="${panel}"]`):null;if(panel&&window.showStandardPanel)window.showStandardPanel(panel,panelButton);window.renderTouchpointStandards?.();window.renderPersonnelReadiness?.();window.renderSkyPriority?.();window.geEnsureStandardModalV248?.();window.geApplyStandardContentV248?.();window.renderAnnouncementLibraryV246?.()}
- else if(page==='inisiatif'){window.geInitInitiativeCanonical?.();window.geApplyInitiativePresentationV224?.();const id=new URLSearchParams(location.search).get('initiative');if(id)window.openInitiativeTimelineV224?.(id)}
+ else if(page==='inisiatif'){window.geInitInitiativeCanonical?.();window.geApplyInitiativePresentationV224?.();const params=new URLSearchParams(location.search),id=params.get('initiative');if(id)window.geFocusInitiativeR65?.(id,params.get('milestone'))}
  else if(page==='service-planning'){window.geRenderPlanningPage?.();window.renderStationMaterials?.()}
  else if(page==='calendar'){window.geUpgradeCalendarModalV252?.();window.geUpgradeReminderV253?.();window.geCalBuildFiltersV2533?.();window.geCalRenderV2533?.();window.geBindCalendarControlsCanonical?.();window.geInitCalendarWorkspaceCanonical?.()}
  else if(page==='planning-documents'){window.renderPlanningDocuments?.()}

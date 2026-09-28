@@ -64,7 +64,7 @@ assert(!business.includes('/* R4 canonical calendar entry'),'Overlapping R4–R9
 assert(business.includes('window.geInitAirportCanonical'),'Airport canonical initializer must exist.');
 assert(business.includes('window.geInitInitiativeCanonical'),'Initiative canonical initializer must exist.');
 assert(business.includes('map.addEventListener(\'wheel\'') && business.includes('map.addEventListener(\'pointermove\''),'Airport map must bind wheel zoom and pointer pan explicitly.');
-assert(business.includes('window.saveInitiativeStepV224=function'),'Milestone save must have an active canonical handler.');
+assert(/window\.saveInitiativeStepV224=(?:async )?function/.test(business),'Milestone save must have an active canonical handler.');
 assert(business.includes('Pilih akun User & Access') && registry.includes('Input PIC manual'),'PIC must be based on users and retain free-text fallback.');
 assert(business.includes('window.geSetCalendarWorkspace'),'Calendar / Project / Gantt switching must exist.');
 assert(business.includes("page=calendar&view=gantt&touchpoint="),'Initiative Touch Point must deep-link to filtered Gantt.');
