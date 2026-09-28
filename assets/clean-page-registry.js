@@ -5,3 +5,18 @@ window.P40_CLEAN_ALIASES={"standar":"standar","inisiatif":"inisiatif","service-p
 // R53 cache identity for revised runtime and styles; legacy registry labels remain readable.
 for(const page of Object.values(window.P40_CLEAN_PAGES)){for(const script of page.scripts||[]){if(/assets\/(?:edition1-store|edition1-business-runtime|master-reference|dashboard-firestore|edition1-page-boot)\.js/.test(script.src||""))script.src=script.src.split("?")[0]+"?v=r56"}page.styles=(page.styles||[]).map(src=>src.startsWith("assets/portal.css")?"assets/portal.css?v=r56":src)}
 window.P40_CLEAN_PAGES['attention-settings']={title:'Management Attention Rules',html:'<div id="geAttentionSettings"></div>',scripts:[{src:'assets/edition1-store.js?v=r58'}],styles:['assets/portal.css?v=r58'],source:['R58 Attention configuration']};
+
+/* R67 additive catalog and portfolio views. Existing child page definitions stay intact. */
+(function(){
+  const pages=window.P40_CLEAN_PAGES||{};
+  const master=pages['master-data'];
+  const planning=pages['planning-workspace'];
+  if(master&&!master.scripts.some(x=>x.src?.includes('reference-id-catalog.js')))
+    master.scripts.push({src:'assets/reference-id-catalog.js?v=r67'});
+  if(planning){
+    if(!planning.scripts.some(x=>x.src?.includes('edition1-store.js')))
+      planning.scripts.unshift({src:'assets/edition1-store.js?v=r67'});
+    if(!planning.scripts.some(x=>x.src?.includes('planning-portfolio.js')))
+      planning.scripts.push({src:'assets/planning-portfolio.js?v=r67'});
+  }
+})();
