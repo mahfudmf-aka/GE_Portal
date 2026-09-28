@@ -18,8 +18,9 @@ window.P40_CLEAN_PAGES['attention-settings']={title:'Management Attention Rules'
     planning.scripts=[
       {src:'assets/edition1-store.js?v=r69'},
       {src:'assets/access-assistance-p32.js?v=32.1'},
-      {src:'assets/planning-portfolio.js?v=r69'}
+      {src:'assets/planning-portfolio.js?v=r71'}
     ];
+    planning.styles=['assets/portal.css?v=r71'];
   }
 })();
 /* R70 Station 360 consumes the same source records as Capability & Classification. */
