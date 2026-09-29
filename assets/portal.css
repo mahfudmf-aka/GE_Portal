@@ -5620,3 +5620,38 @@ html body.final-v257.final-shell-r5.e1-page .ge-sidebar-toggle:hover{background:
 /* Master Data category tab shares the existing reference workspace. */
 .ge-id-catalog[hidden],.ge-panel > [hidden]{display:none!important}
 .ge-id-catalog{margin-top:0}
+
+/* Unified Master Data and Planning controls follow the Lounge/Tenant spacing. */
+.planning-domain-page .planning-domain-list{padding:22px 24px;min-width:0}
+.planning-list-head{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:18px}
+.planning-list-head h2{margin:0;font-size:1.25rem;color:#102d52}
+.planning-toolbar,.planning-row-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.planning-row-actions{white-space:nowrap}
+.planning-filters{margin:0 0 16px}
+.planning-filters input{width:100%;box-sizing:border-box;min-height:42px;padding:10px 13px}
+.planning-domain-page .ge-table-wrap{overflow:auto}
+.planning-domain-page table{width:100%;border-collapse:collapse}
+.planning-domain-page th,.planning-domain-page td{padding:12px 14px;text-align:left;vertical-align:middle;border-bottom:1px solid #dce5ef}
+.planning-domain-page th{background:#f4f7fb;white-space:nowrap}
+.planning-sort{background:transparent;border:0;color:#102d52;font:inherit;font-weight:700;padding:3px;cursor:pointer;text-align:left}
+.planning-sort:hover,.planning-sort:focus-visible{color:#062a63;text-decoration:underline;outline:2px solid #91a9c7;outline-offset:2px}
+.planning-domain-page .ge-btn,.ge-id-catalog .ge-btn,.ge-ref-tabs button,.ge-panel .ge-ref-toolbar .ge-btn{background:#fff!important;color:#082b59!important;border:1px solid #a9bfd9!important;border-radius:8px;min-height:38px;padding:8px 13px;cursor:pointer}
+.planning-domain-page .ge-btn:hover,.planning-domain-page .ge-btn:focus-visible,.ge-id-catalog .ge-btn:hover,.ge-id-catalog .ge-btn:focus-visible,.ge-ref-tabs button:hover,.ge-ref-tabs button:focus-visible,.ge-panel .ge-ref-toolbar .ge-btn:hover,.ge-panel .ge-ref-toolbar .ge-btn:focus-visible,.ge-ref-tabs button.active,.planning-domain-page .ge-btn[aria-pressed="true"]{background:#082b59!important;color:#fff!important;border-color:#082b59!important}
+.planning-domain-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.planning-domain-form label{display:grid;gap:6px;min-width:0;font-weight:600;color:#183b62}
+.planning-domain-form input,.planning-domain-form select{width:100%;box-sizing:border-box;min-height:40px;padding:8px 11px}
+.planning-periods{grid-column:1/-1}
+.ge-id-catalog[hidden],.ge-panel > [hidden],#planningDialog[hidden]{display:none!important}
+.ge-id-catalog{margin-top:12px;border-top:1px solid #dce5ef;padding-top:16px}
+.ge-id-catalog .ge-ref-toolbar{justify-content:flex-start}
+.ge-id-catalog .ge-ref-toolbar button{flex:0 0 auto}
+@media(max-width:760px){.planning-list-head{align-items:stretch}.planning-toolbar{width:100%}.planning-toolbar .ge-btn{flex:1 1 145px}.planning-domain-form{grid-template-columns:1fr}.planning-domain-page .planning-domain-list{padding:16px}}
+.planning-stations{grid-column:1/-1;border:1px solid #cbd8e6;border-radius:8px;padding:10px 12px}
+.planning-stations legend{font-weight:700;color:#183b62}
+.planning-station-options{display:grid;grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:6px;max-height:155px;overflow:auto;margin-top:8px}
+.planning-station-options label{display:flex;align-items:center;gap:6px;padding:5px;border-radius:5px}
+.planning-station-options label[hidden]{display:none}
+.planning-station-options input{width:auto;min-height:0;margin:0}
+.planning-service-return-r74{display:flex;justify-content:flex-start;margin:0 0 14px}
+.planning-service-return-r74 .ge-btn{background:#fff;color:#082b59;border:1px solid #a9bfd9;border-radius:8px;text-decoration:none;padding:9px 14px}
+.planning-service-return-r74 .ge-btn:hover,.planning-service-return-r74 .ge-btn:focus-visible{background:#082b59;color:#fff;border-color:#082b59}
