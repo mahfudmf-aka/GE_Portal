@@ -10,7 +10,6 @@ const tests = [
   'tests/p32-access-assistance-runtime.js',
   'tests/r15-functional-contract.js',
   'tests/upload-template-contract.js',
-  'tests/r75-planning-data-model.js',
   'tests/r18-consolidation-contract.js',
   'tests/r19-ui-consolidation-contract.js',
   'tests/r20-consolidated-browser-contract.js',
@@ -89,3 +88,4 @@ await import('./r62-script-loader.js');
 await import('./r70-requirement-engine.js');
 await import('./r72-planning-inbox.js');
 await import('./r72-read-persistence.js');
+await import('./r76-planning-ui-contract.js');

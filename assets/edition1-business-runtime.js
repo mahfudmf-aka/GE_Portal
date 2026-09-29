@@ -9192,7 +9192,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
     const m=model||{};
     return `<div class="formgrid ge-p29-form-grid">
       <label>Region<select id="${prefix}Region"><option value="">Pilih Region</option><option ${m.region==='WEST'?'selected':''}>WEST</option><option ${m.region==='EAST'?'selected':''}>EAST</option><option ${m.region==='INT'?'selected':''}>INT</option></select></label>
-      <label>Station<select id="${prefix}Airport" required><option value="">Pilih Station</option>${[...(data?.airports||[])].filter(a=>a.status!=='Inactive').sort((a,b)=>String(a.code||'').localeCompare(String(b.code||''))).map(a=>{const code=String(a.code||a.iata||a.stationCode||'').toUpperCase();return `<option value="${esc(code)}" ${String(m.airport||'').toUpperCase()===code?'selected':''}>${esc(code)} — ${esc(a.city||a.airportName||'')}</option>`}).join('')}</select></label>
+      <label>Station<select id="${prefix}Airport" required><option value="">Pilih Station</option>${airports().filter(a=>a.status!=='Inactive').sort((a,b)=>String(a.code).localeCompare(String(b.code))).map(a=>`<option value="${esc(a.code)}" ${String(m.airport||'').toUpperCase()===String(a.code).toUpperCase()?'selected':''}>${esc(a.code)} — ${esc(a.city||a.airportName||'')}</option>`).join('')}</select></label>
       <label>Nama Layanan / Provider<input id="${prefix}Name" required value="${esc(m.name||'')}"></label>
       <label>Jenis Layanan<select id="${prefix}ServiceType" required><option value="">Pilih Jenis Layanan</option>${TYPES.map(t=>`<option value="${t}" ${m.serviceType===t?'selected':''}>${t}</option>`).join('')}</select></label>
       <label>PIC<input id="${prefix}Pic" value="${esc(m.pic||'')}"></label>
@@ -9242,7 +9242,6 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
       <form id="${prefix}Form"><div id="${prefix}Errors"></div>${commonFormMarkup(prefix,model)}
       <div class="modal-actions sticky-actions"><button class="btn" type="submit">${id==='loungeAddModalV221'?'Simpan Layanan':'Simpan Update'}</button><button class="btn secondary" type="button" onclick="${id==='loungeAddModalV221'?'closeLoungeAddModalV221()':'closeLoungeEdit()'}">Batal</button></div></form>`;
     renderPriceRows(prefix+'Prices',model?.priceSchedules||[]);
-    const stationSelect=document.getElementById(prefix+'Airport'),regionSelect=document.getElementById(prefix+'Region');const syncRegion=()=>{const a=(data?.airports||[]).find(x=>String(x.code||x.iata||x.stationCode||'').toUpperCase()===String(stationSelect?.value||'').toUpperCase());if(a&&regionSelect)regionSelect.value=a.region||regionSelect.value};stationSelect?.addEventListener('change',syncRegion);syncRegion();
     renderCapacityRows(prefix+'Capacity',model?.capacitySchedules||[]);
     document.getElementById(prefix+'Form').addEventListener('submit',e=>{e.preventDefault();id==='loungeAddModalV221'?saveAdd(prefix):saveEdit(prefix)});
     modal.classList.add('show');
@@ -9340,7 +9339,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
       const priceText=price.status==='CURRENT'||price.status==='LEGACY'?safePriceDisplay(price.currency,price.price):price.status==='NOT_APPLICABLE'?'Not Available':price.status==='INVALID'?'Requires Review':'Not Available';
       const priceMeta=scheduleCount?`${scheduleCount} Price Period${scheduleCount===1?'':'s'}`:'';
       const review=rt.status==='REVIEW'?`<div class="ge-p29-review-note">Requires Review: ${esc(rt.reason)}</div>`:'';
-      const update=canEdit()?`<button class="btn secondary compact-btn" type="button" onclick="openLoungeEdit(${Number(x.id)})">Edit</button>`:'';
+      const update=canEdit()?`<button class="btn secondary compact-btn" type="button" onclick="openLoungeEdit(${Number(x.id)})">Update</button>`:'';
       const del=typeof geIsAdmin==='function'&&geIsAdmin()?`<button class="btn danger compact-btn" type="button" onclick="deleteLoungeV239(${Number(x.id)})">Hapus</button>`:'';
       const detail=scheduleCount?`<button class="btn secondary compact-btn" type="button" onclick="geP29ViewPriceSchedule(${Number(x.id)})">View Price Schedule</button>`:'';
       return `<article class="lounge-master-card-v237 ge-p29-lounge-card">
@@ -9370,7 +9369,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
     const rows=filteredRows();
     tbody.innerHTML=rows.map((x,i)=>{
       const rt=resolveType(x),p=applicablePrice(x,new Date()),price=p.status==='CURRENT'||p.status==='LEGACY'?safePriceDisplay(p.currency,p.price):'Not Available';
-      const action=canEdit()?`<td><div class="row-actions"><button class="btn secondary" onclick="openLoungeEdit(${Number(x.id)})">Edit</button><button class="btn btn-danger" onclick="deleteLoungeV239(${Number(x.id)})">Hapus</button></div></td>`:'';
+      const action=canEdit()?`<td><div class="row-actions"><button class="btn secondary" onclick="openLoungeEdit(${Number(x.id)})">Update</button><button class="btn btn-danger" onclick="deleteLoungeV239(${Number(x.id)})">Hapus</button></div></td>`:'';
       return `<tr><td>${i+1}</td><td>${esc(x.region||'-')}</td><td><b>${esc(x.airport||'Not Available')}</b></td><td><b>${esc(x.name||'Not Available')}</b></td><td><span class="pill">${esc(rt.value||'Requires Review')}</span></td><td>${esc(price)}</td><td>${dateLabel(x.startDate)}</td><td>${dateLabel(x.endDate)}</td><td>${esc(x.documentNumber||'-')}</td><td>${esc(x.documentType||'-')}</td><td>${esc(x.documentStatus||'Not Available')}</td><td>${esc(x.remarks||'-')}</td><td>${x.documentKey?`<button class="btn secondary" onclick="GEFiles.download('${esc(x.documentKey)}','${esc(x.documentName||'document')}')">Unduh</button>`:esc(x.documentName||'-')}</td>${action}</tr>`;
     }).join('');
   }
