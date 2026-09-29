@@ -1,13 +1,11 @@
-/* Additive ID catalogue. Existing master tabs and their records remain authoritative. */
+/* Planning category editor within the existing Master Data tabs. */
 (function(){
   'use strict';
   if(!/master-data(?:\.html)?$/i.test(new URLSearchParams(location.search).get('page')||location.pathname.split('/').pop()||''))return;
   const types=[
-    ['providerCategory','Provider Category'],['capability','Capability'],['journeyScope','Journey Scope'],
-    ['serviceType','Service Type'],['spaceType','Space & Building Type'],['materialType','Material / Tools / Equipment Type'],
-    ['systemType','Airport System Type'],['planningDocumentType','Planning Document Type'],
-    ['costType','Cost Type'],['costUnit','Cost Unit'],['calculationBasis','Calculation Basis'],
-    ['requirementSource','Requirement Source'],['areaType','Area Type']
+    ['providerCategory','Jenis Service & Provider'],['spaceType','Jenis Space & Building'],
+    ['materialType','Jenis Material, Tools & Equipment'],['systemType','Jenis Airport Systems'],
+    ['planningDocumentType','Jenis Planning Documents']
   ];
   const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const names=Object.fromEntries(types);
@@ -15,14 +13,14 @@
   let state,kind=types[0][0];
   const canEdit=()=>typeof gxCanManage==='function'?!!gxCanManage():['Super Admin','Admin'].includes((window.gxGetSession?.()||{}).role);
   const host=document.createElement('section');host.className='ge-panel ge-id-catalog';host.id='geIdCatalog';
-  host.innerHTML=`<h2>Jenis &amp; Kategori</h2><p>Kelola jenis yang menjadi pilihan di seluruh portal. Jenis layanan/provider baru otomatis tersedia di halaman Planning terkait. Daftar airline, GHA, dan referensi existing tetap ditampilkan di atas.</p>
-    <div class="ge-ref-toolbar"><label>Jenis ID <select id="idCatalogType" class="ge-input">${types.map(([id,label])=>`<option value="${id}">${label}</option>`).join('')}</select></label>
+  host.innerHTML=`<h2>Jenis Planning Workspace</h2><p>Kelola jenis halaman Planning. Ground Touch Points dan Journey Area tetap menggunakan daftar referensi yang sudah ada; pengelompokannya dapat diubah melalui Ground Touch Points.</p>
+    <div class="ge-ref-toolbar"><label>Kelompok <select id="idCatalogType" class="ge-input">${types.map(([id,label])=>`<option value="${id}">${label}</option>`).join('')}</select></label>
     <input id="idCatalogSearch" class="ge-input" placeholder="Cari ID atau nama">
     <button id="idCatalogAdd" class="ge-btn primary" type="button">+ Tambah Satuan</button>
     <button id="idCatalogTemplate" class="ge-btn" type="button">Unduh Template</button>
     <button id="idCatalogUpload" class="ge-btn" type="button">Upload Data</button>
     <button id="idCatalogExport" class="ge-btn" type="button">Unduh Data</button>
-    <button id="idCatalogInventory" class="ge-btn" type="button">Unduh Inventaris ID Existing</button>
+    <button id="idCatalogInventory" class="ge-btn" type="button">Unduh Inventaris Existing</button>
     <input id="idCatalogFile" type="file" accept=".csv,text/csv" hidden></div>
     <div class="ge-table-wrap"><table><thead><tr><th>ID</th><th>Nama</th><th>Status</th><th>Catatan</th><th>Aksi</th></tr></thead><tbody id="idCatalogRows"><tr><td colspan="5">Memuat katalog…</td></tr></tbody></table></div>
     <p id="idCatalogStatus" role="status" aria-live="polite"></p>
@@ -62,8 +60,14 @@
   function upload(file){if(!file)return;file.text().then(t=>{const [head,...lines]=parseCSV(t);if(!head?.length)throw Error('File kosong.');const idx=x=>head.findIndex(h=>h.toLocaleLowerCase()===x);const records=lines.map((v,i)=>({row:i+2,id:v[idx('id')]||'',name:v[idx('name')]||'',note:v[idx('note')]||'',status:v[idx('status')]||'Active'}));
     const invalid=records.filter(x=>!x.id||!x.name),valid=records.filter(x=>x.id&&x.name);dialog('Konfirmasi Upload',`<p>${valid.length} valid, ${invalid.length} belum lengkap. Baris yang belum lengkap dapat dilengkapi lalu diunggah kembali.</p><div class="ge-table-wrap"><table><thead><tr><th>Baris</th><th>ID</th><th>Nama</th><th>Status</th></tr></thead><tbody>${records.slice(0,20).map(x=>`<tr><td>${x.row}</td><td>${esc(x.id)}</td><td>${esc(x.name)}</td><td>${x.id&&x.name?'Siap':'Belum lengkap'}</td></tr>`).join('')}</tbody></table></div>`,async()=>{const existing=new Set(rows().map(x=>x.id.toLocaleLowerCase()));let added=0;for(const x of valid){if(existing.has(x.id.toLocaleLowerCase()))continue;state.referenceCatalog.push({kind,id:x.id,name:x.name,note:x.note,status:x.status});existing.add(x.id.toLocaleLowerCase());added++}await persist();status(`${added} ID tersimpan; ${invalid.length} belum lengkap; ${valid.length-added} sudah ada.`)});
   }).catch(e=>status('Upload gagal: '+e.message))}
-  async function init(){const main=document.querySelector('body > .shell > .main')||document.querySelector('main');const existing=main?.querySelector('.ge-panel');if(!existing)return;existing.insertAdjacentElement('afterend',host);const label=document.createElement('h2');label.className='ge-existing-reference-label';label.textContent='Daftar Referensi';existing.prepend(label);$('idCatalogType').onchange=e=>{kind=e.target.value;render()};$('idCatalogSearch').oninput=render;$('idCatalogAdd').onclick=()=>edit();$('idCatalogTemplate').onclick=()=>download('id,name,status,note\r\n',`Template_ID_${kind}.csv`);$('idCatalogExport').onclick=()=>download('id,name,status,note\r\n'+rows().map(x=>[x.id,x.name,x.status,x.note].map(csvCell).join(',')).join('\r\n'),`ID_${kind}.csv`);$('idCatalogInventory').onclick=inventory;$('idCatalogUpload').onclick=()=>$('idCatalogFile').click();$('idCatalogFile').onchange=e=>{upload(e.target.files?.[0]);e.target.value=''};
-    try{await GEStore.waitAuth();state=await GEStore.hydrate(['referenceCatalog']);render();status('Katalog ID tambahan siap. ID existing pada tab lama tetap digunakan.')}
+  async function init(){const main=document.querySelector('body > .shell > .main')||document.querySelector('main');const existing=main?.querySelector('.ge-panel');const tabs=existing?.querySelector('.ge-ref-tabs');if(!tabs)return;
+    const tabButton=document.createElement('button');tabButton.type='button';tabButton.textContent='Jenis Planning Workspace';tabButton.dataset.planningTab='1';tabs.appendChild(tabButton);
+    host.hidden=true;existing.insertAdjacentElement('afterend',host);
+    const select=()=>{const selected=tabButton.classList.contains('active');existing.querySelectorAll(':scope > :not(.ge-ref-tabs)').forEach(el=>el.hidden=selected);host.hidden=!selected};
+    tabButton.onclick=()=>{tabs.querySelectorAll('button').forEach(b=>b.classList.remove('active'));tabButton.classList.add('active');select()};
+    tabs.querySelectorAll('[data-ref-tab]').forEach(b=>b.addEventListener('click',()=>{tabButton.classList.remove('active');select()}));
+    $('idCatalogType').onchange=e=>{kind=e.target.value;render()};$('idCatalogSearch').oninput=render;$('idCatalogAdd').onclick=()=>edit();$('idCatalogTemplate').onclick=()=>download('id,name,status,note\r\n',`Template_ID_${kind}.csv`);$('idCatalogExport').onclick=()=>download('id,name,status,note\r\n'+rows().map(x=>[x.id,x.name,x.status,x.note].map(csvCell).join(',')).join('\r\n'),`ID_${kind}.csv`);$('idCatalogInventory').onclick=inventory;$('idCatalogUpload').onclick=()=>$('idCatalogFile').click();$('idCatalogFile').onchange=e=>{upload(e.target.files?.[0]);e.target.value=''};
+    try{await GEStore.waitAuth();state=await GEStore.hydrate(['referenceCatalog']);render();status('Jenis Planning siap dikelola.')}
     catch(e){$('idCatalogRows').innerHTML='<tr><td colspan="5">Katalog belum dapat dimuat. Coba buka ulang halaman.</td></tr>';status(e.message)}
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
