@@ -1,6 +1,7 @@
 'use strict';
 const { bad, ok, bearer, firebase } = require('./_firebase');
 const { FieldValue } = require('firebase-admin/firestore');
+const {canChangeReadState} = require('./inbox-policy');
 
 const COLLECTIONS = new Set([
   'airports','initiatives','news','touchpoints','documents','projectEvents','loungePurchases','loungeVisitors',
@@ -112,7 +113,8 @@ async function actorFor(event){
   let decoded; try{decoded=await auth.verifyIdToken(token,true)}catch{throw Object.assign(new Error('Invalid or expired authentication token.'),{statusCode:401,code:'AUTH_INVALID'})}
   const snap=await db.collection('users').doc(decoded.uid).get();
   if(!snap.exists) throw Object.assign(new Error('User profile not found.'),{statusCode:403,code:'PROFILE_NOT_FOUND'});
-  const actor={id:decoded.uid,...snap.data()};
+  // The authenticated UID is authoritative; a legacy profile's `id` must not override it.
+  const actor={...snap.data(),id:decoded.uid};
   if(!active(actor)) throw Object.assign(new Error('Account inactive.'),{statusCode:403,code:'ACCOUNT_INACTIVE'});
   return {db,actor};
 }
@@ -179,15 +181,28 @@ async function writeOne(db,actor,collection,action,id,raw){
     return {id:ref.id,deleted:true};
   }
   const data=cleanData(raw); const existing=await ref.get(); const prev=existing.exists?existing.data()||{}:{};
-  if(collection==='inbox' && action==='UPDATE'){if(!existing.exists||String(prev.recipientId||'')!==String(actor.id)||Object.keys(data).some(k=>k!=='status'&&JSON.stringify(data[k])!==JSON.stringify(prev[k]))||!['Read','Handled'].includes(String(data.status)))throw Object.assign(new Error('Only your own inbox read state can change.'),{statusCode:403});}
-  let inboxAudience=[];
+  if(collection==='inbox' && action==='UPDATE'){
+    if(!existing.exists||!canChangeReadState(actor.id,prev,data))throw Object.assign(new Error('Only your own inbox read state can change.'),{statusCode:403});
+  }
+  let inboxAudience=[];const isInboxReply=collection==='inbox'&&action==='CREATE'&&!!data.replyToId;
+  if(isInboxReply){
+    const parentSnap=await dataRef(db,'inbox',cleanId(data.replyToId)).get(),parent=parentSnap.data()||{};
+    if(!parentSnap.exists||![parent.senderId,parent.recipientId].map(String).includes(String(actor.id)))throw Object.assign(new Error('Conversation access denied.'),{statusCode:403});
+    const recipientId=String(parent.recipientId)===String(actor.id)?String(parent.senderId||''):String(parent.recipientId||'');
+    if(!recipientId||recipientId===String(actor.id)||!String(data.body||'').trim())throw Object.assign(new Error('Reply requires another participant and a message.'),{statusCode:400});
+    const recipient=await db.collection('users').doc(recipientId).get();if(!recipient.exists||recipient.data()?.status==='Inactive')throw Object.assign(new Error('Recipient is unavailable.'),{statusCode:400});
+    const threadId=String(parent.threadId||parentSnap.id),subject=String(parent.subject||parent.title||'Pesan').replace(/^Balasan:\s*/i,'');
+    for(const key of Object.keys(data))delete data[key];
+    Object.assign(data,{type:'Message',subject:'Balasan: '+subject,body:String(raw.body).trim(),threadId,replyToId:parentSnap.id,senderId:String(actor.id),senderName:actor.name||actor.username||actor.email||String(actor.id),senderArea:Array.isArray(actor.airports)?actor.airports.join(', '):actor.unit||'',recipientId,status:'Unread',notificationStatus:'Unread',destination:`app.html?page=admin&inbox=${encodeURIComponent(ref.id)}`});
+  }
   if(collection==='inbox' && action==='CREATE' && !isOperationalAdmin(actor) && actor.role!=='Super Admin'){
-    if(!['Article Proposal','Suggestion / Guest Book'].includes(String(data.type)))throw Object.assign(new Error('Inbox category is not available for submission.'),{statusCode:403});
+    if(!['Article Proposal','Suggestion / Guest Book','Message'].includes(String(data.type)))throw Object.assign(new Error('Inbox category is not available for submission.'),{statusCode:403});
     if(!String(data.subject||'').trim()||!String(data.body||'').trim())throw Object.assign(new Error('Subject and content required.'),{statusCode:400});
-    data.senderArea=Array.isArray(actor.airports)?actor.airports.join(', '):actor.unit||'';
+    if(!isInboxReply){
     const users=await db.collection('users').get();inboxAudience=users.docs.filter(doc=>{const u=doc.data()||{};return u.status!=='Inactive'&&(u.role==='Super Admin'||isOperationalAdmin(u))}).map(doc=>doc.id);
     if(!inboxAudience.length)throw Object.assign(new Error('No support administrator is available.'),{statusCode:409});
     data.destination=`app.html?page=admin&inbox=${encodeURIComponent(ref.id)}`;data.recipientId=inboxAudience.shift();data.senderId=String(actor.id);data.senderName=actor.name||actor.username||actor.email||String(actor.id);data.senderArea=Array.isArray(actor.airports)?actor.airports.join(', '):actor.unit||'';data.status='Unread';
+    }
   }
   if(collection==='contactMessages'){
     const admin=isOperationalAdmin(actor)||actor.role==='Super Admin';
@@ -210,6 +225,7 @@ async function writeOne(db,actor,collection,action,id,raw){
   }
 
   if(collection==='touchpoints'&&existing.exists&&prev.sourceType==='CSI'&&String(data.name||'')!==String(prev.name||'')) throw Object.assign(new Error('CSI touch point name is immutable.'),{statusCode:403,code:'CSI_TOUCHPOINT_LOCKED'});
+  if(collection==='inbox'&&action==='CREATE')data.notificationStatus='Unread';
   if(isExternalActor(actor) && existing.exists && !ownsRecord(actor,prev)) throw Object.assign(new Error('External users can only update their own records.'),{statusCode:403,code:'OWNERSHIP_FORBIDDEN'});
   if(!isExternalActor(actor) && existing.exists && !inScope(actor,prev)) throw Object.assign(new Error('Record outside account scope.'),{statusCode:403,code:'SCOPE_FORBIDDEN'});
   if(collection==='initiatives' && existing.exists && !isExternalActor(actor) && actor.role!=='Super Admin' && !isOperationalAdmin(actor)){
@@ -238,7 +254,7 @@ async function writeOne(db,actor,collection,action,id,raw){
     const last=(data.messages||[]).at(-1)||{};
     await Promise.all([...new Set(audience)].filter(Boolean).map(async uid=>{
       const messageId=`support:${ref.id}:${data.messages.length}:${uid}`;
-      await dataRef(db,'inbox',messageId).set({type:'Contact Support',subject:`${admin?'Balasan Bantuan':'Permintaan Bantuan'}: ${data.subject}`,title:`${admin?'Balasan Bantuan':'Permintaan Bantuan'}: ${data.subject}`,body:String(last.body||''),message:String(last.body||''),senderName:actor.name||actor.username||actor.email||String(actor.id),senderArea:data.senderArea||'',senderId:String(actor.id),recipientId:uid,relatedType:'contactMessages',referenceId:ref.id,status:'Unread',createdAt:new Date().toISOString(),destination:`app.html?page=${admin?'kontak':'admin'}&support=${encodeURIComponent(ref.id)}`},{merge:false});
+      await dataRef(db,'inbox',messageId).set({type:'Contact Support',subject:`${admin?'Balasan Bantuan':'Permintaan Bantuan'}: ${data.subject}`,title:`${admin?'Balasan Bantuan':'Permintaan Bantuan'}: ${data.subject}`,body:String(last.body||''),message:String(last.body||''),senderName:actor.name||actor.username||actor.email||String(actor.id),senderArea:data.senderArea||'',senderId:String(actor.id),recipientId:uid,relatedType:'contactMessages',referenceId:ref.id,status:'Unread',notificationStatus:'Unread',createdAt:new Date().toISOString(),destination:`app.html?page=${admin?'kontak':'admin'}&support=${encodeURIComponent(ref.id)}`},{merge:false});
     }));
   }
   const out=await ref.get();
@@ -249,6 +265,15 @@ exports.handler=async(event)=>{
   try{
     const {db,actor}=await actorFor(event);
     if(event.httpMethod==='GET'){
+      if(event.queryStringParameters?.thread){
+        const id=cleanId(event.queryStringParameters.thread),root=await dataRef(db,'inbox',id).get();
+        if(!root.exists)throw Object.assign(new Error('Conversation not found.'),{statusCode:404});
+        const initial=root.data()||{},threadId=String(initial.threadId||root.id),member=x=>[x.senderId,x.recipientId].map(String).includes(String(actor.id));
+        if(!member(initial))throw Object.assign(new Error('Conversation access denied.'),{statusCode:403});
+        const [children,parent]=await Promise.all([dataQuery(db,'inbox').where('threadId','==',threadId).get(),dataRef(db,'inbox',threadId).get()]);
+        const entries=new Map();for(const doc of [parent,...children.docs])if(doc.exists&&member(doc.data()||{}))entries.set(doc.id,{id:doc.id,...sanitize(doc.data())});
+        return ok({ok:true,thread:[...entries.values()].sort((a,b)=>String(a.createdAt||'').localeCompare(String(b.createdAt||'')))});
+      }
       if(String(event.queryStringParameters?.manifest||'')==='1'){
         const snap=await db.collection('portalMetadata').doc('cacheState').get();
         const meta=snap.exists?sanitize(snap.data()):{};

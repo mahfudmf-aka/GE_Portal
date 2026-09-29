@@ -3,7 +3,7 @@ window.P40_CLEAN_PAGES={"action-scenario":{"title":"P3.2 Action & Scenario Plann
 window.P40_CLEAN_ALIASES={"standar":"standar","inisiatif":"inisiatif","service-planning":"service-planning","calendar":"calendar","planning-documents":"planning-documents","data":"data","admin":"admin","berita":"berita","kontak":"kontak","lounge-list":"lounge-list","branch-office-planning":"branch-office-planning","gaso-planning":"gaso-planning","station-material":"service-planning?panel=material","bo-space":"branch-office-planning?panel=space","airport-systems":"branch-office-planning?panel=systems","airport-experience-map":"airport-experience","map":"airport-experience","network-stations":"airport-experience","service-experience":"service-experience","capability-classification":"capability-classification","monitoring-assessment":"monitoring-assessment"};
 
 // R53 cache identity for revised runtime and styles; legacy registry labels remain readable.
-for(const page of Object.values(window.P40_CLEAN_PAGES)){for(const script of page.scripts||[]){if(/assets\/(?:edition1-store|edition1-business-runtime|master-reference|dashboard-firestore|edition1-page-boot)\.js/.test(script.src||""))script.src=script.src.split("?")[0]+"?v=r56"}page.styles=(page.styles||[]).map(src=>src.startsWith("assets/portal.css")?"assets/portal.css?v=r56":src)}
+for(const page of Object.values(window.P40_CLEAN_PAGES)){for(const script of page.scripts||[]){if(/assets\/(?:edition1-store|edition1-business-runtime|master-reference|dashboard-firestore|edition1-page-boot)\.js/.test(script.src||""))script.src=script.src.split("?")[0]+"?v=r72"}page.styles=(page.styles||[]).map(src=>src.startsWith("assets/portal.css")?"assets/portal.css?v=r72":src)}
 window.P40_CLEAN_PAGES['attention-settings']={title:'Management Attention Rules',html:'<div id="geAttentionSettings"></div>',scripts:[{src:'assets/edition1-store.js?v=r58'}],styles:['assets/portal.css?v=r58'],source:['R58 Attention configuration']};
 
 /* R67 additive catalog and portfolio views. Existing child page definitions stay intact. */
@@ -12,7 +12,7 @@ window.P40_CLEAN_PAGES['attention-settings']={title:'Management Attention Rules'
   const master=pages['master-data'];
   const planning=pages['planning-workspace'];
   if(master&&!master.scripts.some(x=>x.src?.includes('reference-id-catalog.js')))
-    master.scripts.push({src:'assets/reference-id-catalog.js?v=r68'});
+    master.scripts.push({src:'assets/reference-id-catalog.js?v=r72'});
   if(planning){
     planning.html='<section class="ge-page-head"><div><div class="ge-eyebrow">IMPROVEMENT &amp; PLANNING</div><h1>Planning Workspace</h1><p>Portfolio seluruh layanan, ruang, material, sistem, dan dokumen berdasarkan BO/Station atau GASO. Record existing tetap dikelola pada halaman child.</p></div></section>';
     planning.scripts=[
@@ -21,6 +21,20 @@ window.P40_CLEAN_PAGES['attention-settings']={title:'Management Attention Rules'
       {src:'assets/planning-portfolio.js?v=r71'}
     ];
     planning.styles=['assets/portal.css?v=r71'];
+  }
+})();
+/* R72 Planning workspace opens data domains; categories come from Master Data. */
+(function(){
+  const pages=window.P40_CLEAN_PAGES;
+  const domains={
+    'service-provider':'Service & Provider','space-building':'Space & Building',
+    'station-resources':'Station Material, Tools & Equipment','airport-systems-planning':'Airport Systems',
+    'planning-documents-hub':'Planning Documents','planning-standards':'Standards / Reference'
+  };
+  for(const [id,title] of Object.entries({'planning-workspace':'Planning Workspace',...domains})){
+    const page=pages[id]||{};page.title=title;page.html='<section id="planningDomainContent" class="planning-domain-page"><div class="ge-card">Memuat data perencanaan…</div></section>';
+    page.scripts=[{src:'assets/edition1-store.js?v=r72'},{src:'assets/planning-domains.js?v=r72'}];
+    page.styles=['assets/portal.css?v=r72'];pages[id]=page;
   }
 })();
 /* R70 Station 360 consumes the same source records as Capability & Classification. */

@@ -86,3 +86,5 @@ await import('./r60-attention-ground-interaction.js');
 
 await import('./r62-script-loader.js');
 await import('./r70-requirement-engine.js');
+await import('./r72-planning-inbox.js');
+await import('./r72-read-persistence.js');
