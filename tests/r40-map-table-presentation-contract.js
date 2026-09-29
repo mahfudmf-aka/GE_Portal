@@ -7,6 +7,6 @@ assert(B.includes('R40 — Airport Experience map detail / Station 360 navigatio
 assert(B.includes("['service','Service'],['facility','Facility'],['system','System'],['contract','Contract']"));
 assert(B.includes('page=station-360&station='));
 assert(C.includes('.r40-map-tabs'));
-assert(R.includes('edition1-business-runtime.js?v=r78'));
-assert(R.includes('portal.css?v=r78'));
+assert(R.includes('edition1-business-runtime.js?v=r80'));
+assert(R.includes('portal.css?v=r80'));
 console.log('R40_MAP_TABLE_PRESENTATION_CONTRACT_PASS');

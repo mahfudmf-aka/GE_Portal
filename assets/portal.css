@@ -5696,3 +5696,80 @@ body.lounge-reference-v237 .lounge-master-table{min-width:1500px!important}
 body.lounge-reference-v237 .lounge-table-fallback-v237{overflow-x:auto!important;max-width:100%!important}
 @media(max-width:1250px){body.lounge-reference-v237 .lounge-master-title-v230{grid-template-columns:1fr!important}body.lounge-reference-v237 .lounge-master-title-v230 .bulk-action-group{justify-content:flex-start!important;flex-wrap:wrap!important}}
 @media(max-width:650px){body.lounge-reference-v237 .lounge-master-title-v230 .bulk-action-group{display:grid!important;grid-template-columns:1fr 1fr!important}body.lounge-reference-v237 .lounge-master-title-v230 .bulk-action-group .btn,body.lounge-reference-v237 .lounge-master-title-v230 .bulk-action-group a.btn{width:100%!important}}
+
+
+/* P80 — canonical Planning/Lounge readability + view contract.
+   This replaces the undersized presentation rules; it is not a visual overlay workaround. */
+.planning-view-switch{display:flex;align-items:center;gap:6px;padding:4px;border:1px solid #cbd9e7;border-radius:10px;background:#f7fafc}
+.planning-view-switch button{min-height:40px;padding:0 15px;border:1px solid transparent;border-radius:8px;background:#fff;color:#173b60;font:inherit;font-size:14px;font-weight:750;cursor:pointer}
+.planning-view-switch button.active{background:#082b59;color:#fff;border-color:#082b59}
+.planning-grid-view{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.planning-grid-card{display:grid;gap:9px;padding:18px;border:1px solid #d8e3ee;border-radius:13px;background:#fff;box-shadow:0 4px 14px rgba(0,31,74,.05)}
+.planning-grid-card h3{margin:0;font-size:17px;color:#102f55}
+.planning-grid-card .planning-grid-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.planning-grid-card .planning-grid-meta div{padding:10px;border:1px solid #e2e9f0;border-radius:9px;background:#fbfdff}
+.planning-grid-card small{display:block;margin-bottom:3px;color:#627991;font-size:12px;font-weight:650}
+.planning-grid-card strong{display:block;color:#183b62;font-size:14px;line-height:1.35;overflow-wrap:anywhere}
+.planning-domain-list .planning-details-view{display:block}
+.planning-domain-list .planning-grid-view[hidden],.planning-domain-list .planning-details-view[hidden]{display:none!important}
+
+/* One readable modal standard for Planning Workspace. */
+html body .ge-id-backdrop .planning-modal,
+html body .planning-modal{width:min(960px,calc(100vw - 48px))!important;max-width:960px!important;max-height:calc(100dvh - 48px)!important;padding:32px!important;border-radius:16px!important;background:#fff!important;color:#102b4b!important}
+.planning-modal h2{margin:0 0 8px!important;font-size:25px!important;line-height:1.25!important;color:#102d52!important}
+.planning-modal>p:not(#planningError){font-size:15px!important;line-height:1.55!important;color:#536b80!important}
+.planning-modal .planning-domain-form{gap:18px!important}
+.planning-modal .planning-domain-form label{gap:7px!important;font-size:14px!important;line-height:1.35!important;font-weight:700!important;color:#183b62!important}
+.planning-modal .planning-domain-form input,
+.planning-modal .planning-domain-form select,
+.planning-modal .planning-domain-form textarea,
+.planning-modal .planning-stations input[type=text]{min-height:46px!important;padding:10px 13px!important;font-size:15px!important;line-height:1.35!important;border:1px solid #b9cadb!important;border-radius:9px!important;color:#173b60!important}
+.planning-modal .planning-domain-form textarea{min-height:110px!important}
+.planning-modal .planning-periods h3{font-size:17px!important;margin:0 0 8px!important}
+.planning-modal .planning-stations{padding:15px!important}
+.planning-modal .planning-stations legend{font-size:14px!important}
+.planning-modal .planning-station-options label{font-size:14px!important;font-weight:600!important}
+.planning-modal .ge-id-actions{gap:10px!important;margin-top:24px!important;padding-top:18px!important;border-top:1px solid #dce5ef!important}
+.planning-modal .ge-id-actions .ge-btn{min-height:44px!important;padding:0 18px!important;font-size:14px!important;font-weight:750!important}
+.planning-modal #planningError{margin:12px 0 0!important;font-size:14px!important;color:#a52c2c!important}
+
+/* Lounge/Tenant is the visual reference: readable form labels and controls. */
+html body .lounge-add-modal-v221,
+html body .lounge-edit-card,
+html body .bulk-import-modal-v223,
+html body .ge-p29-schedule-modal{width:min(960px,calc(100vw - 48px))!important;max-width:960px!important;max-height:calc(100dvh - 48px)!important;padding:32px!important}
+html body .lounge-add-modal-v221 h2,
+html body .lounge-edit-card h2,
+html body .bulk-import-modal-v223 h2,
+html body .ge-p29-schedule-modal h2{font-size:25px!important;line-height:1.25!important;margin:0 0 8px!important;color:#102d52!important}
+html body .lounge-add-modal-v221 label,
+html body .lounge-edit-card label,
+html body .bulk-import-modal-v223 label{font-size:14px!important;line-height:1.35!important;font-weight:700!important;color:#183b62!important}
+html body .lounge-add-modal-v221 input,
+html body .lounge-add-modal-v221 select,
+html body .lounge-add-modal-v221 textarea,
+html body .lounge-edit-card input,
+html body .lounge-edit-card select,
+html body .lounge-edit-card textarea,
+html body .bulk-import-modal-v223 input,
+html body .bulk-import-modal-v223 select,
+html body .bulk-import-modal-v223 textarea{min-height:46px!important;padding:10px 13px!important;font-size:15px!important;line-height:1.35!important;border-radius:9px!important}
+html body .lounge-add-modal-v221 .section-subtitle,
+html body .lounge-edit-card .section-subtitle,
+html body .bulk-import-modal-v223 .section-subtitle{font-size:15px!important;line-height:1.55!important;color:#536b80!important}
+html body .lounge-add-modal-v221 .modal-actions,
+html body .lounge-edit-card .modal-actions,
+html body .bulk-import-modal-v223 .modal-actions{gap:10px!important;margin-top:24px!important;padding-top:18px!important;border-top:1px solid #dce5ef!important}
+html body .lounge-add-modal-v221 .modal-actions .btn,
+html body .lounge-edit-card .modal-actions .btn,
+html body .bulk-import-modal-v223 .modal-actions .btn{min-height:44px!important;padding:0 18px!important;font-size:14px!important;font-weight:750!important}
+html body .lounge-add-modal-v221 .btn:not(.secondary),
+html body .lounge-edit-card .btn:not(.secondary),
+html body .bulk-import-modal-v223 .btn:not(.secondary){background:#0b376f!important;color:#fff!important;border-color:#0b376f!important}
+html body .lounge-add-modal-v221 .btn.secondary,
+html body .lounge-edit-card .btn.secondary,
+html body .bulk-import-modal-v223 .btn.secondary{background:#fff!important;color:#0b376f!important;border-color:#9eb8d2!important}
+@media(max-width:700px){
+ html body .ge-id-backdrop .planning-modal,html body .planning-modal,html body .lounge-add-modal-v221,html body .lounge-edit-card,html body .bulk-import-modal-v223,html body .ge-p29-schedule-modal{width:calc(100vw - 20px)!important;max-height:calc(100dvh - 20px)!important;padding:22px!important}
+ .planning-grid-card .planning-grid-meta{grid-template-columns:1fr}
+}

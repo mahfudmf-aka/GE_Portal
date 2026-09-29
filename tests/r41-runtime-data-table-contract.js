@@ -7,5 +7,5 @@ cp.execFileSync(process.execPath,['--check','assets/edition1-business-runtime.js
 assert(!M.includes('\\n\\n/* R39'),'literal escaped newline must not break canonical runtime');
 assert(C.includes('.final-v257.final-shell-r5 .ge-ref-table tbody td'),'master table alignment must override final shell vertical-align:top');
 assert(B.includes("'serviceProcurement','facilities','assets'"),'airport detail source collections must hydrate');
-assert(R.includes('edition1-business-runtime.js?v=r78')&&R.includes('portal.css?v=r78')&&R.includes('edition1-page-boot.js?v=r42'),'R41 cache identity missing');
+assert(R.includes('edition1-business-runtime.js?v=r80')&&R.includes('portal.css?v=r80')&&R.includes('edition1-page-boot.js?v=r80'),'R41 cache identity missing');
 console.log('R41_RUNTIME_DATA_TABLE_CONTRACT_PASS');
