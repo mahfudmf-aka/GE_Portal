@@ -88,4 +88,4 @@ await import('./r62-script-loader.js');
 await import('./r70-requirement-engine.js');
 await import('./r72-planning-inbox.js');
 await import('./r72-read-persistence.js');
-await import('./r76-planning-ui-contract.js');
+await import('./r77-planning-master-config.js');

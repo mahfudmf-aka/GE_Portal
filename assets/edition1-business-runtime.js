@@ -1724,6 +1724,11 @@ window.addEventListener('gx-auth-verified',()=>{if(typeof syncFirebaseUsers==='f
    V2.12 — Personnel Master + Data Filters + BO Readiness
    ============================================================== */
 const GE_CORE_BO_FUNCTIONS=['GM','KK','SS','SV'];
+function geBOClassificationRules(){
+  const configured=Array.isArray(data?.referenceCatalog)?data.referenceCatalog.filter(x=>x&&x.kind==='boClassification'&&x.status!=='Inactive'):[];
+  return (configured.length?configured:[{name:'BO A',minFunctions:4,maxFunctions:null},{name:'BO B',minFunctions:3,maxFunctions:3},{name:'BO C',minFunctions:0,maxFunctions:2}]).slice().sort((a,b)=>Number(b.minFunctions||0)-Number(a.minFunctions||0));
+}
+function geBOClassificationForCount(n){const rule=geBOClassificationRules().find(x=>n>=Number(x.minFunctions||0)&&(x.maxFunctions==null||x.maxFunctions===''||n<=Number(x.maxFunctions)));return rule?.name||'BO C'}
 
 function geCanManageMasterData(){
   return typeof gxCanManage==='function' ? gxCanManage() : ['Admin','Super Admin'].includes(geSession()?.role);
@@ -1889,7 +1894,7 @@ function personnelAirportMatrix(){
   });
   return Object.values(map).map(x=>{
     const n=GE_CORE_BO_FUNCTIONS.filter(f=>x.functions.has(f)).length;
-    const classification=n>=4?'BO A':n===3?'BO B':'BO C';
+    const classification=geBOClassificationForCount(n);
     return {...x,functionCount:n,classification};
   }).sort((a,b)=>String(a.airport||'').localeCompare(String(b.airport||''),'id'));
 }
@@ -1983,7 +1988,7 @@ function personnelAirportMatrix(){
   });
   return Object.values(map).map(x=>{
     const n=GE_CORE_BO_FUNCTIONS.filter(f=>x.functions.has(f)).length;
-    return {...x,functionCount:n,classification:n>=4?'BO A':n===3?'BO B':'BO C'};
+    return {...x,functionCount:n,classification:geBOClassificationForCount(n)};
   }).sort((a,b)=>String(a.airport||'').localeCompare(String(b.airport||''),'id'));
 }
 function renderPersonnelReadiness(){
