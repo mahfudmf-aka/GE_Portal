@@ -9240,7 +9240,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
   }
 
   function replaceModalContent(id,title,prefix,model){
-    const modal=document.getElementById(id);if(!modal)return;
+    const modal=document.getElementById(id);if(!modal)return;if(modal.parentElement!==document.body)document.body.appendChild(modal);
     const card=modal.querySelector('.modal-card');if(!card)return;
     card.innerHTML=`<button class="modal-x" type="button" onclick="${id==='loungeAddModalV221'?'closeLoungeAddModalV221()':'closeLoungeEdit()'}">×</button>
       <h2>${esc(title)}</h2><p class="section-subtitle">Satu struktur data untuk Add, Update, dan CSV. Lounge dan Tenant tetap merupakan Service Type yang berbeda.</p>
@@ -9497,7 +9497,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
     if(!canUpload())return;
     state.importRows=[];state.importGroups=[];state.importSummary=null;state.importFileName='';
     const title=document.getElementById('bulkImportTitleV223'),help=document.getElementById('bulkImportHelpV223'),file=document.getElementById('bulkImportFileV223'),preview=document.getElementById('bulkImportPreviewV223'),confirm=document.getElementById('bulkImportConfirmV223'),modal=document.getElementById('bulkImportModalV223');
-    if(title)title.textContent='Upload CSV Layanan Lounge / Tenant';if(help)help.textContent='Gunakan CSV Template P29. Parse → Normalize → Validate → Preview → Confirm → Import. Multi-price memakai satu Agreement Number pada beberapa baris.';if(file)file.value='';if(preview)preview.innerHTML='<div class="bulk-import-idle">Belum ada file dipilih.</div>';if(confirm)confirm.disabled=true;modal?.classList.add('show');
+    if(modal&&modal.parentElement!==document.body)document.body.appendChild(modal);if(title)title.textContent='Upload CSV Layanan Lounge / Tenant';if(help)help.textContent='Gunakan CSV Template P29. Parse → Normalize → Validate → Preview → Confirm → Import. Multi-price memakai satu Agreement Number pada beberapa baris.';if(file)file.value='';if(preview)preview.innerHTML='<div class="bulk-import-idle">Belum ada file dipilih.</div>';if(confirm)confirm.disabled=true;modal?.classList.add('show');
   };
 
   window.previewBulkImportV223=async function(file){
@@ -9576,7 +9576,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
     if(!schedules.length)return;
     let modal=document.getElementById('geP29PriceScheduleModal');if(!modal){modal=document.createElement('div');modal.id='geP29PriceScheduleModal';modal.className='modal-backdrop';modal.innerHTML='<div class="modal-card ge-p29-schedule-modal"></div>';document.body.appendChild(modal)}
     const checked=validateSchedules(schedules,validDate(x.startDate),validDate(x.endDate));
-    modal.querySelector('.modal-card').innerHTML=`<button class="modal-x" type="button" onclick="document.getElementById('geP29PriceScheduleModal')?.classList.remove('show')">×</button><h2>Price Schedule</h2><p class="section-subtitle">${esc(x.name||'Lounge/Tenant')} • ${esc(x.documentNumber||'Agreement identity tidak tersedia')}</p>${checked.valid?`<div class="ge-p29-schedule-list">${checked.schedules.map((s,i)=>`<div class="ge-p29-schedule-item"><div><span>Period ${i+1}</span><b>${esc(dateLabel(s.effectiveFrom))} — ${esc(dateLabel(s.effectiveTo))}</b></div><div><span>Price</span><b>${esc(safePriceDisplay(s.currency,s.price))}</b></div><div><span>Basis</span><b>${esc(s.priceBasis||'pax')}</b></div>${s.priceNote?`<small>${esc(s.priceNote)}</small>`:''}</div>`).join('')}</div>`:`<div class="ge-p29-form-errors"><b>Requires Review</b><p>${esc(checked.errors.join('; '))}</p></div>`}<div class="modal-actions"><button class="btn secondary" type="button" onclick="document.getElementById('geP29PriceScheduleModal')?.classList.remove('show')">Tutup</button></div>`;
+    if(modal.parentElement!==document.body)document.body.appendChild(modal);modal.querySelector('.modal-card').innerHTML=`<button class="modal-x" type="button" onclick="document.getElementById('geP29PriceScheduleModal')?.classList.remove('show')">×</button><h2>Price Schedule</h2><p class="section-subtitle">${esc(x.name||'Lounge/Tenant')} • ${esc(x.documentNumber||'Agreement identity tidak tersedia')}</p>${checked.valid?`<div class="ge-p29-schedule-list">${checked.schedules.map((s,i)=>`<div class="ge-p29-schedule-item"><div><span>Period ${i+1}</span><b>${esc(dateLabel(s.effectiveFrom))} — ${esc(dateLabel(s.effectiveTo))}</b></div><div><span>Price</span><b>${esc(safePriceDisplay(s.currency,s.price))}</b></div><div><span>Basis</span><b>${esc(s.priceBasis||'pax')}</b></div>${s.priceNote?`<small>${esc(s.priceNote)}</small>`:''}</div>`).join('')}</div>`:`<div class="ge-p29-form-errors"><b>Requires Review</b><p>${esc(checked.errors.join('; '))}</p></div>`}<div class="modal-actions"><button class="btn secondary" type="button" onclick="document.getElementById('geP29PriceScheduleModal')?.classList.remove('show')">Tutup</button></div>`;
     modal.classList.add('show');
   };
 

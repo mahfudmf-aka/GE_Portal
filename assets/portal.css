@@ -5656,6 +5656,27 @@ html body.final-v257.final-shell-r5.e1-page .ge-sidebar-toggle:hover{background:
 .planning-service-return-r74 .ge-btn{background:#fff;color:#082b59;border:1px solid #a9bfd9;border-radius:8px;text-decoration:none;padding:9px 14px}
 .planning-service-return-r74 .ge-btn:hover,.planning-service-return-r74 .ge-btn:focus-visible{background:#082b59;color:#fff;border-color:#082b59}
 
-
-/* P76 Planning UI standard */
-.planning-domain-page .planning-toolbar .ge-btn.primary{background:#082b59!important;color:#fff!important;border-color:#082b59!important}.planning-domain-page .planning-toolbar .ge-btn.primary:hover,.planning-domain-page .planning-toolbar .ge-btn.primary:focus-visible{background:#06244b!important;color:#fff!important;border-color:#06244b!important}.planning-domain-page .planning-toolbar .ge-btn:not(.primary),.planning-domain-page .planning-row-actions .ge-btn{background:#fff!important;color:#082b59!important;border:1px solid #a9bfd9!important}.planning-domain-page .planning-toolbar .ge-btn:not(.primary):hover,.planning-domain-page .planning-toolbar .ge-btn:not(.primary):focus-visible,.planning-domain-page .planning-row-actions .ge-btn:hover,.planning-domain-page .planning-row-actions .ge-btn:focus-visible{background:#082b59!important;color:#fff!important;border-color:#082b59!important}.planning-domain-page .ge-table-wrap{max-width:100%;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important}.planning-domain-page table{min-width:980px}.lounge-master-title-v230 .bulk-action-group{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}.lounge-master-title-v230 .bulk-action-group .btn{min-height:44px;border-radius:9px;padding:10px 16px}.lounge-master-title-v230 .bulk-action-group .btn:not(.secondary){background:#082b59;color:#fff;border:1px solid #082b59}.lounge-master-title-v230 .bulk-action-group .btn.secondary{background:#fff;color:#082b59;border:1px solid #a9bfd9}.lounge-master-title-v230 .bulk-action-group .btn.secondary:hover,.lounge-master-title-v230 .bulk-action-group .btn.secondary:focus-visible{background:#082b59;color:#fff;border-color:#082b59}.lounge-master-title-v230 .bulk-action-group .planning-service-return-r76{order:-1;text-decoration:none;display:inline-flex;align-items:center}.lounge-master-title-v230 .bulk-action-group .btn:not(.secondary):hover,.lounge-master-title-v230 .bulk-action-group .btn:not(.secondary):focus-visible{background:#06244b;color:#fff;border-color:#06244b}.lounge-table-fallback-v237{max-width:100%;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important}.lounge-table-fallback-v237 table{min-width:1280px}
+/* P78 — Planning/Lounge interaction contract */
+.lounge-reference-actions-v244{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:10px!important;flex-wrap:nowrap!important;min-width:0!important}
+.lounge-reference-actions-v244 .btn{white-space:nowrap!important}
+.lounge-reference-actions-v244 .btn:not(.secondary){background:#0b376f!important;border-color:#0b376f!important;color:#fff!important}
+.lounge-reference-actions-v244 .btn.secondary{background:#fff!important;border-color:#b9cee5!important;color:#0b376f!important}
+.lounge-reference-actions-v244 .btn.secondary:hover{background:#0b376f!important;border-color:#0b376f!important;color:#fff!important}
+.lounge-expiry-warning,.lounge-expiry-warning.compact{background:#fff4cf!important;color:#775700!important;border:1px solid #e6c96d!important;box-shadow:none!important}
+.lounge-expiry-warning b{color:#775700!important}
+html body .modal-backdrop,html body .ge-id-backdrop,html body .tp-modal-backdrop,html body .map-move-modal-backdrop,html body #geGlobalRefModal>.ge-ref-backdrop{z-index:2147482000!important}
+html body .modal-backdrop>.modal-card,html body .ge-id-backdrop>.ge-id-modal,html body .tp-modal-backdrop>.tp-modal,html body .map-move-modal-card,html body #geGlobalRefModal .ge-ref-modal{z-index:2147482001!important}
+html body .ge-id-backdrop{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;background:rgba(0,18,49,.58)!important;display:grid!important;place-items:center!important;padding:24px!important;overflow:auto!important}
+html body .planning-modal{width:min(860px,calc(100vw - 48px))!important;max-height:calc(100dvh - 48px)!important;overflow:auto!important;background:#fff!important}
+html body .ge-delete-confirm-backdrop-v234{z-index:2147483000!important}
+html body .ge-delete-confirm-backdrop-v234>.ge-delete-confirm-card-v234{z-index:2147483001!important}
+html body .ge-delete-actions-v234 .ge-delete-confirm-v234,html body .planning-row-actions .ge-btn.danger{background:#c92820!important;border-color:#c92820!important;color:#fff!important}
+html body .ge-delete-actions-v234 .ge-delete-confirm-v234:hover,html body .planning-row-actions .ge-btn.danger:hover{background:#a91f19!important;border-color:#a91f19!important;color:#fff!important}
+.planning-row-actions{display:flex!important;gap:8px!important;align-items:center!important;flex-wrap:nowrap!important}
+.planning-row-actions .ge-btn{white-space:nowrap!important}
+.planning-stations{grid-column:1/-1!important;border:1px solid #cbd9e7!important;border-radius:10px!important;padding:12px!important;margin:0!important}
+.planning-stations legend{padding:0 6px!important;font-weight:800!important;color:#183f6d!important}
+.planning-station-options{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:8px!important;max-height:240px!important;overflow:auto!important;padding:6px!important}
+.planning-station-options label{display:flex!important;align-items:center!important;gap:7px!important;padding:8px 10px!important;border:1px solid #e0e8f0!important;border-radius:8px!important;background:#fbfdff!important;color:#183f6d!important}
+.planning-station-options input{width:auto!important;min-height:0!important}
+@media(max-width:900px){.lounge-reference-actions-v244{flex-wrap:wrap!important}.planning-station-options{grid-template-columns:repeat(2,minmax(0,1fr))!important}}

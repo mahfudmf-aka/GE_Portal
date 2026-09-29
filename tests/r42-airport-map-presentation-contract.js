@@ -6,5 +6,5 @@ assert(M.includes('window.showAirportTooltip=hover42'));
 assert(M.includes('Math.max(1,Math.min(3.20'));
 assert(C.includes('.r42-map-tabscroll')&&C.includes('overflow-x:auto'));
 assert(C.includes('.map-tooltip-v216.r42-tooltip'));
-assert(R.includes('edition1-business-runtime.js?v=r42')&&R.includes('portal.css?v=r42'));
+assert(R.includes('edition1-business-runtime.js?v=r78')&&R.includes('portal.css?v=r78'));
 console.log('R42_AIRPORT_MAP_PRESENTATION_CONTRACT_PASS');
