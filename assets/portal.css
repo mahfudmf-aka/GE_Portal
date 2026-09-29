@@ -5680,3 +5680,19 @@ html body .ge-delete-actions-v234 .ge-delete-confirm-v234:hover,html body .plann
 .planning-station-options label{display:flex!important;align-items:center!important;gap:7px!important;padding:8px 10px!important;border:1px solid #e0e8f0!important;border-radius:8px!important;background:#fbfdff!important;color:#183f6d!important}
 .planning-station-options input{width:auto!important;min-height:0!important}
 @media(max-width:900px){.lounge-reference-actions-v244{flex-wrap:wrap!important}.planning-station-options{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+
+
+/* P79 — Lounge/Tenant action + modal contract */
+body.lounge-reference-v237 .lounge-master-title-v230{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:20px!important}
+body.lounge-reference-v237 .lounge-master-title-v230 .bulk-action-group,.lounge-master-title-v230 .bulk-action-group{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important;flex-wrap:nowrap!important;min-width:0!important}
+body.lounge-reference-v237 .lounge-master-title-v230 .bulk-action-group .btn,.lounge-master-title-v230 .bulk-action-group .btn,.lounge-master-title-v230 .bulk-action-group a.btn{height:44px!important;min-height:44px!important;min-width:0!important;width:auto!important;padding:0 16px!important;border-radius:10px!important;font-size:12px!important;font-weight:750!important;white-space:nowrap!important;box-shadow:none!important}
+body.lounge-reference-v237 .lounge-master-title-v230 .lounge-primary-action-r79,.lounge-master-title-v230 .lounge-primary-action-r79{background:#0b376f!important;border:1px solid #0b376f!important;color:#fff!important}
+body.lounge-reference-v237 .lounge-master-title-v230 .lounge-primary-action-r79:hover,.lounge-master-title-v230 .lounge-primary-action-r79:hover{background:#082b59!important;border-color:#082b59!important}
+body.lounge-reference-v237 .lounge-master-title-v230 .btn.secondary,body.lounge-reference-v237 .lounge-master-title-v230 a.btn.secondary,.lounge-master-title-v230 .btn.secondary,.lounge-master-title-v230 a.btn.secondary{background:#fff!important;border:1px solid #b9cee5!important;color:#0b376f!important}
+body.lounge-reference-v237 .lounge-master-title-v230 .btn.secondary:hover,body.lounge-reference-v237 .lounge-master-title-v230 a.btn.secondary:hover,.lounge-master-title-v230 .btn.secondary:hover,.lounge-master-title-v230 a.btn.secondary:hover{background:#0b376f!important;border-color:#0b376f!important;color:#fff!important}
+body.lounge-reference-v237 #loungeAddModalV221,body.lounge-reference-v237 #loungeEditModal,body.lounge-reference-v237 #bulkImportModalV223{z-index:2147482000!important}
+body.lounge-reference-v237 #loungeAddModalV221>.modal-card,body.lounge-reference-v237 #loungeEditModal>.modal-card,body.lounge-reference-v237 #bulkImportModalV223>.modal-card{z-index:2147482001!important;position:relative}
+body.lounge-reference-v237 .lounge-master-table{min-width:1500px!important}
+body.lounge-reference-v237 .lounge-table-fallback-v237{overflow-x:auto!important;max-width:100%!important}
+@media(max-width:1250px){body.lounge-reference-v237 .lounge-master-title-v230{grid-template-columns:1fr!important}body.lounge-reference-v237 .lounge-master-title-v230 .bulk-action-group{justify-content:flex-start!important;flex-wrap:wrap!important}}
+@media(max-width:650px){body.lounge-reference-v237 .lounge-master-title-v230 .bulk-action-group{display:grid!important;grid-template-columns:1fr 1fr!important}body.lounge-reference-v237 .lounge-master-title-v230 .bulk-action-group .btn,body.lounge-reference-v237 .lounge-master-title-v230 .bulk-action-group a.btn{width:100%!important}}

@@ -9497,7 +9497,10 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
     if(!canUpload())return;
     state.importRows=[];state.importGroups=[];state.importSummary=null;state.importFileName='';
     const title=document.getElementById('bulkImportTitleV223'),help=document.getElementById('bulkImportHelpV223'),file=document.getElementById('bulkImportFileV223'),preview=document.getElementById('bulkImportPreviewV223'),confirm=document.getElementById('bulkImportConfirmV223'),modal=document.getElementById('bulkImportModalV223');
-    if(modal&&modal.parentElement!==document.body)document.body.appendChild(modal);if(title)title.textContent='Upload CSV Layanan Lounge / Tenant';if(help)help.textContent='Gunakan CSV Template P29. Parse → Normalize → Validate → Preview → Confirm → Import. Multi-price memakai satu Agreement Number pada beberapa baris.';if(file)file.value='';if(preview)preview.innerHTML='<div class="bulk-import-idle">Belum ada file dipilih.</div>';if(confirm)confirm.disabled=true;modal?.classList.add('show');
+    if(modal&&modal.parentElement!==document.body)document.body.appendChild(modal);if(modal)modal.style.zIndex='2147482000';if(title)title.textContent='Upload CSV Layanan Lounge / Tenant';if(help)help.textContent='Gunakan CSV Template P29. Parse → Normalize → Validate → Preview → Confirm → Import. Multi-price memakai satu Agreement Number pada beberapa baris.';if(file)file.value='';if(preview)preview.innerHTML='<div class="bulk-import-idle">Belum ada file dipilih.</div>';if(confirm)confirm.disabled=true;
+    if(file&&!file.dataset.geP79Bound){file.dataset.geP79Bound='1';file.addEventListener('change',()=>window.previewBulkImportV223?.(file.files?.[0]));}
+    if(confirm&&!confirm.dataset.geP79Bound){confirm.dataset.geP79Bound='1';confirm.addEventListener('click',()=>window.confirmBulkImportV231?.());}
+    modal?.classList.add('show');
   };
 
   window.previewBulkImportV223=async function(file){
@@ -9561,6 +9564,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
   }
 
   function setup(){
+    document.body.classList.add('lounge-reference-v237');
     setupTypeFilter();
     const heading=document.querySelector('.lounge-master-view-label-v237');
     if(heading&&!document.getElementById('geP29ViewToggle')){const toggle=document.createElement('div');toggle.id='geP29ViewToggle';toggle.className='ge-p29-view-toggle';toggle.innerHTML='<button type="button" class="active" data-view="grid">Grid</button><button type="button" data-view="detail">Details</button><label class="ge-p29-history-toggle"><input id="geP29ShowHistory" type="checkbox"> Tampilkan history agreement</label>';heading.appendChild(toggle);document.getElementById('geP29ShowHistory').onchange=()=>renderLounges();toggle.querySelectorAll('button').forEach(b=>b.onclick=()=>{toggle.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));const detail=b.dataset.view==='detail';const grid=document.getElementById('loungeCardGridV237');if(grid)grid.style.display=detail?'none':'';const pager=document.getElementById('loungeCardPageInfoV237')?.parentElement;if(pager)pager.style.display=detail?'none':'';document.querySelector('.lounge-table-fallback-v237')?.classList.toggle('ge-p29-table-visible',detail);});}
