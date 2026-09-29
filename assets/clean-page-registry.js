@@ -71,6 +71,8 @@ window.P40_CLEAN_PAGES['attention-settings']={title:'Management Attention Rules'
 
 /* Planning uses the approved Lounge/Tenant page as the service reference. */
 (function(){const p=window.P40_CLEAN_PAGES?.['lounge-list'];if(p&&!p.html.includes('planning-service-return-r74'))p.html='<div class="planning-service-return-r74"><a class="ge-btn" href="app.html?page=service-provider">← Service &amp; Provider</a></div>'+p.html})();
+/* P40 Planning UI alignment: Lounge/Tenant returns to Service & Provider from the page header, not as a separate top strip. */
+(function(){const p=window.P40_CLEAN_PAGES?.['lounge-list'];if(!p)return;p.html=p.html.replace(/<div class="planning-service-return-r74"><a[^>]*>← Service &amp; Provider<\/a><\/div>/,'');p.html=p.html.replace('<div class="title lounge-master-title-v230">','<div class="title lounge-master-title-v230"><div class="planning-service-return-r75"><a class="ge-btn" href="app.html?page=service-provider">← Service &amp; Provider</a></div>');})();
 /* Master Data uses one toolbar for existing references and Planning types. */
 (function(){const p=window.P40_CLEAN_PAGES?.['master-data'];if(!p)return;p.title='Master Data';p.html=p.html.replace('Master Data & Partner Reference','Master Data').replace('<button id="refUpload" class="ge-btn">Upload Data</button>','<button id="refUpload" class="ge-btn">Upload Data</button><button id="refExport" class="ge-btn">Unduh Data</button>');p.styles=['assets/portal.css?v=r74']})();
 /* Existing airport cost records are managed with Cost Intelligence. */

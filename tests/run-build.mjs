@@ -10,6 +10,7 @@ const tests = [
   'tests/p32-access-assistance-runtime.js',
   'tests/r15-functional-contract.js',
   'tests/upload-template-contract.js',
+  'tests/r75-planning-data-model.js',
   'tests/r18-consolidation-contract.js',
   'tests/r19-ui-consolidation-contract.js',
   'tests/r20-consolidated-browser-contract.js',
