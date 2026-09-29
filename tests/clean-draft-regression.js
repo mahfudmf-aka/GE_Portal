@@ -33,7 +33,7 @@ assert(data.includes("db.collection('portalMetadata')"),'Metadata adapter must u
 assert(data.includes(".collection('records')"),'Business adapter must use the existing records level.');
 const overlay=read('assets/edition1-overlay-manager.js');
 assert(!overlay.includes("'.p26-account-modal'"),'Overlay manager must promote the backdrop, never detach the P26 modal card from its backdrop.');
-const business=read('assets/edition1-business-runtime.js');
+const business=read('assets/edition1-business-runtime.js'); const loungeCanonical=read('assets/lounge-planning-v29.js');
 for(const fn of ['showStandardPanel','renderTouchpointStandards','renderInitiatives','openInitiativeModalV224','showAdminSection','renderAdminInbox','renderArticles','showContentPanel']) assert(business.includes(`window.${fn}=${fn}`),`Canonical Edition 1 runtime must expose inline/page-boot handler ${fn}.`);
 const shellCss=read('assets/clean-shell.css');
 assert(shellCss.includes('z-index:100000!important'),'Canonical dialog strata must stay above the sticky portal header.');
@@ -75,13 +75,13 @@ assert(registry.includes('initiativeStepPicV224') && registry.includes('initiati
 for(const id of ['initiativeStartDateV10','initiativeEndDateV10','initiativeActualDateV10','initiativeEstimatedCostV10','initiativeBudgetV10','initiativeActualCostV10','initiativePriorityV10','initiativeStatusV10','initiativeOutputV10','initiativeAchievementV10']) assert(registry.includes(id),`Initiative canonical form missing ${id}.`);
 assert(registry.includes('geInitiativeViewSelectR6'),'Initiative Grid/List selector must exist in canonical markup.');
 assert(registry.includes('geLoungeViewSelectR6'),'Lounge/Tenant Grid/Details selector must exist in canonical markup.');
-assert(!registry.includes('loungeFilterTextR6') && business.includes('ge-combo-input-r12') && business.includes('ge-combo-toggle-r12'),'Each Lounge/Tenant filter must combine free-text entry with dropdown choices; standalone keyword filter must not remain.');
+assert(!registry.includes('loungeFilterTextR6') && loungeCanonical.includes('ge-combo-input-r12') && loungeCanonical.includes('ge-combo-toggle-r12'),'Each Lounge/Tenant filter must combine free-text entry with dropdown choices; standalone keyword filter must not remain.');
 assert(registry.includes('Unduh Data') && !registry.includes('Unduh CSV'),'User-facing export action must be Unduh Data.');
 assert(business.includes('GE_Inisiatif_dan_Milestone.csv'),'Initiative export must retain milestone rows.');
 assert(business.includes('capacitySchedules'),'Lounge/Tenant must retain capacity history.');
 assert(business.includes('supersedesId'),'Lounge/Tenant must retain agreement replacement history.');
 assert(app.includes('v=r32'),'Canonical root assets must use current cache identity.');
-assert(registry.includes('edition1-business-runtime.js?v=r80'),'Canonical page runtime must use current cache identity.');
+assert(registry.includes('edition1-business-runtime.js?v=r42'),'Canonical page runtime must use current cache identity.');
 
 // Route reachability guard: app.html is infrastructure, never a logical page.
 assert(app.includes("if(route==='app'){route='index'"),'SPA host must recover stale ?page=app to the canonical index route.');

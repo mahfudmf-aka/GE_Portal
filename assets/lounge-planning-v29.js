@@ -221,17 +221,31 @@
   }
   window.geP29AddPriceRow=addPriceRow;
 
+  function airportMasterOptions(selected){
+    const rows=Array.isArray(data?.airports)?data.airports:[];
+    const codes=[...new Set(rows.map(a=>String(a?.code||a?.airportCode||a?.iata||a?.stationCode||'').trim().toUpperCase()).filter(Boolean))].sort();
+    return '<option value="">Pilih Station</option>'+codes.map(c=>`<option value="${esc(c)}" ${c===String(selected||'').trim().toUpperCase()?'selected':''}>${esc(c)}</option>`).join('');
+  }
+  function currencyMasterOptions(selected){
+    const refs=Array.isArray(data?.referenceCatalog)?data.referenceCatalog:[];
+    const codes=[...new Set(refs.filter(x=>x&&x.kind==='currency'&&x.status!=='Inactive').map(x=>String(x.code||x.name||'').trim().toUpperCase()).filter(Boolean))].sort();
+    const fallback=codes.length?codes:[...new Set((data?.lounges||[]).map(x=>String(x.currency||'').trim().toUpperCase()).filter(Boolean))].sort();
+    return '<option value="">Pilih Mata Uang</option>'+fallback.map(c=>`<option value="${esc(c)}" ${c===String(selected||'').trim().toUpperCase()?'selected':''}>${esc(c)}</option>`).join('');
+  }
+  function moveModalToBody(id){const el=document.getElementById(id);if(el&&el.parentElement!==document.body)document.body.appendChild(el);return el;}
+  function ensureLoungeModalHosts(){['loungeEditModal','loungeAddModalV221','bulkImportModalV223','geP29PriceScheduleModal'].forEach(moveModalToBody);document.getElementById('geP29ViewToggle')?.remove();}
+
   function commonFormMarkup(prefix,model){
     const m=model||{};
     return `<div class="formgrid ge-p29-form-grid">
       <label>Region<select id="${prefix}Region"><option value="">Pilih Region</option><option ${m.region==='WEST'?'selected':''}>WEST</option><option ${m.region==='EAST'?'selected':''}>EAST</option><option ${m.region==='INT'?'selected':''}>INT</option></select></label>
-      <label>Station<select id="${prefix}Airport" required><option value="">Pilih Station</option>${[...(data?.airports||[])].filter(a=>a.status!=='Inactive').sort((a,b)=>String(a.code||'').localeCompare(String(b.code||''))).map(a=>{const code=String(a.code||a.iata||a.stationCode||'').toUpperCase();return `<option value="${esc(code)}" ${String(m.airport||'').toUpperCase()===code?'selected':''}>${esc(code)} — ${esc(a.city||a.airportName||'')}</option>`}).join('')}</select></label>
+      <label>Station<select id="${prefix}Airport" required>${airportMasterOptions(m.airport||m.station)}</select></label>
       <label>Nama Layanan / Provider<input id="${prefix}Name" required value="${esc(m.name||'')}"></label>
       <label>Jenis Layanan<select id="${prefix}ServiceType" required><option value="">Pilih Jenis Layanan</option>${TYPES.map(t=>`<option value="${t}" ${m.serviceType===t?'selected':''}>${t}</option>`).join('')}</select></label>
       <label>PIC<input id="${prefix}Pic" value="${esc(m.pic||'')}"></label>
       <label>Agreement Start Date<input id="${prefix}Start" type="date" value="${esc(m.startDate||'')}"></label>
       <label>Agreement End Date<input id="${prefix}End" type="date" value="${esc(m.endDate||'')}"></label>
-      <label>Mata Uang (single price)<input id="${prefix}Currency" maxlength="3" value="${esc(m.currency||'')}" placeholder="IDR"></label>
+      <label>Mata Uang (single price)<select id="${prefix}Currency" required>${currencyMasterOptions(m.currency)}</select></label>
       <label>Harga Per Pax (single price)<input id="${prefix}Price" type="number" min="0" step="0.01" value="${m.pricePerPax?esc(m.pricePerPax):''}"></label>
       <label>Nomor Dokumen / Agreement Identity<input id="${prefix}DocumentNumber" value="${esc(m.documentNumber||'')}"></label>
       <label>Jenis Dokumen<input id="${prefix}DocumentType" value="${esc(m.documentType||'')}"></label>
@@ -261,16 +275,14 @@
   }
 
   function replaceModalContent(id,title,prefix,model){
-    const modal=document.getElementById(id);if(!modal)return;
+    ensureLoungeModalHosts();
+    const modal=moveModalToBody(id);if(!modal)return;
     const card=modal.querySelector('.modal-card');if(!card)return;
     card.innerHTML=`<button class="modal-x" type="button" onclick="${id==='loungeAddModalV221'?'closeLoungeAddModalV221()':'closeLoungeEdit()'}">×</button>
       <h2>${esc(title)}</h2><p class="section-subtitle">Satu struktur data untuk Add, Update, dan CSV. Lounge dan Tenant tetap merupakan Service Type yang berbeda.</p>
       <form id="${prefix}Form"><div id="${prefix}Errors"></div>${commonFormMarkup(prefix,model)}
       <div class="modal-actions sticky-actions"><button class="btn" type="submit">${id==='loungeAddModalV221'?'Simpan Layanan':'Simpan Update'}</button><button class="btn secondary" type="button" onclick="${id==='loungeAddModalV221'?'closeLoungeAddModalV221()':'closeLoungeEdit()'}">Batal</button></div></form>`;
     renderPriceRows(prefix+'Prices',model?.priceSchedules||[]);
-    const stationSelect=document.getElementById(prefix+'Airport'),regionSelect=document.getElementById(prefix+'Region');
-    const syncRegion=()=>{const a=(data?.airports||[]).find(x=>String(x.code||x.iata||x.stationCode||'').toUpperCase()===String(stationSelect?.value||'').toUpperCase());if(a&&regionSelect)regionSelect.value=a.region||regionSelect.value};
-    stationSelect?.addEventListener('change',syncRegion);syncRegion();
     document.getElementById(prefix+'Form').addEventListener('submit',e=>{e.preventDefault();id==='loungeAddModalV221'?saveAdd(prefix):saveEdit(prefix)});
     modal.classList.add('show');
   }
@@ -361,7 +373,7 @@
       const priceText=price.status==='CURRENT'||price.status==='LEGACY'?safePriceDisplay(price.currency,price.price):price.status==='NOT_APPLICABLE'?'Not Available':price.status==='INVALID'?'Requires Review':'Not Available';
       const priceMeta=scheduleCount?`${scheduleCount} Price Period${scheduleCount===1?'':'s'}`:'';
       const review=rt.status==='REVIEW'?`<div class="ge-p29-review-note">Requires Review: ${esc(rt.reason)}</div>`:'';
-      const update=canEdit()?`<button class="btn secondary compact-btn" type="button" onclick="openLoungeEdit(${Number(x.id)})">Edit</button>`:'';
+      const update=canEdit()?`<button class="btn secondary compact-btn" type="button" onclick="openLoungeEdit(${Number(x.id)})">Update</button>`:'';
       const del=typeof geIsAdmin==='function'&&geIsAdmin()?`<button class="btn danger compact-btn" type="button" onclick="deleteLoungeV239(${Number(x.id)})">Hapus</button>`:'';
       const detail=scheduleCount?`<button class="btn secondary compact-btn" type="button" onclick="geP29ViewPriceSchedule(${Number(x.id)})">View Price Schedule</button>`:'';
       return `<article class="lounge-master-card-v237 ge-p29-lounge-card">
@@ -390,7 +402,7 @@
     const rows=filteredRows();
     tbody.innerHTML=rows.map((x,i)=>{
       const rt=resolveType(x),p=applicablePrice(x,new Date()),price=p.status==='CURRENT'||p.status==='LEGACY'?safePriceDisplay(p.currency,p.price):'Not Available';
-      const action=canEdit()?`<td><div class="row-actions"><button class="btn secondary" onclick="openLoungeEdit(${Number(x.id)})">Edit</button><button class="btn btn-danger" onclick="deleteLoungeV239(${Number(x.id)})">Hapus</button></div></td>`:'';
+      const action=canEdit()?`<td><div class="row-actions"><button class="btn secondary" onclick="openLoungeEdit(${Number(x.id)})">Update</button><button class="btn btn-danger" onclick="deleteLoungeV239(${Number(x.id)})">Hapus</button></div></td>`:'';
       return `<tr><td>${i+1}</td><td>${esc(x.region||'-')}</td><td><b>${esc(x.airport||'Not Available')}</b></td><td><b>${esc(x.name||'Not Available')}</b></td><td><span class="pill">${esc(rt.value||'Requires Review')}</span></td><td>${esc(price)}</td><td>${dateLabel(x.startDate)}</td><td>${dateLabel(x.endDate)}</td><td>${esc(x.documentNumber||'-')}</td><td>${esc(x.documentType||'-')}</td><td>${esc(x.documentStatus||'Not Available')}</td><td>${esc(x.remarks||'-')}</td><td>${x.documentKey?`<button class="btn secondary" onclick="GEFiles.download('${esc(x.documentKey)}','${esc(x.documentName||'document')}')">Unduh</button>`:esc(x.documentName||'-')}</td>${action}</tr>`;
     }).join('');
   }
@@ -573,10 +585,26 @@
     card.parentElement?.insertBefore(wrap,card);wrap.querySelectorAll('[data-ge-p29-service-filter]').forEach(btn=>btn.addEventListener('click',()=>{wrap.querySelectorAll('[data-ge-p29-service-filter]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');GE_LOUNGE_CARD_PAGE_V237=1;renderLounges()}));
   }
 
+  function installSearchableFilter(select){
+    if(!select||select.dataset.p83Combo)return;select.dataset.p83Combo='1';
+    const wrap=document.createElement('div');wrap.className='ge-combo-r12';
+    const input=document.createElement('input');input.type='text';input.className='ge-combo-input-r12';input.placeholder=select.options[0]?.textContent||'Pilih atau ketik...';input.autocomplete='off';
+    const toggle=document.createElement('button');toggle.type='button';toggle.className='ge-combo-toggle-r12';toggle.setAttribute('aria-label','Buka pilihan');toggle.textContent='⌄';
+    const menu=document.createElement('div');menu.className='ge-combo-menu-r12';
+    select.parentNode.insertBefore(wrap,select);wrap.append(input,toggle,menu,select);select.classList.add('ge-combo-source-r12');
+    const render=()=>{const q=input.value.trim().toLowerCase();const opts=[...select.options].filter((o,i)=>i>0&&(!q||o.textContent.toLowerCase().includes(q)));menu.innerHTML=opts.length?opts.map(o=>`<button type="button" data-value="${esc(o.value)}">${esc(o.textContent)}</button>`).join(''):'<div class="ge-combo-empty-r12">Tidak ada pilihan yang cocok.</div>';menu.querySelectorAll('button').forEach(b=>b.onclick=()=>{select.value=b.dataset.value;input.value=b.textContent;menu.classList.remove('show');select.dispatchEvent(new Event('change',{bubbles:true}))})};
+    const open=()=>{render();menu.classList.add('show')};toggle.onclick=()=>menu.classList.toggle('show')?render():null;input.onfocus=open;input.oninput=()=>{select.value='';open();select.dispatchEvent(new Event('change',{bubbles:true}))};
+    document.addEventListener('pointerdown',e=>{if(!wrap.contains(e.target))menu.classList.remove('show')});
+    select.addEventListener('change',()=>{const o=select.selectedOptions?.[0];if(o&&select.value)input.value=o.textContent;else if(!select.value&&document.activeElement!==input)input.value=''});
+  }
+  function installCanonicalLoungeFilters(){['loungeRegionFilter','loungeAirportFilter','loungeNameFilter','loungeStatusFilter'].forEach(id=>installSearchableFilter(document.getElementById(id)));}
   function setup(){
+    ensureLoungeModalHosts();
     setupTypeFilter();
+    installCanonicalLoungeFilters();
     const templateBtn=[...document.querySelectorAll('button')].find(b=>/Unduh Template/i.test(b.textContent||''));if(templateBtn){templateBtn.textContent='Download CSV Template';templateBtn.title='Download CSV Template P29';}
     ['loungeRegionFilter','loungeAirportFilter','loungeNameFilter','loungeStatusFilter'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('change',()=>{GE_LOUNGE_CARD_PAGE_V237=1;renderLounges()})});
+    const view=document.getElementById('geLoungeViewSelectR6'); if(view){view.onchange=()=>{const detail=view.value==='detail';const grid=document.getElementById('loungeCardGridV237'),table=document.querySelector('.lounge-table-fallback-v237'),pager=document.getElementById('loungeCardPageInfoV237')?.parentElement;if(grid)grid.hidden=detail;if(table){table.hidden=!detail;table.classList.toggle('ge-p29-table-visible',detail)}if(pager)pager.hidden=detail;};view.onchange();}
     try{if(typeof fillAirportSelects==='function')fillAirportSelects()}catch(e){}
     renderLounges();
   }
@@ -585,7 +613,7 @@
     const x=(data.lounges||[]).find(v=>String(v.id)===String(id));if(!x)return;
     const schedules=Array.isArray(x.priceSchedules)?x.priceSchedules:[];
     if(!schedules.length)return;
-    let modal=document.getElementById('geP29PriceScheduleModal');if(!modal){modal=document.createElement('div');modal.id='geP29PriceScheduleModal';modal.className='modal-backdrop';modal.innerHTML='<div class="modal-card ge-p29-schedule-modal"></div>';document.body.appendChild(modal)}
+    let modal=document.getElementById('geP29PriceScheduleModal');if(!modal){modal=document.createElement('div');modal.id='geP29PriceScheduleModal';modal.className='modal-backdrop';modal.innerHTML='<div class="modal-card ge-p29-schedule-modal"></div>';document.body.appendChild(modal)}else moveModalToBody('geP29PriceScheduleModal');
     const checked=validateSchedules(schedules,validDate(x.startDate),validDate(x.endDate));
     modal.querySelector('.modal-card').innerHTML=`<button class="modal-x" type="button" onclick="document.getElementById('geP29PriceScheduleModal')?.classList.remove('show')">×</button><h2>Price Schedule</h2><p class="section-subtitle">${esc(x.name||'Lounge/Tenant')} • ${esc(x.documentNumber||'Agreement identity tidak tersedia')}</p>${checked.valid?`<div class="ge-p29-schedule-list">${checked.schedules.map((s,i)=>`<div class="ge-p29-schedule-item"><div><span>Period ${i+1}</span><b>${esc(dateLabel(s.effectiveFrom))} — ${esc(dateLabel(s.effectiveTo))}</b></div><div><span>Price</span><b>${esc(safePriceDisplay(s.currency,s.price))}</b></div><div><span>Basis</span><b>${esc(s.priceBasis||'pax')}</b></div>${s.priceNote?`<small>${esc(s.priceNote)}</small>`:''}</div>`).join('')}</div>`:`<div class="ge-p29-form-errors"><b>Requires Review</b><p>${esc(checked.errors.join('; '))}</p></div>`}<div class="modal-actions"><button class="btn secondary" type="button" onclick="document.getElementById('geP29PriceScheduleModal')?.classList.remove('show')">Tutup</button></div>`;
     modal.classList.add('show');
