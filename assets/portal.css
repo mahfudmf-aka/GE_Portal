@@ -2571,7 +2571,7 @@ body:has(.initiative-dialog.show){overflow:hidden!important}
 .gaso-selector-v231{width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;border:1px solid #dbe7ed!important}
 .gaso-selector-v231.active{border-color:#1592c3!important;background:linear-gradient(145deg,#eef9fc,#fff)!important}
 .gaso-panel-v231{margin-top:22px}
-.gaso-modal-v231,.airport-system-modal-v231,.airport-modal-v231{width:min(820px,95vw)!important}
+.gaso-modal-v231,.airport-system-modal-v231,.airport-modal-v231{width:min(960px,calc(100vw - 48px))!important;max-width:960px!important;max-height:calc(100dvh - 48px)!important;overflow:auto!important;padding:28px!important;box-sizing:border-box!important}
 .airport-system-table-v231{min-width:1500px!important}
 .airport-system-table-v231 td:nth-child(5),.airport-system-table-v231 td:nth-child(6){min-width:250px;white-space:normal}
 .title>.bulk-action-group{justify-content:flex-end}
@@ -3096,7 +3096,7 @@ body.lounge-reference-v237 .filter-grid .btn{width:100%!important;min-width:0!im
 .lounge-price-currency-v243{height:54px;border-radius:13px;display:grid;place-items:center;background:#E6F5F4;color:#244f82;font-weight:850;font-size:15px}
 .lounge-price-currency-card-v243 div:not(.lounge-price-currency-v243){display:flex;flex-direction:column;gap:3px}.lounge-price-currency-card-v243 span{font-size:8px;color:#718096;text-transform:uppercase}.lounge-price-currency-card-v243 b{font-size:14px;color:#173F50}.lounge-price-currency-card-v243 small{grid-column:2/-1;color:#81969D;font-size:8px}
 .lounge-price-empty-v243{grid-column:1/-1;padding:20px;text-align:center;color:#748B94}
-.service-procurement-modal-v243{width:min(820px,95vw)!important}
+.service-procurement-modal-v243{width:min(960px,calc(100vw - 48px))!important;max-width:960px!important;max-height:calc(100dvh - 48px)!important;overflow:auto!important;padding:28px!important;box-sizing:border-box!important}
 #boPlanningPanelLounge .data-filter-grid{grid-template-columns:1.4fr 1fr 1fr 1fr!important}
 @media(max-width:1100px){.lounge-price-summary-grid-v243{grid-template-columns:1fr}#boPlanningPanelLounge .data-filter-grid{grid-template-columns:1fr 1fr!important}}
 @media(max-width:700px){.lounge-price-summary-head-v243{flex-direction:column;align-items:flex-start}.lounge-price-currency-card-v243{grid-template-columns:60px 1fr 1fr}.lounge-price-currency-card-v243 small{grid-column:1/-1}#boPlanningPanelLounge .data-filter-grid{grid-template-columns:1fr!important}}
@@ -5676,10 +5676,10 @@ html body .ge-delete-actions-v234 .ge-delete-confirm-v234:hover,html body .plann
 .planning-row-actions .ge-btn{white-space:nowrap!important}
 .planning-stations{grid-column:1/-1!important;border:1px solid #cbd9e7!important;border-radius:10px!important;padding:12px!important;margin:0!important}
 .planning-stations legend{padding:0 6px!important;font-weight:800!important;color:#183f6d!important}
-.planning-station-options{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:8px!important;max-height:240px!important;overflow:auto!important;padding:6px!important}
+.planning-station-options{display:flex!important;flex-direction:column!important;gap:6px!important;max-height:240px!important;overflow:auto!important;padding:6px!important}
 .planning-station-options label{display:flex!important;align-items:center!important;gap:7px!important;padding:8px 10px!important;border:1px solid #e0e8f0!important;border-radius:8px!important;background:#fbfdff!important;color:#183f6d!important}
 .planning-station-options input{width:auto!important;min-height:0!important}
-@media(max-width:900px){.lounge-reference-actions-v244{flex-wrap:wrap!important}.planning-station-options{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:900px){.lounge-reference-actions-v244{flex-wrap:wrap!important}.planning-station-options{display:flex!important;flex-direction:column!important}}
 
 
 /* P79 — Lounge/Tenant action + modal contract */

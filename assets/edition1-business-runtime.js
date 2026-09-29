@@ -5082,7 +5082,7 @@ function openAirportSystemModalV231(id=null){
  airportSystemAirportV231.value=x?.airport||'';airportSystemProviderV231.value=x?.provider||'';airportSystemSbdV231.value=x?.sbd||'';
  airportSystemKioskV231.value=x?.kiosk||'';airportSystemCheckinV231.value=x?.checkin||'';airportSystemGateV231.value=x?.boardingGate||'';
  airportSystemTransferV231.value=x?.transferDesk||'';airportSystemAreaV231.value=x?.area||'';airportSystemRemarksV231.value=x?.remarks||'';
- airportSystemModalV231.classList.add('show');
+ if(airportSystemModalV231.parentElement!==document.body)document.body.appendChild(airportSystemModalV231);airportSystemModalV231.classList.add('show');
 }
 function closeAirportSystemModalV231(){airportSystemModalV231?.classList.remove('show')}
 function saveAirportSystemV231(){
@@ -6302,7 +6302,7 @@ function openServiceProcurementModalV243(id=null){
   serviceAirportV243.value=x?.airport||'';serviceCategoryV243.value=x?.categoryService||'SGHA';serviceNameV243.value=x?.serviceName||'';
   serviceCurrencyV243.value=x?.currency||'';servicePriceV243.value=x?.pricePerPax??'';serviceStartV243.value=x?.startDate||'';serviceEndV243.value=x?.endDate||'';
   serviceDocumentNumberV243.value=x?.documentNumber||'';serviceDocumentTypeV243.value=x?.documentType||'';serviceDocumentStatusV243.value=x?.documentStatus||'Valid';serviceRemarksV243.value=x?.remarks||'';serviceDocumentFileV243.value='';
-  serviceProcurementModalV243.classList.add('show');
+  if(serviceProcurementModalV243.parentElement!==document.body)document.body.appendChild(serviceProcurementModalV243);serviceProcurementModalV243.classList.add('show');
 }
 function closeServiceProcurementModalV243(){serviceProcurementModalV243?.classList.remove('show')}
 async function saveServiceProcurementV243(){
@@ -9374,7 +9374,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
     const rows=filteredRows();
     tbody.innerHTML=rows.map((x,i)=>{
       const rt=resolveType(x),p=applicablePrice(x,new Date()),price=p.status==='CURRENT'||p.status==='LEGACY'?safePriceDisplay(p.currency,p.price):'Not Available';
-      const action=canEdit()?`<td><div class="row-actions"><button class="btn secondary" onclick="openLoungeEdit(${Number(x.id)})">Update</button><button class="btn btn-danger" onclick="deleteLoungeV239(${Number(x.id)})">Hapus</button></div></td>`:'';
+      const action=canEdit()?`<td><div class="row-actions"><button class="btn secondary" onclick="openLoungeEdit(${Number(x.id)})">Update</button><button class="btn danger" onclick="deleteLoungeV239(${Number(x.id)})">Hapus</button></div></td>`:'';
       return `<tr><td>${i+1}</td><td>${esc(x.region||'-')}</td><td><b>${esc(x.airport||'Not Available')}</b></td><td><b>${esc(x.name||'Not Available')}</b></td><td><span class="pill">${esc(rt.value||'Requires Review')}</span></td><td>${esc(price)}</td><td>${dateLabel(x.startDate)}</td><td>${dateLabel(x.endDate)}</td><td>${esc(x.documentNumber||'-')}</td><td>${esc(x.documentType||'-')}</td><td>${esc(x.documentStatus||'Not Available')}</td><td>${esc(x.remarks||'-')}</td><td>${x.documentKey?`<button class="btn secondary" onclick="GEFiles.download('${esc(x.documentKey)}','${esc(x.documentName||'document')}')">Unduh</button>`:esc(x.documentName||'-')}</td>${action}</tr>`;
     }).join('');
   }
