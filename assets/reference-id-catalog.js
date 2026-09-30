@@ -3,16 +3,29 @@
   'use strict';
   if(!/master-data(?:\.html)?$/i.test(new URLSearchParams(location.search).get('page')||location.pathname.split('/').pop()||''))return;
   const types=[
-    ['journeyScope','Journey Scope'],['capability','Capability'],['costType','Jenis Biaya'],['providerCategory','Jenis Service & Provider'],['spaceType','Jenis Space & Building'],
-    ['materialType','Jenis Material, Tools & Equipment'],['systemType','Jenis Airport Systems'],
-    ['planningDocumentType','Jenis Planning Documents']
+    ['journeyScope','Journey Scope'],['capability','Capability'],['costType','Jenis Biaya'],['spaceType','Jenis Space & Building'],
+    ['materialType','Jenis Material, Tools & Equipment'],['systemType','Jenis Airport System'],
+    ['planningDocumentType','Jenis Planning Document']
   ];
   const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const names=Object.fromEntries(types);
-  const baseCategories={journeyScope:[['Pre-Journey','Pre-Journey'],['Pre-Flight','Pre-Flight'],['Post-Flight','Post-Flight'],['Post-Journey','Post-Journey'],['Cross-Journey / End-to-End','Cross-Journey / End-to-End'],['Supporting / Enabler','Supporting / Enabler']],providerCategory:[['LOUNGE','Lounge / Tenant / Snack Box'],['GHA','Ground Handling Agent'],['AIRPORT_OPERATOR','Airport Operator']],spaceType:[['OFFICE','Perkantoran'],['SERVICE','Area Layanan']],materialType:[['DOCUMENT','Dokumen'],['LABEL','Label'],['TOOLS','Tools'],['EQUIPMENT','Equipment']],systemType:[['HARDWARE','Hardware'],['SOFTWARE','Software']],planningDocumentType:[['FRA','FRA · Dokumen Anggaran'],['TOR','TOR · Spesifikasi dan Detail Item']]};
-  let state,kind='providerCategory';
+  const idTypes=[
+    ['airlines','Airline Partner'],
+    ['aircraftConfigs','Aircraft Master'],
+    ['currencyExchange','Currency / Exchange Rate'],
+    ['touchpoints','Touch Point'],
+    ['personnel','Station Personnel'],
+    ['stations','Station'],
+    ['groundHandlers','Ground Handling Agent'],
+    ['serviceProviders','Service Provider / Vendor'],
+    ['branchOffices','Branch Office'],
+    ['airportSystems','Airport System']
+  ];
+  const baseCategories={journeyScope:[['Pre-Journey','Pre-Journey'],['Pre-Flight','Pre-Flight'],['Post-Flight','Post-Flight'],['Post-Journey','Post-Journey'],['Cross-Journey / End-to-End','Cross-Journey / End-to-End'],['Supporting / Enabler','Supporting / Enabler']],spaceType:[['OFFICE','Perkantoran'],['SERVICE','Area Layanan']],materialType:[['DOCUMENT','Dokumen'],['LABEL','Label'],['TOOLS','Tools'],['EQUIPMENT','Equipment']],systemType:[['HARDWARE','Hardware'],['SOFTWARE','Software']],planningDocumentType:[['FRA','FRA · Dokumen Anggaran'],['TOR','TOR · Spesifikasi dan Detail Item']]};
+  let state,kind='journeyScope',idKind='airlines';
   const canEdit=()=>typeof gxCanManage==='function'?!!gxCanManage():['Super Admin','Admin'].includes((window.gxGetSession?.()||{}).role);
   const host=document.createElement('section');host.className='ge-id-catalog';host.id='geIdCatalog';
+  const idHost=document.createElement('section');idHost.className='ge-id-catalog';idHost.id='geEntityCatalog';
   host.innerHTML=`<h2>Daftar Referensi</h2><p>Journey Scope, capability, dan jenis Planning menggunakan referensi yang sama di seluruh halaman. Nama Touch Point CSI tetap berasal dari hasil capture; Journey Area dapat ditetapkan pada Ground Touch Points.</p>
     <div class="ge-ref-toolbar"><label>Kelompok <select id="idCatalogType" class="ge-input">${types.map(([id,label])=>`<option value="${id}" ${id===kind?'selected':''}>${label}</option>`).join('')}</select></label>
     <input id="idCatalogSearch" class="ge-input" placeholder="Cari ID atau nama">
@@ -25,7 +38,28 @@
     <div class="ge-table-wrap"><table><thead><tr><th data-sort='0'>ID ↕</th><th data-sort='1'>Nama ↕</th><th data-sort='2'>Status ↕</th><th data-sort='3'>Catatan ↕</th><th>Aksi</th></tr></thead><tbody id="idCatalogRows"><tr><td colspan="5">Memuat katalog…</td></tr></tbody></table></div>
     <p id="idCatalogStatus" role="status" aria-live="polite"></p>
     <div id="idCatalogDialog" class="ge-id-dialog" hidden></div>`;
+  idHost.innerHTML=`<h2>ID &amp; Master Reference</h2><p>Daftar ID/master operasional yang digunakan bersama oleh Planning, Experience, Cost dan workspace lainnya.</p>
+    <div class="ge-ref-toolbar"><label>Kelompok <select id="entityCatalogType" class="ge-input">${idTypes.map(([id,label])=>`<option value="${id}" ${id===idKind?'selected':''}>${label}</option>`).join('')}</select></label>
+    <input id="entityCatalogSearch" class="ge-input" placeholder="Cari ID atau nama...">
+    <button id="entityCatalogExport" class="ge-btn" type="button">Unduh Data</button></div>
+    <div class="ge-table-wrap"><table><thead id="entityCatalogHead"></thead><tbody id="entityCatalogRows"><tr><td>Memuat data...</td></tr></tbody></table></div>
+    <p id="entityCatalogStatus" role="status" aria-live="polite"></p>`;
   function $(id){return host.querySelector('#'+id)}
+  function $e(id){return idHost.querySelector('#'+id)}
+  const entityConfig={
+    airlines:{headers:['ID','Nama','IATA','Status'],rows:()=> (state?.airlines||[]).map(x=>[x.id||x.iata||'',x.name||'',x.iata||'',x.status||'Active'])},
+    aircraftConfigs:{headers:['ID','Aircraft','Configuration','Status'],rows:()=> (state?.aircraftConfigs||[]).map(x=>[x.id||x.aircraftType||'',x.aircraftType||x.name||'',x.configuration||x.registration||'',x.status||'Active'])},
+    currencyExchange:{headers:['ID','Reference','Detail','Status'],rows:()=>[...(state?.currencies||[]).map(x=>['currency:'+String(x.code||x.id||''),x.code||'',x.name||x.symbol||'',x.status||'Active']),...(state?.exchangeRates||[]).map(x=>[x.id||'',`${x.baseCurrency||''} → ${x.quoteCurrency||''}`,`${x.rate??''}${x.effectiveDate?' · '+x.effectiveDate:''}`,x.status||'Active'])]},
+    touchpoints:{headers:['ID','Touch Point','Journey','Status'],rows:()=> (state?.touchpoints||[]).map(x=>[x.id||'',x.name||x.title||x.touchpointName||'',Array.isArray(x.journeys)?x.journeys.join('; '):(x.journeys||x.journey||''),x.status||'Active'])},
+    personnel:{headers:['ID','Nama','Station','Position'],rows:()=> (state?.personnel||[]).map(x=>[x.id||x.employeeNo||'',x.name||'',x.airport||x.station||'',x.position||''])},
+    stations:{headers:['ID','Station','Airport','Status'],rows:()=> (state?.airports||[]).map(x=>[x.id||x.code||x.iata||'',x.code||x.stationCode||x.iata||'',x.name||x.airportName||'',x.status||'Active'])},
+    groundHandlers:{headers:['ID','Provider','Station','Status'],rows:()=> (state?.groundHandlers||[]).map(x=>[x.id||'',x.name||'',Array.isArray(x.stations)?x.stations.join('; '):(x.station||''),x.status||'Active'])},
+    serviceProviders:{headers:['ID','Provider','Scope','Status'],rows:()=>[...(state?.serviceProcurement||[]).map(x=>[x.id||'',x.provider||x.vendor||x.name||x.serviceName||'',x.scope||x.serviceType||x.category||'',x.status||'Active']),...(state?.groundHandlers||[]).map(x=>['gha:'+String(x.id||''),x.name||'',x.scope||'Ground Handling',x.status||'Active'])]},
+    branchOffices:{headers:['ID','Branch Office','Station','Status'],rows:()=> (state?.boSpaces||[]).map(x=>[x.branchOfficeId||x.branchOffice||x.id||'',x.branchOffice||x.officeName||x.name||'',x.station||x.airport||'',x.status||'Active'])},
+    airportSystems:{headers:['ID','System','Station','Status'],rows:()=> (state?.airportSystems||[]).map(x=>[x.id||x.code||'',x.name||x.systemName||x.title||'',x.station||x.airport||'',x.status||'Active'])}
+  };
+  function entityRows(){return entityConfig[idKind]?.rows?.()||[]}
+  function renderEntities(){const cfg=entityConfig[idKind]||entityConfig.airlines,q=String($e('entityCatalogSearch')?.value||'').trim().toLocaleLowerCase();$e('entityCatalogHead').innerHTML='<tr>'+cfg.headers.map(h=>`<th>${esc(h)}</th>`).join('')+'</tr>';const rows=entityRows().filter(r=>r.some(v=>String(v??'').toLocaleLowerCase().includes(q)));$e('entityCatalogRows').innerHTML=rows.map(r=>'<tr>'+r.map(v=>`<td>${esc(Array.isArray(v)?v.join('; '):v)}</td>`).join('')+'</tr>').join('')||`<tr><td colspan="${cfg.headers.length}">Belum ada data pada kelompok ini.</td></tr>`;$e('entityCatalogStatus').textContent=`${rows.length} data ditampilkan`; }
   function rows(){const stored=(state?.referenceCatalog||[]).filter(x=>x.kind===kind);const existing=kind==='capability'?[...new Set((state?.serviceAlignments||[]).map(x=>String(x.capability||'').trim()).filter(Boolean))].map(name=>[name,name]):[];return [...[...(baseCategories[kind]||[]),...existing].filter(([id])=>!stored.some(x=>x.id===id)).map(([id,name])=>({kind,id,name,status:'Active',note:'Kategori dasar',builtIn:true})),...stored]}
   function status(message){$('idCatalogStatus').textContent=message}
   function render(){const q=$('idCatalogSearch').value.trim().toLocaleLowerCase();const r=rows().filter(x=>[x.id,x.name,x.note].some(v=>String(v||'').toLocaleLowerCase().includes(q)));
@@ -63,12 +97,14 @@
   }).catch(e=>status('Upload gagal: '+e.message))}
   async function init(){const main=document.querySelector('body > .shell > .main')||document.querySelector('main');const existing=main?.querySelector('.ge-panel');const tabs=existing?.querySelector('.ge-ref-tabs');if(!tabs)return;
     const tabButton=document.createElement('button');tabButton.type='button';tabButton.textContent='Jenis & Referensi';tabButton.dataset.planningTab='1';tabs.prepend(tabButton);
-    host.hidden=true;existing.appendChild(host);
-    const select=()=>{const selected=tabButton.classList.contains('active');existing.querySelectorAll(':scope > :not(.ge-ref-tabs):not(#geIdCatalog)').forEach(el=>el.hidden=selected);host.hidden=!selected};
-    tabButton.onclick=()=>{tabs.querySelectorAll('button').forEach(b=>b.classList.remove('active'));tabButton.classList.add('active');select()};
-    tabs.querySelectorAll('[data-ref-tab]').forEach(b=>b.addEventListener('click',()=>{tabButton.classList.remove('active');select()}));
+    const idButton=document.createElement('button');idButton.type='button';idButton.textContent='ID';idButton.dataset.idTab='1';tabs.insertBefore(idButton, tabs.querySelector('[data-ref-tab]'));
+    host.hidden=true;idHost.hidden=true;existing.appendChild(host);existing.appendChild(idHost);
+    const select=()=>{const selected=tabButton.classList.contains('active'),selectedId=idButton.classList.contains('active');existing.querySelectorAll(':scope > :not(.ge-ref-tabs):not(#geIdCatalog):not(#geEntityCatalog)').forEach(el=>el.hidden=selected||selectedId);host.hidden=!selected;idHost.hidden=!selectedId};
+    const activate=which=>{tabs.querySelectorAll('button').forEach(b=>b.classList.remove('active'));which.classList.add('active');select()};
+    tabButton.onclick=()=>activate(tabButton);idButton.onclick=()=>{activate(idButton);renderEntities()};
+    tabs.querySelectorAll('[data-ref-tab]').forEach(b=>b.addEventListener('click',()=>{tabButton.classList.remove('active');idButton.classList.remove('active');select()}));
     $('idCatalogType').onchange=e=>{kind=e.target.value;render()};$('idCatalogSearch').oninput=render;$('idCatalogAdd').onclick=()=>edit();$('idCatalogTemplate').onclick=()=>download('id,name,status,note\r\n',`Template_ID_${kind}.csv`);$('idCatalogExport').onclick=()=>download('id,name,status,note\r\n'+rows().map(x=>[x.id,x.name,x.status,x.note].map(csvCell).join(',')).join('\r\n'),`ID_${kind}.csv`);$('idCatalogInventory').onclick=inventory;$('idCatalogUpload').onclick=()=>$('idCatalogFile').click();$('idCatalogFile').onchange=e=>{upload(e.target.files?.[0]);e.target.value=''};
-    try{await GEStore.waitAuth();state=await GEStore.hydrate(['referenceCatalog','serviceAlignments']);render();tabButton.click();status('Daftar referensi siap dikelola.')}
+    try{await GEStore.waitAuth();state=await GEStore.hydrate(['referenceCatalog','serviceAlignments','airlines','aircraftConfigs','currencies','exchangeRates','touchpoints','personnel','airports','groundHandlers','serviceProcurement','boSpaces','airportSystems']);render();tabButton.click();renderEntities();status('Daftar referensi siap dikelola.')}
     catch(e){$('idCatalogRows').innerHTML='<tr><td colspan="5">Katalog belum dapat dimuat. Coba buka ulang halaman.</td></tr>';status(e.message)}
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
