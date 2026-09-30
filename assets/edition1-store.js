@@ -9,7 +9,7 @@
     flightSchedule:[],loungePurchases:[],loungeVisitors:[],stationMaterials:[],boSpaces:[],serviceProcurement:[],
     airportSystems:[],skyPriority:[],touchpointStandards:[],gasoMaster:[],gasoServiceSupport:[],gasoPlanningService:[],
     personnel:[],articles:[],announcements:[],faqs:[],inbox:[],auditLogs:[],users:[],lounges:[],
-    airlines:[],groundHandlers:[],serviceAlignments:[],airportCosts:[],aircraftConfigs:[],assets:[],facilities:[],
+    airlines:[],groundHandlers:[],serviceAlignments:[],airportCosts:[],aircraftConfigs:[],currencies:[],exchangeRates:[],assets:[],facilities:[],
     standardContent:{},portalManagerR2:{},attentionSettings:{},contactMessages:[],guestbook:[],monitoringTemplates:[],monitoringAssessments:[],formTemplates:[],monitoringWorks:[],formSubmissions:[],customerExperience:[],referenceCatalog:[],requirementMatrix:[],stationCapabilities:[]
   };
   const baseline={}; let hydrated=false; let pending=Promise.resolve(); let localRevision=0;

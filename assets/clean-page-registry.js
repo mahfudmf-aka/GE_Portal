@@ -78,11 +78,12 @@ window.P40_CLEAN_PAGES['attention-settings']={title:'Management Attention Rules'
   if(!p.scripts.some(x=>String(x.src||'').includes('lounge-planning-v29.js')))p.scripts.push({src:'assets/lounge-planning-v29.js?v=p83'});
 })();
 /* Master Data uses one toolbar for existing references and Planning types. */
-(function(){const p=window.P40_CLEAN_PAGES?.['master-data'];if(!p)return;p.title='Master Data';p.html=p.html.replace('Master Data & Partner Reference','Master Data').replace('<button id="refUpload" class="ge-btn">Upload Data</button>','<button id="refUpload" class="ge-btn">Upload Data</button><button id="refExport" class="ge-btn">Unduh Data</button>');p.styles=['assets/portal.css?v=r74']})();
+(function(){const p=window.P40_CLEAN_PAGES?.['master-data'];if(!p)return;p.title='Master Data';p.html=p.html.replace('Master Data & Partner Reference','Master Data').replace(/<div class=\"ge-page-actions\">[\s\S]*?<\/div><\/div>/,'</div>');p.styles=['assets/portal.css?v=r74']})();
 /* Existing airport cost records are managed with Cost Intelligence. */
 (function(){const p=window.P40_CLEAN_PAGES; p['airport-cost-structure']={title:'Airport Cost Structure',html:'<section id="planningDomainContent" class="planning-domain-page"><div class="ge-card">Memuat struktur biaya…</div></section>',scripts:[{src:'assets/edition1-store.js?v=r72'},{src:'assets/planning-domains.js?v=r74'}],styles:['assets/portal.css?v=r74']};const cost=p['cost-intelligence'];if(cost&&!cost.html.includes('airport-cost-structure'))cost.html=cost.html.replace('Budget &amp; Financial</a>','Budget &amp; Financial</a><a class="ge-btn" href="app.html?page=airport-cost-structure">Airport Cost Structure</a>')})();
 /* Operational records appear in their owning workspaces; Master Data keeps identity lists. */
 (function(){const p=window.P40_CLEAN_PAGES?.['master-data'];if(!p)return;p.html=p.html.replace(/<button data-ref-tab="(?:gha|alignment|costs|touchpoints)">[^<]*<\/button>/g,'').replace('Satu sumber referensi untuk Airport Network, Service Governance, partner airline, Ground Handling Agent, dan partner service alignment.','Daftar identitas dan jenis yang dipakai di seluruh portal. Record layanan, alignment, dan biaya dikelola pada halaman domainnya.');})();
+(function(){const p=window.P40_CLEAN_PAGES?.['master-data'];if(!p)return;p.html=p.html.replace(/<div class="ge-ref-toolbar">[\s\S]*?<\/div><div class="ge-table-wrap">/,'<div class="ge-table-wrap" style="display:none">').replace(/<section class="ge-card ge-ref-guidance">[\s\S]*?<\/section>/,'');p.html=p.html.replace(/<button data-ref-tab="[^"]+">[^<]*<\/button>/g,'');})();
 
 /* R80 — canonical runtime asset identity. */
 (function(){
