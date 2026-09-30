@@ -332,10 +332,12 @@
   function filterType(){return document.querySelector('[data-ge-p29-service-filter].active')?.dataset.geP29ServiceFilter||''}
   function filteredRows(){
     const base=(data.lounges||[]).slice();
+    const comboText=id=>String(val(id)||'').trim().toLowerCase();
     const region=val('loungeRegionFilter'),station=val('loungeAirportFilter'),provider=val('loungeNameFilter'),status=val('loungeStatusFilter'),type=filterType();
+    const regionText=comboText('loungeRegionFilterTextR12'),stationText=comboText('loungeAirportFilterTextR12'),providerText=comboText('loungeNameFilterTextR12'),statusText=comboText('loungeStatusFilterTextR12');
     return base.filter(x=>{
-      const rt=resolveType(x),t=rt.value;
-      return (!region||String(x.region||'')===region)&&(!station||String(x.airport||'')===station)&&(!provider||String(x.name||'')===provider)&&(!status||String(x.documentStatus||'')===status)&&(!type||t===type);
+      const rt=resolveType(x),t=rt.value,rv=String(x.region||''),sv=String(x.airport||''),pv=String(x.name||''),st=String(x.documentStatus||'');
+      return (!region||rv===region)&&(!station||sv===station)&&(!provider||pv===provider)&&(!status||st===status)&&(!regionText||rv.toLowerCase().includes(regionText))&&(!stationText||sv.toLowerCase().includes(stationText))&&(!providerText||pv.toLowerCase().includes(providerText))&&(!statusText||st.toLowerCase().includes(statusText))&&(!type||t===type);
     });
   }
   window.loungeFiltered=function(){return filteredRows()};
@@ -566,6 +568,11 @@
     const blob=new Blob(['\ufeff'+lines.join('\r\n')+'\r\n'],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Daftar_Lounge_Tenant_P29.csv';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},300);
   };
 
+  function setupFilterCombosR12(){
+    document.querySelectorAll('.ge-combo-input-r12').forEach(input=>input.setAttribute('autocomplete','off'));
+    document.querySelectorAll('.ge-combo-toggle-r12').forEach(btn=>btn.setAttribute('aria-haspopup','listbox'));
+  }
+
   function setupTypeFilter(){
     const card=document.querySelector('.lounge-filter-grid-ref');if(!card||document.getElementById('geP29ServiceTypeFilter'))return;
     const wrap=document.createElement('div');wrap.id='geP29ServiceTypeFilter';wrap.className='ge-p29-service-filter';wrap.innerHTML=`<span>Service Type</span><div role="group" aria-label="Service Type"><button type="button" class="active" data-ge-p29-service-filter="">All</button><button type="button" data-ge-p29-service-filter="Lounge">Lounge</button><button type="button" data-ge-p29-service-filter="Tenant">Tenant</button></div>`;
@@ -573,9 +580,12 @@
   }
 
   function setup(){
+    setupFilterCombosR12();
     setupTypeFilter();
     const templateBtn=[...document.querySelectorAll('button')].find(b=>/Unduh Template/i.test(b.textContent||''));if(templateBtn){templateBtn.textContent='Download CSV Template';templateBtn.title='Download CSV Template P29';}
     ['loungeRegionFilter','loungeAirportFilter','loungeNameFilter','loungeStatusFilter'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('change',()=>{loungeCardPage=1;renderLounges()})});
+    ['loungeRegionFilterTextR12','loungeAirportFilterTextR12','loungeNameFilterTextR12','loungeStatusFilterTextR12'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('input',()=>{loungeCardPage=1;renderLounges()})});
+    document.querySelectorAll('.ge-combo-toggle-r12').forEach(btn=>btn.addEventListener('click',()=>{const select=btn.parentElement?.querySelector('select');if(select){select.focus();try{select.showPicker?.()}catch(e){}}}));
     try{if(typeof fillAirportSelects==='function')fillAirportSelects()}catch(e){}
     renderLounges();
   }
