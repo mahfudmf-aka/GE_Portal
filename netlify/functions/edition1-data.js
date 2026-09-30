@@ -10,7 +10,7 @@ const COLLECTIONS = new Set([
   'inbox','auditLogs','users','lounges','standardContent','portalManager','contactMessages','guestbook',
   'airlines','groundHandlers','serviceAlignments','airportCosts','aircraftConfigs','assets','facilities',
   'monitoringTemplates','monitoringAssessments','formTemplates','monitoringWorks','formSubmissions','customerExperience','attentionSettings',
-  'referenceCatalog','requirementMatrix','stationCapabilities','currencies','exchangeRates'
+  'referenceCatalog','requirementMatrix','stationCapabilities'
 ]);
 const DATA_GROUP_BY_COLLECTION = Object.fromEntries([...COLLECTIONS].map(name => [name, name]));
 const METADATA_COLLECTIONS = new Set(['standardContent','portalManager','attentionSettings']);
@@ -42,7 +42,7 @@ const MODULE_BY_COLLECTION = {
   news:'news', articles:'news', announcements:'news', faqs:'news', contactMessages:'contact', guestbook:'contact',
   touchpoints:'services', skyPriority:'services', touchpointStandards:'services', standardContent:'services',
   portalManager:'admin', auditLogs:'admin', users:'admin', airlines:'data', groundHandlers:'data', serviceAlignments:'services', airportCosts:'planning', aircraftConfigs:'data', assets:'planning', facilities:'planning',
-  monitoringTemplates:'services', monitoringAssessments:'services', formTemplates:'services', monitoringWorks:'services', formSubmissions:'services', customerExperience:'services', attentionSettings:'services', referenceCatalog:'data', requirementMatrix:'services', stationCapabilities:'services', currencies:'data', exchangeRates:'data', events:'calendar'
+  monitoringTemplates:'services', monitoringAssessments:'services', formTemplates:'services', monitoringWorks:'services', formSubmissions:'services', customerExperience:'services', attentionSettings:'services', referenceCatalog:'data', requirementMatrix:'services', stationCapabilities:'services', events:'calendar'
 };
 function active(actor){return actor && String(actor.status || 'Active').toLowerCase() !== 'inactive';}
 function isOperationalAdmin(actor){ return actor?.role === 'Admin' || String(actor?.accessLevel||'') === 'Admin'; }
@@ -148,6 +148,9 @@ async function readCollection(db,actor,c){
   let rows=docs.map(d=>({id:d.id,...sanitize(d.data())}));
   if(c==='inbox' && (isOperationalAdmin(actor)||actor.role==='Super Admin')) rows=rows.filter(x=>!x.recipientId||String(x.recipientId)===String(actor.id));
   if(c==='users') rows=rows.map(x=>{delete x.password;delete x.passwordHash;delete x.temporaryPassword;return x});
+  if(c==='formTemplates' && !isOperationalAdmin(actor) && actor.role!=='Super Admin'){
+    rows=rows.filter(x=>x.status==='Published' || String(x.createdBy||'')===String(actor.id));
+  }
   if(c==='initiatives' && !isExternalActor(actor) && !isOperationalAdmin(actor) && actor.role!=='Super Admin'){
     const ids=[...new Set(rows.map(x=>String(x.createdBy||'')).filter(Boolean))];
     const creators=new Map(await Promise.all(ids.map(async id=>{const user=await db.collection('users').doc(id).get();return [id,user.exists?user.data():null]})));
