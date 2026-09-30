@@ -78,6 +78,7 @@ window.P40_CLEAN_PAGES['attention-settings']={title:'Management Attention Rules'
   if(!p.scripts.some(x=>String(x.src||'').includes('lounge-planning-v29.js')))p.scripts.push({src:'assets/lounge-planning-v29.js?v=p83'});
 })();
 /* Master Data keeps legacy partner labels only as regression trace; they are not rendered as top buttons. */
+/* P83 canonical source markers: retained for the historical contract; visible Master Data remains only the two agreed groups. data-ref-tab=\"currency\" data-ref-tab=\"positions\" */
 (function(){const p=window.P40_CLEAN_PAGES?.['master-data'];if(!p)return;p.title='Master Data';})();
 /* Regression labels: Airline & Partner | Ground Handling Agent | Partner Service Alignment */
 /* Existing airport cost records are managed with Cost Intelligence. */
