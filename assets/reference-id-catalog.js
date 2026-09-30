@@ -107,13 +107,11 @@
     window.dispatchEvent(new CustomEvent('ge-master-data-ready'));
   }
   async function init(){const main=document.querySelector('body > .shell > .main')||document.querySelector('main');const existing=main?.querySelector('.ge-panel');const tabs=existing?.querySelector('.ge-ref-tabs');if(!tabs)return;
-    const tabButton=document.createElement('button');tabButton.type='button';tabButton.textContent='Jenis & Referensi';tabButton.dataset.planningTab='1';tabs.prepend(tabButton);
-    const idButton=document.createElement('button');idButton.type='button';idButton.textContent='ID';idButton.dataset.idTab='1';tabs.insertBefore(idButton, tabs.querySelector('[data-ref-tab]'));
-    host.hidden=true;idHost.hidden=true;existing.appendChild(host);existing.appendChild(idHost);
+    const tabButton=tabs.querySelector('[data-ref-tab="jenis"]')||tabs.querySelector('button');const idButton=tabs.querySelector('[data-ref-tab="id"]')||Array.from(tabs.querySelectorAll('button')).find(b=>b!==tabButton);if(!tabButton||!idButton)return;tabButton.textContent='Jenis & Referensi';idButton.textContent='ID & MASTER REFERENSI';host.hidden=true;idHost.hidden=true;existing.appendChild(host);existing.appendChild(idHost);
     const select=()=>{const selected=tabButton.classList.contains('active'),selectedId=idButton.classList.contains('active');existing.querySelectorAll(':scope > :not(.ge-ref-tabs):not(#geIdCatalog):not(#geEntityCatalog)').forEach(el=>el.hidden=selected||selectedId);host.hidden=!selected;idHost.hidden=!selectedId};
     const activate=which=>{tabs.querySelectorAll('button').forEach(b=>b.classList.remove('active'));which.classList.add('active');select()};
     tabButton.onclick=()=>activate(tabButton);idButton.onclick=()=>{activate(idButton);renderEntities()};
-    tabs.querySelectorAll('[data-ref-tab]').forEach(b=>b.addEventListener('click',()=>{tabButton.classList.remove('active');idButton.classList.remove('active');select()}));
+    tabs.querySelectorAll('[data-ref-tab]').forEach(b=>b.onclick=()=>{tabButton.classList.remove('active');idButton.classList.remove('active');b.classList.add('active');select()});
     const bind=(id,event,handler)=>{const el=$(id);if(el)el[event]=handler;return el};
     bind('idCatalogType','onchange',e=>{kind=e.target.value;render()});
     bind('idCatalogSearch','oninput',render);
