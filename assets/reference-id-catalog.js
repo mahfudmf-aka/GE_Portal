@@ -114,7 +114,14 @@
     const activate=which=>{tabs.querySelectorAll('button').forEach(b=>b.classList.remove('active'));which.classList.add('active');select()};
     tabButton.onclick=()=>activate(tabButton);idButton.onclick=()=>{activate(idButton);renderEntities()};
     tabs.querySelectorAll('[data-ref-tab]').forEach(b=>b.addEventListener('click',()=>{tabButton.classList.remove('active');idButton.classList.remove('active');select()}));
-    $('idCatalogType').onchange=e=>{kind=e.target.value;render()};$('idCatalogSearch').oninput=render;$('idCatalogAdd').onclick=()=>edit();$('idCatalogTemplate').onclick=()=>download('id,name,status,note\r\n',`Template_ID_${kind}.csv`);$('idCatalogExport').onclick=()=>download('id,name,status,note\r\n'+rows().map(x=>[x.id,x.name,x.status,x.note].map(csvCell).join(',')).join('\r\n'),`ID_${kind}.csv`);$('idCatalogUpload').onclick=()=>$('idCatalogFile').click();$('idCatalogFile').onchange=e=>{upload(e.target.files?.[0]);e.target.value=''};
+    const bind=(id,event,handler)=>{const el=$(id);if(el)el[event]=handler;return el};
+    bind('idCatalogType','onchange',e=>{kind=e.target.value;render()});
+    bind('idCatalogSearch','oninput',render);
+    bind('idCatalogAdd','onclick',()=>edit());
+    bind('idCatalogTemplate','onclick',()=>download('id,name,status,note\r\n',`Template_ID_${kind}.csv`));
+    bind('idCatalogExport','onclick',()=>download('id,name,status,note\r\n'+rows().map(x=>[x.id,x.name,x.status,x.note].map(csvCell).join(',')).join('\r\n'),`ID_${kind}.csv`));
+    bind('idCatalogUpload','onclick',()=>$('idCatalogFile')?.click());
+    bind('idCatalogFile','onchange',e=>{upload(e.target.files?.[0]);e.target.value=''});
     try{await GEStore.waitAuth();state=await GEStore.hydrate(['referenceCatalog','serviceAlignments','airlines','aircraftConfigs','currencies','exchangeRates','touchpoints','personnel','airports','groundHandlers','serviceProcurement','boSpaces','airportSystems','lounges','facilities']);publishMasterReferences();render();tabButton.click();renderEntities();status('Daftar referensi siap dikelola.')}
     catch(e){$('idCatalogRows').innerHTML='<tr><td colspan="5">Katalog belum dapat dimuat. Coba buka ulang halaman.</td></tr>';status(e.message)}
   }
