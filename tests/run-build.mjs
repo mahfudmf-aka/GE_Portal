@@ -88,6 +88,4 @@ await import('./r62-script-loader.js');
 await import('./r70-requirement-engine.js');
 await import('./r72-planning-inbox.js');
 await import('./r72-read-persistence.js');
-
-import {execFileSync} from 'node:child_process';
-execFileSync(process.execPath,['tests/p83-canonical-reference-contract.js'],{stdio:'inherit'});
+await import('./r73-p1-p8-functional-baseline.js');

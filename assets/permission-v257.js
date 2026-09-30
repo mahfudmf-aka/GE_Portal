@@ -60,7 +60,10 @@ function bootstrap(){const db=read();
  db.meta.bootstrapComplete=true;db.meta.bootstrapAt=now();write(db);return db}
 function roleName(u){const r=String(u&&u.role||'Viewer'); if(r==='Staff')return 'GE Team'; return r}
 function rankSensitivity(s){return {Internal:1,Restricted:2,Confidential:3}[s]||1}
-function stationScope(u){return Array.isArray(u&&u.airports)?u.airports.map(x=>String(x).toUpperCase()):[]}
+function stationScope(u){const a=Array.isArray(u&&u.assignedStations)?u.assignedStations:Array.isArray(u&&u.airports)?u.airports:[];return a.map(x=>String(x).toUpperCase())}
+function menuScope(u){const a=Array.isArray(u&&u.menuAccess)?u.menuAccess:Array.isArray(u&&u.tabs)?u.tabs:[];return a.map(x=>String(x))}
+function menuAllowed(u,page){const items=menuScope(u);return !items.length||items.includes(page)||items.includes('*')}
+function effectiveScope(u){return {stations:stationScope(u),lounges:Array.isArray(u&&u.assignedLounges)?u.assignedLounges:(Array.isArray(u&&u.loungeIds)?u.loungeIds:[]),initiatives:Array.isArray(u&&u.assignedInitiatives)?u.assignedInitiatives:[],tasks:Array.isArray(u&&u.assignedTasks)?u.assignedTasks:[]}}
 function scopeAllowed(grant,u,ctx){if(grant.scope==='ALL')return true;if(grant.scope==='STATION'){
  const allowed=stationScope(u); if(!allowed.length)return false; const code=String(ctx.stationCode||ctx.station||'').toUpperCase(); return !!code&&allowed.includes(code);
  } return false}
@@ -79,6 +82,6 @@ function requireAccess(input){const r=check(input);if(!r.allowed){const e=Error(
 function explain(input){return check(input)}
 function listAuthorities(){return clone(read().authorities)} function listGrants(){return clone(read().grants)}
 function currentUser(){return clone(session())}
-window.GEPermission={schemaVersion:SCHEMA,storageKey:KEY,actions:ACTIONS,sensitivities:SENS,read,bootstrap,check,requireAccess,explain,listAuthorities,listGrants,currentUser,reset:function(){localStorage.removeItem(KEY);return bootstrap()}};
+window.GEPermission={schemaVersion:SCHEMA,storageKey:KEY,actions:ACTIONS,sensitivities:SENS,read,bootstrap,check,requireAccess,explain,listAuthorities,listGrants,currentUser,stationScope,menuScope,menuAllowed,effectiveScope,reset:function(){localStorage.removeItem(KEY);return bootstrap()}};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootstrap);else bootstrap();
 })();
