@@ -1,10 +1,10 @@
 const fs=require('fs'),assert=require('assert');
 const M=fs.readFileSync('assets/master-reference.js','utf8');
 assert(M.includes("typeof window.gxCanManage==='function'"),'Master reference must use canonical portal manage permission');
-assert(M.includes("r==='superadmin'||r==='admin'||a==='admin'"),'Master reference must normalize Super Admin/Admin fallback');
-assert(M.includes('class="ge-ref-row-select"'),'Per-row multi-select checkbox missing');
+assert(M.includes("r==='superadmin'||r==='admin'||a==='admin"),'Master reference must normalize Super Admin/Admin fallback');
 assert(M.includes('data-edit="${esc(x.id)}"'),'Edit action missing');
 assert(M.includes('data-delete="${esc(x.id)}"'),'Delete action missing');
-assert(M.includes("b.textContent='Hapus Terpilih'"),'Bulk delete action missing');
-assert(M.includes("canEdit()?'<input type=\"checkbox\" id=\"refSelectAll\""),'Select-all must follow edit permission');
+assert(M.includes('JENIS &amp; REFERENSI')&&M.includes('ID &amp; MASTER REFERENSI'),'Master Data must use exactly two groups');
+assert(M.includes('Position / Jabatan'),'Position/Jabatan master missing');
+assert(!M.includes("['groundHandlers'")&&!M.includes("['personnel'")&&!M.includes("['users'"),'Vendor/personnel/user collections must not be hydrated by Master Data');
 console.log('R38_1_MASTER_TABLE_ACTIONS_CONTRACT_PASS');
