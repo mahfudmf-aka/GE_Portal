@@ -17,6 +17,7 @@
   ];
   const baseCategories={journeyScope:[['Pre-Journey','Pre-Journey'],['Pre-Flight','Pre-Flight'],['Post-Flight','Post-Flight'],['Post-Journey','Post-Journey'],['Cross-Journey / End-to-End','Cross-Journey / End-to-End'],['Supporting / Enabler','Supporting / Enabler']],spaceType:[['OFFICE','Perkantoran'],['SERVICE','Area Layanan']],materialType:[['DOCUMENT','Dokumen'],['LABEL','Label'],['TOOLS','Tools'],['EQUIPMENT','Equipment']],systemType:[['HARDWARE','Hardware'],['SOFTWARE','Software']],planningDocumentType:[['FRA','FRA · Dokumen Anggaran'],['TOR','TOR · Spesifikasi dan Detail Item']],uom:[['M2','m²'],['UNIT','Unit'],['PAX','Pax'],['MONTH','Month'],['ITEM','Item']],billingFrequency:[['MONTHLY','Per Month'],['YEARLY','Per Year'],['PAX','Per Pax'],['ITEM','Per Item'],['UNIT','Per Unit']],documentCategory:[['AGREEMENT','Agreement / Contract'],['PLANNING','Planning'],['REFERENCE','Reference'],['REPORT','Report']],lifecycleType:[['ACTIVE','Active'],['INACTIVE','Inactive'],['DRAFT','Draft'],['RETIRED','Retired']]};
   let state,kind='journeyScope',idKind='airlines';
+  let entitySortIndex=-1,entitySortDir=1;
   const canEdit=()=>typeof gxCanManage==='function'?!!gxCanManage():['Super Admin','Admin'].includes((window.gxGetSession?.()||{}).role);
   const host=document.createElement('section');host.className='ge-id-catalog';host.id='geIdCatalog';
   const idHost=document.createElement('section');idHost.className='ge-id-catalog';idHost.id='geEntityCatalog';
@@ -61,7 +62,23 @@
     const manual=(state?.referenceCatalog||[]).filter(x=>x.kind===`id:${idKind}`).map(x=>[x.id||'',x.name||'',x.note||'',x.status||'Active']);
     return [...base,...manual];
   }
-  function renderEntities(){const cfg=entityConfig[idKind]||entityConfig.airlines,q=String($e('entityCatalogSearch')?.value||'').trim().toLocaleLowerCase();$e('entityCatalogHead').innerHTML='<tr>'+cfg.headers.map(h=>`<th>${esc(h)}</th>`).join('')+'</tr>';const rows=entityRows().filter(r=>r.some(v=>String(v??'').toLocaleLowerCase().includes(q)));$e('entityCatalogRows').innerHTML=rows.map(r=>'<tr>'+r.map(v=>`<td>${esc(Array.isArray(v)?v.join('; '):v)}</td>`).join('')+'</tr>').join('')||`<tr><td colspan="${cfg.headers.length}">Belum ada data pada kelompok ini.</td></tr>`;$e('entityCatalogStatus').textContent=`${rows.length} data ditampilkan`; }
+  function renderEntities(){
+    const cfg=entityConfig[idKind]||entityConfig.airlines;
+    const q=String($e('entityCatalogSearch')?.value||'').trim().toLocaleLowerCase();
+    let rows=entityRows().filter(r=>r.some(v=>String(v??'').toLocaleLowerCase().includes(q)));
+    if(entitySortIndex>=0){
+      const idx=entitySortIndex,dir=entitySortDir;
+      rows.sort((a,b)=>String(a[idx]??'').localeCompare(String(b[idx]??''),'id',{numeric:true,sensitivity:'base'})*dir);
+    }
+    $e('entityCatalogHead').innerHTML='<tr>'+cfg.headers.map((h,i)=>`<th data-entity-sort="${i}" aria-sort="${entitySortIndex===i?(entitySortDir===1?'ascending':'descending'):'none'}" title="Klik untuk mengurutkan">${esc(h)} ${entitySortIndex===i?(entitySortDir===1?'↑':'↓'):'↕'}</th>`).join('')+'</tr>';
+    $e('entityCatalogRows').innerHTML=rows.map(r=>'<tr>'+r.map(v=>`<td>${esc(Array.isArray(v)?v.join('; '):v)}</td>`).join('')+'</tr>').join('')||`<tr><td colspan="${cfg.headers.length}">Belum ada data pada kelompok ini.</td></tr>`;
+    $e('entityCatalogStatus').textContent=`${rows.length} data ditampilkan · Kelompok: ${idTypes.find(x=>x[0]===idKind)?.[1]||idKind}`;
+    $e('entityCatalogHead').querySelectorAll('[data-entity-sort]').forEach(th=>th.onclick=()=>{
+      const idx=Number(th.dataset.entitySort);
+      if(entitySortIndex===idx)entitySortDir*=-1;else{entitySortIndex=idx;entitySortDir=1;}
+      renderEntities();
+    });
+  }
   function editEntity(){
     if(!canEdit())return;
     const label=idTypes.find(x=>x[0]===idKind)?.[1]||'Master Referensi';
@@ -133,7 +150,7 @@
     const bind=(id,event,handler)=>{const el=$(id);if(el)el[event]=handler;return el};
     bind('idCatalogType','onchange',e=>{kind=e.target.value;render()});
     bind('idCatalogSearch','oninput',render);
-    bind('entityCatalogType','onchange',e=>{idKind=e.target.value;renderEntities()});
+    bind('entityCatalogType','onchange',e=>{idKind=e.target.value;entitySortIndex=-1;entitySortDir=1;if($e('entityCatalogSearch'))$e('entityCatalogSearch').value='';renderEntities()});
     bind('entityCatalogSearch','oninput',renderEntities);
     bind('entityCatalogAdd','onclick',editEntity);
     bind('idCatalogAdd','onclick',()=>edit());
