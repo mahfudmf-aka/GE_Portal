@@ -2,8 +2,10 @@ window.P40_CLEAN_PAGES={"action-scenario":{"title":"P3.2 Action & Scenario Plann
 
 window.P40_CLEAN_ALIASES={"standar":"standar","inisiatif":"inisiatif","service-planning":"service-planning","calendar":"calendar","planning-documents":"planning-documents","data":"data","admin":"admin","berita":"berita","kontak":"kontak","lounge-list":"lounge-list","branch-office-planning":"branch-office-planning","gaso-planning":"gaso-planning","station-material":"service-planning?panel=material","bo-space":"branch-office-planning?panel=space","airport-systems":"branch-office-planning?panel=systems","airport-experience-map":"airport-experience","map":"airport-experience","network-stations":"airport-experience","service-experience":"service-experience","capability-classification":"capability-classification","monitoring-assessment":"monitoring-assessment"};
 
-// R53 cache identity for revised runtime and styles; legacy registry labels remain readable.
+// R53/R41 cache identity for revised runtime, page boot, and styles; legacy registry labels remain readable.
 const GE_R80_RUNTIME_ASSET="assets/edition1-business-runtime.js?v=r80";
+const GE_R80_PAGE_BOOT_ASSET="assets/edition1-page-boot.js?v=r80";
+const GE_R80_PORTAL_CSS_ASSET="assets/portal.css?v=r80";
 for(const page of Object.values(window.P40_CLEAN_PAGES)){for(const script of page.scripts||[]){if(/assets\/(?:edition1-store|edition1-business-runtime|master-reference|dashboard-firestore|edition1-page-boot)\.js/.test(script.src||""))script.src=script.src.split("?")[0]+"?v=r80"}page.styles=(page.styles||[]).map(src=>src.startsWith("assets/portal.css")?"assets/portal.css?v=r80":src)}
 window.P40_CLEAN_PAGES['attention-settings']={title:'Management Attention Rules',html:'<div id="geAttentionSettings"></div>',scripts:[{src:'assets/edition1-store.js?v=r58'}],styles:['assets/portal.css?v=r58'],source:['R58 Attention configuration']};
 
