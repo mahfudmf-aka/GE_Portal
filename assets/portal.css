@@ -5655,33 +5655,58 @@ html body.final-v257.final-shell-r5.e1-page .ge-sidebar-toggle:hover{background:
 .planning-service-return-r74{display:flex;justify-content:flex-start;margin:0 0 14px}
 .planning-service-return-r74 .ge-btn{background:#fff;color:#082b59;border:1px solid #a9bfd9;border-radius:8px;text-decoration:none;padding:9px 14px}
 .planning-service-return-r74 .ge-btn:hover,.planning-service-return-r74 .ge-btn:focus-visible{background:#082b59;color:#fff;border-color:#082b59}
-
-/* P83 CANONICAL UI REFERENCE — Lounge/Tenant page + Add Lounge/Tenant modal. */
-.final-v257 .ge-btn{min-height:42px;padding:0 16px;border-radius:10px;font-size:12px;font-weight:750}
-.final-v257 .ge-btn.primary{background:#0b2f5b!important;color:#fff!important;border-color:#0b2f5b!important}
-.final-v257 .ge-btn.secondary{background:#fff!important;color:#0b2f5b!important;border:1px solid #b9cde1!important}
-.final-v257 .ge-btn.danger{background:#c62828!important;color:#fff!important;border-color:#c62828!important}
-.final-v257 .planning-dialog-body-level{position:fixed;inset:0;z-index:90000;display:block}
-.final-v257 .planning-dialog-body-level .ge-id-backdrop{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(0,18,49,.58);backdrop-filter:blur(3px)}
-.final-v257 .planning-dialog-body-level .planning-modal{position:relative;width:min(960px,calc(100vw - 48px));max-height:calc(100dvh - 48px);overflow:auto;background:#fff;border-radius:18px;padding:34px;box-shadow:0 24px 70px rgba(0,18,49,.32)}
-.final-v257 .planning-dialog-body-level .planning-modal h2{font-size:25px;line-height:1.2;margin:0 42px 18px 0;color:#173b60}
-.final-v257 .planning-dialog-body-level .planning-modal label{font-size:14px;font-weight:700;color:#4d667d}
-.final-v257 .planning-dialog-body-level .planning-modal .ge-input{min-height:46px;font-size:15px;border-radius:10px}
-.final-v257 .planning-modal-close{position:absolute;right:18px;top:16px;width:42px;height:42px;border:1px solid #d5e2ec;border-radius:10px;background:#fff;color:#244f68;font-size:26px;cursor:pointer}
-.final-v257 .lounge-master-title-v230 .bulk-action-group{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
-.final-v257 .lounge-master-title-v230 .bulk-action-group .btn{min-height:44px;padding:0 20px;border-radius:10px;font-size:12px;font-weight:750}
-.final-v257 .lounge-master-title-v230 .bulk-action-group .btn.secondary{background:#fff!important;color:#0b2f5b!important;border:1px solid #b9cde1!important}
-.final-v257 .lounge-master-title-v230 .bulk-action-group .btn:not(.secondary):not(.danger){background:#0b2f5b!important;color:#fff!important;border-color:#0b2f5b!important}
-.final-v257 .lounge-master-toolbar-v237{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:10px 0 16px}
-.final-v257 .ge-view-select-r6{min-width:300px;min-height:48px;border:1px solid #c7d8e6;border-radius:12px;background:#fff;color:#173b60;padding:0 16px;font-size:15px;font-weight:700}
-.final-v257 .modal-backdrop{z-index:90000!important}.final-v257 .modal-backdrop>.modal-card{z-index:90010!important}
-.final-v257 .lounge-add-modal-v221,.final-v257 .lounge-edit-card{width:min(960px,calc(100vw - 48px))!important;max-height:calc(100dvh - 48px)!important;overflow:auto!important;padding:34px!important;border-radius:18px!important}
-.final-v257 .lounge-add-modal-v221 h2,.final-v257 .lounge-edit-card h2{font-size:30px!important;line-height:1.2!important;color:#173b60!important;margin:0 52px 14px 0!important}
-.final-v257 .lounge-add-modal-v221 .section-subtitle,.final-v257 .lounge-edit-card .section-subtitle{font-size:15px!important;line-height:1.5!important;color:#7890a1!important}
-.final-v257 .lounge-add-modal-v221 label,.final-v257 .lounge-edit-card label{font-size:14px!important;font-weight:700!important;color:#4d667d!important}
-.final-v257 .lounge-add-modal-v221 input,.final-v257 .lounge-add-modal-v221 select,.final-v257 .lounge-add-modal-v221 textarea,.final-v257 .lounge-edit-card input,.final-v257 .lounge-edit-card select,.final-v257 .lounge-edit-card textarea{min-height:46px!important;font-size:15px!important;border-radius:10px!important}
-.final-v257 .lounge-add-modal-v221 .modal-actions,.final-v257 .lounge-edit-card .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
-.final-v257 .lounge-add-modal-v221 .modal-actions .btn,.final-v257 .lounge-edit-card .modal-actions .btn{min-height:46px!important;padding:0 22px!important;font-size:13px!important;border-radius:10px!important}
-.final-v257 .lounge-add-modal-v221 .modal-actions .btn.secondary,.final-v257 .lounge-edit-card .modal-actions .btn.secondary{background:#fff!important;color:#0b2f5b!important;border:1px solid #b9cde1!important}
-.final-v257 .lounge-add-modal-v221 .modal-actions .btn:not(.secondary):not(.danger),.final-v257 .lounge-edit-card .modal-actions .btn:not(.secondary):not(.danger){background:#0b2f5b!important;color:#fff!important;border-color:#0b2f5b!important}
-@media(max-width:760px){.final-v257 .lounge-master-toolbar-v237{align-items:stretch;flex-direction:column}.final-v257 .ge-view-select-r6{width:100%;min-width:0}.final-v257 .planning-dialog-body-level .planning-modal,.final-v257 .lounge-add-modal-v221,.final-v257 .lounge-edit-card{width:calc(100vw - 20px)!important;max-height:calc(100dvh - 20px)!important;padding:22px!important}}
+/* P87 canonical Planning Workspace controls */
+.planning-domain-page .ge-btn,
+.planning-domain-page .ge-view-select-r6,
+.lounge-master-toolbar-v237 .btn,
+.lounge-master-toolbar-v237 .ge-view-select-r6,
+.bulk-action-group .ge-btn {
+  border:1px solid #082b59!important;
+  background:#fff!important;
+  color:#082b59!important;
+  border-radius:8px!important;
+  min-height:40px!important;
+  padding:8px 14px!important;
+  font-weight:700!important;
+  cursor:pointer;
+}
+.planning-domain-page .ge-btn:hover,
+.planning-domain-page .ge-btn:focus-visible,
+.planning-domain-page .ge-btn.active,
+.planning-domain-page .ge-btn[aria-pressed="true"],
+.planning-domain-page .ge-view-select-r6:focus,
+.lounge-master-toolbar-v237 .btn:hover,
+.lounge-master-toolbar-v237 .btn:focus-visible,
+.bulk-action-group .ge-btn:hover,
+.bulk-action-group .ge-btn:focus-visible {
+  background:#082b59!important;
+  color:#fff!important;
+  border-color:#082b59!important;
+}
+.planning-domain-page .ge-btn.danger{border-color:#b42318!important;color:#b42318!important;background:#fff!important}
+.planning-domain-page .ge-btn.danger:hover,.planning-domain-page .ge-btn.danger:focus-visible{background:#b42318!important;color:#fff!important;border-color:#b42318!important}
+.planning-view-picker{display:flex;align-items:center;gap:8px;font-weight:700;color:#082b59}
+.planning-domain-grid-view{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.planning-domain-grid-view[hidden],.planning-domain-detail-view[hidden]{display:none!important}
+.planning-domain-card{background:#fff;border:1px solid #d7e2ec;border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px;min-height:210px}
+.planning-domain-card-head{display:flex;justify-content:space-between;gap:12px;color:#082b59;font-size:12px}
+.planning-domain-card h3{margin:0;color:#163b60;font-size:17px}
+.planning-domain-card dl{margin:0;display:grid;gap:8px}
+.planning-domain-card dt{font-size:11px;color:#70849a}
+.planning-domain-card dd{margin:2px 0 0;font-weight:600;color:#263e55}
+.planning-domain-card .planning-row-actions{margin-top:auto}
+.planning-empty{padding:28px;text-align:center;color:#70849a;background:#fff;border:1px dashed #c8d6e4;border-radius:12px}
+.planning-row-actions{display:flex;flex-wrap:wrap;gap:8px}
+.planning-domain-list .planning-toolbar{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.planning-domain-detail-view{margin-top:14px}
+.planning-domain-detail-view table{width:100%;border-collapse:collapse}
+.planning-domain-detail-view th,.planning-domain-detail-view td{padding:11px 12px;border-bottom:1px solid #e1e8ef;text-align:left}
+.planning-domain-detail-view th{background:#f5f8fb;color:#274866}
+.lounge-master-pager-v237[hidden],.lounge-master-grid-v237[hidden],.lounge-table-fallback-v237[hidden]{display:none!important}
+@media(max-width:1050px){.planning-domain-grid-view{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.planning-domain-grid-view{grid-template-columns:1fr}.planning-domain-list .planning-toolbar{justify-content:flex-start}}
+/* P87 Lounge card actions */
+.ge-p29-lounge-card .lounge-card-actions-v237 .btn{min-height:36px!important;height:36px!important;padding:0 14px!important;font-size:12px!important;border:1px solid #082b59!important;border-radius:8px!important;background:#fff!important;color:#082b59!important}
+.ge-p29-lounge-card .lounge-card-actions-v237 .btn:hover,.ge-p29-lounge-card .lounge-card-actions-v237 .btn:focus-visible{background:#082b59!important;color:#fff!important;border-color:#082b59!important}
+.ge-p29-lounge-card .lounge-card-actions-v237 .btn.danger{border-color:#b42318!important;color:#b42318!important;background:#fff!important}
+.ge-p29-lounge-card .lounge-card-actions-v237 .btn.danger:hover,.ge-p29-lounge-card .lounge-card-actions-v237 .btn.danger:focus-visible{background:#b42318!important;color:#fff!important;border-color:#b42318!important}

@@ -17,6 +17,8 @@
   const state={
     serviceType:'', editId:null, importRows:[], importGroups:[], importFileName:'', importSummary:null
   };
+  let loungeCardPage=1;
+  const loungeCardPageSize=12;
 
   const esc=v=>typeof geEsc==='function'?geEsc(v):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
   const val=id=>document.getElementById(id)?.value??'';
@@ -349,9 +351,9 @@
   function renderCards(){
     const grid=document.getElementById('loungeCardGridV237');if(!grid)return;
     const rows=filteredRows(),pageSize=12,pages=Math.max(1,Math.ceil(rows.length/pageSize));
-    if(typeof GE_LOUNGE_CARD_PAGE_V237_P83!=='number')GE_LOUNGE_CARD_PAGE_V237_P83=1;
-    GE_LOUNGE_CARD_PAGE_V237_P83=Math.min(Math.max(1,GE_LOUNGE_CARD_PAGE_V237_P83),pages);
-    const start=(GE_LOUNGE_CARD_PAGE_V237_P83-1)*pageSize,slice=rows.slice(start,start+pageSize);
+    if(typeof loungeCardPage!=='number')loungeCardPage=1;
+    loungeCardPage=Math.min(Math.max(1,loungeCardPage),pages);
+    const start=(loungeCardPage-1)*pageSize,slice=rows.slice(start,start+pageSize);
     grid.innerHTML=slice.map(x=>{
       const rt=resolveType(x),type=rt.value||'Requires Review',stateA=statusForAgreement(x),price=applicablePrice(x,new Date());
       const scheduleCount=Array.isArray(x.priceSchedules)?x.priceSchedules.length:0;
@@ -377,11 +379,10 @@
         </div>
       </article>`;
     }).join('')||'<div class="lounge-master-empty-v237">Belum ada data Lounge/Tenant pada filter ini.</div>';
-    const info=document.getElementById('loungeCardPageInfoV237');if(info)info.textContent=`Halaman ${GE_LOUNGE_CARD_PAGE_V237_P83} dari ${pages} • ${rows.length} data`;
-    const prev=document.getElementById('loungeCardPrevV237'),next=document.getElementById('loungeCardNextV237');if(prev)prev.disabled=GE_LOUNGE_CARD_PAGE_V237_P83<=1;if(next)next.disabled=GE_LOUNGE_CARD_PAGE_V237_P83>=pages;
+    const info=document.getElementById('loungeCardPageInfoV237');if(info)info.textContent=`Halaman ${loungeCardPage} dari ${pages} • ${rows.length} data`;
+    const prev=document.getElementById('loungeCardPrevV237'),next=document.getElementById('loungeCardNextV237');if(prev)prev.disabled=loungeCardPage<=1;if(next)next.disabled=loungeCardPage>=pages;
   }
   window.renderLoungeCardsV237=renderCards;
-  window.geChangeLoungeCardPageV237=function(delta){GE_LOUNGE_CARD_PAGE_V237_P83+=Number(delta||0);renderCards();document.querySelector('.lounge-open-heading-v237')?.scrollIntoView({behavior:'smooth',block:'start'})};
 
   function renderTable(){
     const tbody=document.getElementById('loungeRows');if(!tbody)return;
@@ -392,7 +393,7 @@
       return `<tr><td>${i+1}</td><td>${esc(x.region||'-')}</td><td><b>${esc(x.airport||'Not Available')}</b></td><td><b>${esc(x.name||'Not Available')}</b></td><td><span class="pill">${esc(rt.value||'Requires Review')}</span></td><td>${esc(price)}</td><td>${dateLabel(x.startDate)}</td><td>${dateLabel(x.endDate)}</td><td>${esc(x.documentNumber||'-')}</td><td>${esc(x.documentType||'-')}</td><td>${esc(x.documentStatus||'Not Available')}</td><td>${esc(x.remarks||'-')}</td><td>${x.documentKey?`<button class="btn secondary" onclick="GEFiles.download('${esc(x.documentKey)}','${esc(x.documentName||'document')}')">Unduh</button>`:esc(x.documentName||'-')}</td>${action}</tr>`;
     }).join('');
   }
-  window.renderLounges=function(){try{populateFilterOptions();renderTable();renderCards();renderPriceSummary();}catch(e){console.error('P29 Lounge render guard',e);const g=document.getElementById('loungeCardGridV237');if(g)g.innerHTML='<div class="lounge-master-empty-v237">Data Lounge/Tenant tidak dapat ditampilkan. Periksa data yang memerlukan review.</div>';}};
+  window.renderLounges=function(){try{populateFilterOptions();renderTable();renderCards();renderPriceSummary();window.geSetLoungeViewP87?.(document.getElementById('geLoungeViewSelectR6')?.value||'grid');}catch(e){console.error('P29 Lounge render guard',e);const g=document.getElementById('loungeCardGridV237');if(g)g.innerHTML='<div class="lounge-master-empty-v237">Data Lounge/Tenant tidak dapat ditampilkan. Periksa data yang memerlukan review.</div>';}};
 
   function renderPriceSummary(){
     const box=document.getElementById('loungePriceSummaryV243');if(!box)return;
@@ -568,13 +569,13 @@
   function setupTypeFilter(){
     const card=document.querySelector('.lounge-filter-grid-ref');if(!card||document.getElementById('geP29ServiceTypeFilter'))return;
     const wrap=document.createElement('div');wrap.id='geP29ServiceTypeFilter';wrap.className='ge-p29-service-filter';wrap.innerHTML=`<span>Service Type</span><div role="group" aria-label="Service Type"><button type="button" class="active" data-ge-p29-service-filter="">All</button><button type="button" data-ge-p29-service-filter="Lounge">Lounge</button><button type="button" data-ge-p29-service-filter="Tenant">Tenant</button></div>`;
-    card.parentElement?.insertBefore(wrap,card);wrap.querySelectorAll('[data-ge-p29-service-filter]').forEach(btn=>btn.addEventListener('click',()=>{wrap.querySelectorAll('[data-ge-p29-service-filter]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');GE_LOUNGE_CARD_PAGE_V237=1;renderLounges()}));
+    card.parentElement?.insertBefore(wrap,card);wrap.querySelectorAll('[data-ge-p29-service-filter]').forEach(btn=>btn.addEventListener('click',()=>{wrap.querySelectorAll('[data-ge-p29-service-filter]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');loungeCardPage=1;renderLounges()}));
   }
 
   function setup(){
     setupTypeFilter();
     const templateBtn=[...document.querySelectorAll('button')].find(b=>/Unduh Template/i.test(b.textContent||''));if(templateBtn){templateBtn.textContent='Download CSV Template';templateBtn.title='Download CSV Template P29';}
-    ['loungeRegionFilter','loungeAirportFilter','loungeNameFilter','loungeStatusFilter'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('change',()=>{GE_LOUNGE_CARD_PAGE_V237=1;renderLounges()})});
+    ['loungeRegionFilter','loungeAirportFilter','loungeNameFilter','loungeStatusFilter'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('change',()=>{loungeCardPage=1;renderLounges()})});
     try{if(typeof fillAirportSelects==='function')fillAirportSelects()}catch(e){}
     renderLounges();
   }
@@ -599,5 +600,7 @@
     };
   }
 
+  window.geChangeLoungeCardPageP87=function(delta){loungeCardPage+=Number(delta||0);renderCards();document.querySelector('.lounge-open-heading-v237')?.scrollIntoView({behavior:'smooth',block:'start'});};
+  window.geSetLoungeViewP87=function(view){const detail=view==='detail',grid=document.getElementById('loungeCardGridV237'),table=document.querySelector('.lounge-table-fallback-v237'),pager=document.querySelector('.lounge-master-pager-v237');if(grid)grid.hidden=detail;if(table){table.hidden=!detail;table.classList.toggle('ge-p29-table-visible',detail)}if(pager)pager.hidden=detail;};
   window.addEventListener('DOMContentLoaded',()=>setTimeout(setup,0));
 })();
