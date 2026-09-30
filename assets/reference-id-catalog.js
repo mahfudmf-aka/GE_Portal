@@ -43,23 +43,28 @@
   function $(id){return host.querySelector('#'+id)}
   function $e(id){return idHost.querySelector('#'+id)}
   const entityConfig={
-    airlines:{headers:['ID','Nama','IATA','Status'],rows:()=> (state?.airlines||[]).map(x=>[x.id||x.iata||'',x.name||'',x.iata||'',x.status||'Active'])},
-    aircraftConfigs:{headers:['ID','Aircraft','Configuration','Status'],rows:()=> (state?.aircraftConfigs||[]).map(x=>[x.id||x.aircraftType||'',x.aircraftType||x.name||'',x.configuration||x.registration||'',x.status||'Active'])},
-    currencyExchange:{headers:['ID','Reference','Detail','Status'],rows:()=>[...(state?.currencies||[]).map(x=>['currency:'+String(x.code||x.id||''),x.code||'',x.name||x.symbol||'',x.status||'Active']),...(state?.exchangeRates||[]).map(x=>[x.id||'',`${x.baseCurrency||''} → ${x.quoteCurrency||''}`,`${x.rate??''}${x.effectiveDate?' · '+x.effectiveDate:''}`,x.status||'Active'])]},
-    touchpoints:{headers:['ID','Touch Point','Journey','Status'],rows:()=> (state?.touchpoints||[]).map(x=>[x.id||'',x.name||x.title||x.touchpointName||'',Array.isArray(x.journeys)?x.journeys.join('; '):(x.journeys||x.journey||''),x.status||'Active'])},
-    personnel:{headers:['ID','Nama','Station','Position'],rows:()=> (state?.personnel||[]).map(x=>[x.id||x.employeeNo||'',x.name||'',x.airport||x.station||'',x.position||''])},
-    stations:{headers:['ID','Station','Airport','Status'],rows:()=> (state?.airports||[]).map(x=>[x.id||x.code||x.iata||'',x.code||x.stationCode||x.iata||'',x.name||x.airportName||'',x.status||'Active'])},
-    branchOffices:{headers:['ID','Branch Office','Station','Status'],rows:()=> (state?.boSpaces||[]).map(x=>[x.branchOfficeId||x.branchOffice||x.id||'',x.branchOffice||x.officeName||x.name||'',x.station||x.airport||'',x.status||'Active'])},
-    airports:{headers:['ID','Airport','Code','Status'],rows:()=> (state?.airports||[]).map(x=>[x.id||x.code||x.iata||'',x.name||x.airportName||x.stationName||'',x.code||x.iata||x.icao||'',x.status||'Active'])},
-    vendors:{headers:['ID','Vendor / Supplier','Service','Status'],rows:()=> (state?.serviceProcurement||[]).map(x=>[x.id||'',x.vendor||x.supplier||x.provider||x.name||'',x.serviceName||x.serviceType||x.category||'',x.status||'Active'])},
-    serviceProviders:{headers:['ID','Provider','Scope','Status'],rows:()=>[...(state?.serviceProcurement||[]).map(x=>[x.id||'',x.provider||x.vendor||x.name||x.serviceName||'',x.scope||x.serviceType||x.category||'',x.status||'Active']),...(state?.groundHandlers||[]).map(x=>['gha:'+String(x.id||''),x.name||'',x.scope||'Ground Handling',x.status||'Active'])]},
-    agreements:{headers:['ID','Agreement','Type','Status'],rows:()=>[...(state?.lounges||[]).map(x=>[x.documentNumber||x.id||'',x.documentNumber||x.name||'',x.documentType||'Agreement',x.documentStatus||x.status||'Active']),...(state?.serviceProcurement||[]).filter(x=>x.agreement||x.documentNumber).map(x=>[x.documentNumber||x.agreement||x.id||'',x.agreement||x.documentNumber||'',x.documentType||'Agreement',x.status||'Active'])]},
-    locations:{headers:['ID','Location / Area','Station','Status'],rows:()=>[...(state?.facilities||[]).map(x=>[x.id||x.code||'',x.name||x.area||x.location||'',x.station||x.airport||'',x.status||'Active']),...(state?.boSpaces||[]).map(x=>[x.id||'',x.spaceName||x.name||x.area||'',x.station||x.airport||'',x.status||'Active'])]},
-    positions:{headers:['ID','Position','Station','Status'],rows:()=>{const m=new Map();(state?.personnel||[]).forEach(x=>{const n=String(x.position||x.jabatan||'').trim();if(n&&!m.has(n))m.set(n,['position:'+n,n,x.airport||x.station||'',x.status||'Active'])});return [...m.values()]} }
+    airlines:{headers:['IATA','Nama','Status'],rows:()=> (state?.airlines||[]).map(x=>[x.iata||x.code||'',x.name||x.airlineName||'',x.status||'Active'])},
+    aircraftConfigs:{headers:['Aircraft Code','Aircraft','Configuration','Status'],rows:()=> (state?.aircraftConfigs||[]).map(x=>[x.aircraftType||x.code||x.name||'',x.name||x.aircraftName||x.aircraftType||'',x.configuration||x.registration||'',x.status||'Active'])},
+    currencyExchange:{headers:['Currency / Rate','Reference','Detail','Status'],rows:()=>[...(state?.currencies||[]).map(x=>[x.code||'',x.name||'',x.symbol||'',x.status||'Active']),...(state?.exchangeRates||[]).map(x=>[`${x.baseCurrency||''}/${x.quoteCurrency||''}`,`${x.baseCurrency||''} → ${x.quoteCurrency||''}`,`${x.rate??''}${x.effectiveDate?' · '+x.effectiveDate:''}`,x.status||'Active'])]},
+    touchpoints:{headers:['Touch Point','Nama','Journey','Status'],rows:()=> (state?.touchpoints||[]).map(x=>[x.code||x.touchpointCode||x.name||x.title||'',x.name||x.title||x.touchpointName||'',Array.isArray(x.journeys)?x.journeys.join('; '):(x.journeys||x.journey||''),x.status||'Active'])},
+    personnel:{headers:['Employee No.','Nama','Station','Position'],rows:()=> (state?.personnel||[]).map(x=>[x.employeeNo||x.employeeId||x.personnelNo||x.id||'',x.name||'',x.airport||x.station||'',x.position||x.jabatan||''])},
+    stations:{headers:['IATA','Station','Airport','Status'],rows:()=> (state?.airports||[]).map(x=>[x.iata||x.stationCode||x.code||'',x.stationName||x.code||x.iata||'',x.name||x.airportName||'',x.status||'Active'])},
+    branchOffices:{headers:['Branch Office Code','Branch Office','Station','Status'],rows:()=> (state?.boSpaces||[]).map(x=>[x.branchOfficeCode||x.branchCode||x.branchOffice||x.officeCode||'',x.branchOffice||x.officeName||x.name||'',x.station||x.airport||'',x.status||'Active'])},
+    airports:{headers:['IATA','Airport','ICAO','Status'],rows:()=> (state?.airports||[]).map(x=>[x.iata||x.code||'',x.name||x.airportName||x.stationName||'',x.icao||'',x.status||'Active'])},
+    vendors:{headers:['Vendor Code','Vendor / Supplier','Service','Status'],rows:()=> (state?.serviceProcurement||[]).map(x=>[x.vendorCode||x.supplierCode||x.code||'',x.vendor||x.supplier||x.provider||x.name||'',x.serviceName||x.serviceType||x.category||'',x.status||'Active'])},
+    serviceProviders:{headers:['Provider Code','Provider','Scope','Status'],rows:()=>[...(state?.serviceProcurement||[]).map(x=>[x.providerCode||x.vendorCode||x.code||'',x.provider||x.vendor||x.name||x.serviceName||'',x.scope||x.serviceType||x.category||'',x.status||'Active']),...(state?.groundHandlers||[]).map(x=>[x.code||x.iata||'',x.name||'',x.scope||'Ground Handling',x.status||'Active'])]},
+    agreements:{headers:['Agreement No.','Agreement','Type','Status'],rows:()=>[...(state?.lounges||[]).map(x=>[x.documentNumber||'',x.documentNumber||x.name||'',x.documentType||'Agreement',x.documentStatus||x.status||'Active']),...(state?.serviceProcurement||[]).filter(x=>x.agreement||x.documentNumber).map(x=>[x.documentNumber||x.agreement||'',x.agreement||x.documentNumber||'',x.documentType||'Agreement',x.status||'Active'])]},
+    locations:{headers:['Location Code','Location / Area','Station','Status'],rows:()=>[...(state?.facilities||[]).map(x=>[x.code||x.locationCode||'',x.name||x.area||x.location||'',x.station||x.airport||'',x.status||'Active']),...(state?.boSpaces||[]).map(x=>[x.spaceCode||x.code||'',x.spaceName||x.name||x.area||'',x.station||x.airport||'',x.status||'Active'])]},
+    positions:{headers:['Position','Position Name','Station','Status'],rows:()=>{const m=new Map();(state?.personnel||[]).forEach(x=>{const n=String(x.position||x.jabatan||'').trim();if(n&&!m.has(n))m.set(n,[n,n,x.airport||x.station||'',x.status||'Active'])});return [...m.values()]}}
   };
   function entityRows(){
-    const base=entityConfig[idKind]?.rows?.()||[];
-    const manual=(state?.referenceCatalog||[]).filter(x=>x.kind===`id:${idKind}`).map(x=>[x.id||'',x.name||'',x.note||'',x.status||'Active']);
+    const cfg=entityConfig[idKind]||entityConfig.airlines;
+    const base=cfg.rows?.()||[];
+    const manual=(state?.referenceCatalog||[]).filter(x=>x.kind===`id:${idKind}`).map(x=>{
+      const cols=cfg.headers.length;
+      if(cols===3)return [x.id||'',x.name||'',x.status||'Active'];
+      return [x.id||'',x.name||'',x.note||'',x.status||'Active'].slice(0,cols);
+    });
     return [...base,...manual];
   }
   function renderEntities(){
@@ -150,7 +155,18 @@
     const bind=(id,event,handler)=>{const el=$(id);if(el)el[event]=handler;return el};
     bind('idCatalogType','onchange',e=>{kind=e.target.value;render()});
     bind('idCatalogSearch','oninput',render);
-    bind('entityCatalogType','onchange',e=>{idKind=e.target.value;entitySortIndex=-1;entitySortDir=1;if($e('entityCatalogSearch'))$e('entityCatalogSearch').value='';renderEntities()});
+    const entityTypeSelect=$e('entityCatalogType');
+    if(entityTypeSelect){
+      entityTypeSelect.onchange=null;
+      entityTypeSelect.addEventListener('change',()=>{
+        idKind=entityTypeSelect.value;
+        entitySortIndex=-1;
+        entitySortDir=1;
+        const search=$e('entityCatalogSearch');
+        if(search)search.value='';
+        renderEntities();
+      });
+    }
     bind('entityCatalogSearch','oninput',renderEntities);
     bind('entityCatalogAdd','onclick',editEntity);
     bind('idCatalogAdd','onclick',()=>edit());
