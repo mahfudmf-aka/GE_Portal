@@ -1,0 +1,13 @@
+const fs=require('fs');
+const assert=(c,m)=>{if(!c)throw new Error(m)};
+const rt=fs.readFileSync('assets/edition1-business-runtime.js','utf8');
+const st=fs.readFileSync('assets/edition1-store.js','utf8');
+const css=fs.readFileSync('assets/portal.css','utf8');
+assert(st.includes("else if(key==='users')")&&st.includes("fb.db.collection('users').get()"),'Firestore fallback must read root /users.');
+assert(rt.includes('const ulabel=u=>uname(u);'),'PIC label must show user name only.');
+['geGanttJourneyR15','geGanttTouchpointR15','geGanttStationR15','geGanttPicR15','geGanttKindR15','geGanttInitiativeR15'].forEach(x=>assert(rt.includes(x),'Missing Gantt filter '+x));
+assert(rt.includes('PIC: ${esc(r.pic'), 'Gantt bar hover must expose PIC.');
+assert(rt.includes("onclick=\"geV2554OpenGanttItem"),'Gantt bar must be clickable.');
+assert(css.includes('.tab-check input[type=checkbox]')&&css.includes('width:17px!important'),'Permission checkbox must be compact.');
+assert(css.includes('.ge-gantt-filterbar-r15'),'Gantt filter bar style missing.');
+console.log('R15_FUNCTIONAL_CONTRACT_PASS');

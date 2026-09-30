@@ -1,0 +1,11 @@
+const fs=require('fs'),assert=require('assert'),cp=require('child_process');
+const M=fs.readFileSync('assets/edition1-business-runtime.js','utf8');
+const C=fs.readFileSync('assets/portal.css','utf8');
+const B=fs.readFileSync('assets/edition1-page-boot.js','utf8');
+const R=fs.readFileSync('assets/clean-page-registry.js','utf8');
+cp.execFileSync(process.execPath,['--check','assets/edition1-business-runtime.js'],{stdio:'pipe'});
+assert(!M.includes('\\n\\n/* R39'),'literal escaped newline must not break canonical runtime');
+assert(C.includes('.final-v257.final-shell-r5 .ge-ref-table tbody td'),'master table alignment must override final shell vertical-align:top');
+assert(B.includes("'serviceProcurement','facilities','assets'"),'airport detail source collections must hydrate');
+assert(R.includes('edition1-business-runtime.js?v=r80')&&R.includes('portal.css?v=r80')&&R.includes('edition1-page-boot.js?v=r80'),'R41 cache identity missing');
+console.log('R41_RUNTIME_DATA_TABLE_CONTRACT_PASS');

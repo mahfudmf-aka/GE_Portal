@@ -17,6 +17,8 @@
   const state={
     serviceType:'', editId:null, importRows:[], importGroups:[], importFileName:'', importSummary:null
   };
+  let loungeCardPage=1;
+  const loungeCardPageSize=12;
 
   const esc=v=>typeof geEsc==='function'?geEsc(v):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
   const val=id=>document.getElementById(id)?.value??'';
@@ -51,6 +53,24 @@
     try{return new Date(s+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})}catch(e){return s}
   }
   const SUPPORTED_CURRENCIES=(()=>{try{return new Set(typeof Intl.supportedValuesOf==='function'?Intl.supportedValuesOf('currency'):['AUD','CAD','CHF','CNY','EUR','GBP','HKD','IDR','INR','JPY','KRW','MYR','NZD','SAR','SGD','THB','USD'])}catch(e){return new Set(['AUD','CAD','CHF','CNY','EUR','GBP','HKD','IDR','INR','JPY','KRW','MYR','NZD','SAR','SGD','THB','USD'])}})();
+  function airportMasterOptions(selected=''){
+    let airports=[];
+    try{airports=typeof GECore?.list==='function'?(GECore.list('airports')||[]):[]}catch(e){airports=[]}
+    const rows=airports.map(x=>({code:String(x.code||x.airportCode||x.iata||x.stationCode||x.id||'').trim(),name:String(x.name||x.airportName||x.city||'').trim()})).filter(x=>x.code);
+    const seen=new Set();
+    return rows.filter(x=>{if(seen.has(x.code))return false;seen.add(x.code);return true}).map(x=>`<option value="${esc(x.code)}" ${x.code===String(selected||'').trim()?'selected':''}>${esc(x.code+(x.name?' — '+x.name:''))}</option>`).join('');
+  }
+  function currencyMasterOptions(selected=''){
+    let rows=[];
+    try{const catalog=typeof GEStore?.get==='function'?(GEStore.get()?.referenceCatalog||[]):[];rows=catalog.filter(x=>x&&x.kind==='currency'&&x.status!=='Inactive');}catch(e){rows=[]}
+    const codes=[...new Set(rows.map(x=>String(x.code||x.id||'').trim().toUpperCase()).filter(Boolean))];
+    return codes.map(code=>`<option value="${esc(code)}" ${code===String(selected||'').trim().toUpperCase()?'selected':''}>${esc(code)}</option>`).join('');
+  }
+  function moveModalToBody(modal){
+    if(modal&&modal.parentElement!==document.body)document.body.appendChild(modal);
+    return modal;
+  }
+
   function currencyCode(v){
     const s=String(v??'').trim().toUpperCase();
     if(!/^[A-Z]{3}$/.test(s)||!SUPPORTED_CURRENCIES.has(s))return '';
@@ -207,7 +227,7 @@
       <div><label>Effective From<input data-price-field="effectiveFrom" type="date" value="${esc(s.effectiveFrom||'')}"></label></div>
       <div><label>Effective To<input data-price-field="effectiveTo" type="date" value="${esc(s.effectiveTo||'')}"></label></div>
       <div><label>Price<input data-price-field="price" type="number" min="0" step="0.01" value="${esc(s.price??'')}"></label></div>
-      <div><label>Currency<input data-price-field="currency" maxlength="3" placeholder="IDR" value="${esc(s.currency||'')}"></label></div>
+      <div><label>Currency<select data-price-field="currency"><option value="">Pilih Mata Uang</option>${currencyMasterOptions(s.currency)}</select></label></div>
       <div><label>Price Basis<input data-price-field="priceBasis" value="${esc(s.priceBasis||'pax')}" placeholder="pax"></label></div>
       <div><label>Note<input data-price-field="priceNote" value="${esc(s.priceNote||'')}"></label></div>
       <button type="button" class="btn secondary compact-btn ge-p29-remove-price" ${rows.length===1?'disabled':''}>Hapus</button>
@@ -225,13 +245,13 @@
     const m=model||{};
     return `<div class="formgrid ge-p29-form-grid">
       <label>Region<select id="${prefix}Region"><option value="">Pilih Region</option><option ${m.region==='WEST'?'selected':''}>WEST</option><option ${m.region==='EAST'?'selected':''}>EAST</option><option ${m.region==='INT'?'selected':''}>INT</option></select></label>
-      <label>Station<input id="${prefix}Airport" required value="${esc(m.airport||'')}" placeholder="CGK"></label>
+      <label>Station<select id="${prefix}Airport" required><option value="">Pilih Station</option>${airportMasterOptions(m.airport)}</select></label>
       <label>Nama Layanan / Provider<input id="${prefix}Name" required value="${esc(m.name||'')}"></label>
       <label>Jenis Layanan<select id="${prefix}ServiceType" required><option value="">Pilih Jenis Layanan</option>${TYPES.map(t=>`<option value="${t}" ${m.serviceType===t?'selected':''}>${t}</option>`).join('')}</select></label>
       <label>PIC<input id="${prefix}Pic" value="${esc(m.pic||'')}"></label>
       <label>Agreement Start Date<input id="${prefix}Start" type="date" value="${esc(m.startDate||'')}"></label>
       <label>Agreement End Date<input id="${prefix}End" type="date" value="${esc(m.endDate||'')}"></label>
-      <label>Mata Uang (single price)<input id="${prefix}Currency" maxlength="3" value="${esc(m.currency||'')}" placeholder="IDR"></label>
+      <label>Mata Uang (single price)<select id="${prefix}Currency"><option value="">Pilih Mata Uang</option>${currencyMasterOptions(m.currency)}</select></label>
       <label>Harga Per Pax (single price)<input id="${prefix}Price" type="number" min="0" step="0.01" value="${m.pricePerPax?esc(m.pricePerPax):''}"></label>
       <label>Nomor Dokumen / Agreement Identity<input id="${prefix}DocumentNumber" value="${esc(m.documentNumber||'')}"></label>
       <label>Jenis Dokumen<input id="${prefix}DocumentType" value="${esc(m.documentType||'')}"></label>
@@ -261,7 +281,7 @@
   }
 
   function replaceModalContent(id,title,prefix,model){
-    const modal=document.getElementById(id);if(!modal)return;
+    const modal=moveModalToBody(document.getElementById(id));if(!modal)return;
     const card=modal.querySelector('.modal-card');if(!card)return;
     card.innerHTML=`<button class="modal-x" type="button" onclick="${id==='loungeAddModalV221'?'closeLoungeAddModalV221()':'closeLoungeEdit()'}">×</button>
       <h2>${esc(title)}</h2><p class="section-subtitle">Satu struktur data untuk Add, Update, dan CSV. Lounge dan Tenant tetap merupakan Service Type yang berbeda.</p>
@@ -328,12 +348,23 @@
   }
 
   function filterType(){return document.querySelector('[data-ge-p29-service-filter].active')?.dataset.geP29ServiceFilter||''}
+  function comboText(selectId){
+    const select=document.getElementById(selectId);
+    return String(select?.closest('.ge-combo-r12')?.querySelector('.ge-combo-input-r12')?.value||'').trim().toLowerCase();
+  }
+  function selectedStations(){
+    const select=document.getElementById('loungeAirportFilter');
+    if(!select)return [];
+    return [...(select.selectedOptions||[])].map(o=>String(o.value||'').trim().toUpperCase()).filter(Boolean);
+  }
   function filteredRows(){
     const base=(data.lounges||[]).slice();
-    const region=val('loungeRegionFilter'),station=val('loungeAirportFilter'),provider=val('loungeNameFilter'),status=val('loungeStatusFilter'),type=filterType();
+    const region=val('loungeRegionFilter'),provider=val('loungeNameFilter'),status=val('loungeStatusFilter'),type=filterType();
+    const stations=selectedStations();
+    const regionText=comboText('loungeRegionFilter'),providerText=comboText('loungeNameFilter'),statusText=comboText('loungeStatusFilter');
     return base.filter(x=>{
-      const rt=resolveType(x),t=rt.value;
-      return (!region||String(x.region||'')===region)&&(!station||String(x.airport||'')===station)&&(!provider||String(x.name||'')===provider)&&(!status||String(x.documentStatus||'')===status)&&(!type||t===type);
+      const rt=resolveType(x),t=rt.value,rv=String(x.region||''),sv=String(x.airport||'').trim().toUpperCase(),pv=String(x.name||''),st=String(x.documentStatus||'');
+      return (!region||rv===region)&&(!stations.length||stations.includes(sv))&&(!provider||pv===provider)&&(!status||st===status)&&(!regionText||rv.toLowerCase().includes(regionText))&&(!providerText||pv.toLowerCase().includes(providerText))&&(!statusText||st.toLowerCase().includes(statusText))&&(!type||t===type);
     });
   }
   window.loungeFiltered=function(){return filteredRows()};
@@ -349,9 +380,9 @@
   function renderCards(){
     const grid=document.getElementById('loungeCardGridV237');if(!grid)return;
     const rows=filteredRows(),pageSize=12,pages=Math.max(1,Math.ceil(rows.length/pageSize));
-    if(typeof GE_LOUNGE_CARD_PAGE_V237!=='number')GE_LOUNGE_CARD_PAGE_V237=1;
-    GE_LOUNGE_CARD_PAGE_V237=Math.min(Math.max(1,GE_LOUNGE_CARD_PAGE_V237),pages);
-    const start=(GE_LOUNGE_CARD_PAGE_V237-1)*pageSize,slice=rows.slice(start,start+pageSize);
+    if(typeof loungeCardPage!=='number')loungeCardPage=1;
+    loungeCardPage=Math.min(Math.max(1,loungeCardPage),pages);
+    const start=(loungeCardPage-1)*pageSize,slice=rows.slice(start,start+pageSize);
     grid.innerHTML=slice.map(x=>{
       const rt=resolveType(x),type=rt.value||'Requires Review',stateA=statusForAgreement(x),price=applicablePrice(x,new Date());
       const scheduleCount=Array.isArray(x.priceSchedules)?x.priceSchedules.length:0;
@@ -359,7 +390,7 @@
       const priceMeta=scheduleCount?`${scheduleCount} Price Period${scheduleCount===1?'':'s'}`:'';
       const review=rt.status==='REVIEW'?`<div class="ge-p29-review-note">Requires Review: ${esc(rt.reason)}</div>`:'';
       const update=canEdit()?`<button class="btn secondary compact-btn" type="button" onclick="openLoungeEdit(${Number(x.id)})">Update</button>`:'';
-      const del=typeof geIsAdmin==='function'&&geIsAdmin()?`<button class="btn danger compact-btn" type="button" onclick="deleteLoungeV239(${Number(x.id)})">Hapus</button>`:'';
+      const del=canEdit()?`<button class="btn danger compact-btn" type="button" onclick="deleteLoungeV239(${Number(x.id)})">Hapus</button>`:'';
       const detail=scheduleCount?`<button class="btn secondary compact-btn" type="button" onclick="geP29ViewPriceSchedule(${Number(x.id)})">View Price Schedule</button>`:'';
       return `<article class="lounge-master-card-v237 ge-p29-lounge-card">
         <div class="lounge-master-code-v237">${esc(x.airport||'-')}</div>
@@ -377,8 +408,8 @@
         </div>
       </article>`;
     }).join('')||'<div class="lounge-master-empty-v237">Belum ada data Lounge/Tenant pada filter ini.</div>';
-    const info=document.getElementById('loungeCardPageInfoV237');if(info)info.textContent=`Halaman ${GE_LOUNGE_CARD_PAGE_V237} dari ${pages} • ${rows.length} data`;
-    const prev=document.getElementById('loungeCardPrevV237'),next=document.getElementById('loungeCardNextV237');if(prev)prev.disabled=GE_LOUNGE_CARD_PAGE_V237<=1;if(next)next.disabled=GE_LOUNGE_CARD_PAGE_V237>=pages;
+    const info=document.getElementById('loungeCardPageInfoV237');if(info)info.textContent=`Halaman ${loungeCardPage} dari ${pages} • ${rows.length} data`;
+    const prev=document.getElementById('loungeCardPrevV237'),next=document.getElementById('loungeCardNextV237');if(prev)prev.disabled=loungeCardPage<=1;if(next)next.disabled=loungeCardPage>=pages;
   }
   window.renderLoungeCardsV237=renderCards;
 
@@ -391,7 +422,7 @@
       return `<tr><td>${i+1}</td><td>${esc(x.region||'-')}</td><td><b>${esc(x.airport||'Not Available')}</b></td><td><b>${esc(x.name||'Not Available')}</b></td><td><span class="pill">${esc(rt.value||'Requires Review')}</span></td><td>${esc(price)}</td><td>${dateLabel(x.startDate)}</td><td>${dateLabel(x.endDate)}</td><td>${esc(x.documentNumber||'-')}</td><td>${esc(x.documentType||'-')}</td><td>${esc(x.documentStatus||'Not Available')}</td><td>${esc(x.remarks||'-')}</td><td>${x.documentKey?`<button class="btn secondary" onclick="GEFiles.download('${esc(x.documentKey)}','${esc(x.documentName||'document')}')">Unduh</button>`:esc(x.documentName||'-')}</td>${action}</tr>`;
     }).join('');
   }
-  window.renderLounges=function(){try{populateFilterOptions();renderTable();renderCards();renderPriceSummary();}catch(e){console.error('P29 Lounge render guard',e);const g=document.getElementById('loungeCardGridV237');if(g)g.innerHTML='<div class="lounge-master-empty-v237">Data Lounge/Tenant tidak dapat ditampilkan. Periksa data yang memerlukan review.</div>';}};
+  window.renderLounges=function(){try{populateFilterOptions();renderTable();renderCards();renderPriceSummary();window.geSetLoungeViewP87?.(document.getElementById('geLoungeViewSelectR6')?.value||'grid');}catch(e){console.error('P29 Lounge render guard',e);const g=document.getElementById('loungeCardGridV237');if(g)g.innerHTML='<div class="lounge-master-empty-v237">Data Lounge/Tenant tidak dapat ditampilkan. Periksa data yang memerlukan review.</div>';}};
 
   function renderPriceSummary(){
     const box=document.getElementById('loungePriceSummaryV243');if(!box)return;
@@ -564,17 +595,71 @@
     const blob=new Blob(['\ufeff'+lines.join('\r\n')+'\r\n'],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Daftar_Lounge_Tenant_P29.csv';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},300);
   };
 
+  function populateStationFilterOptions(){
+    const select=document.getElementById('loungeAirportFilter');
+    if(!select)return;
+    const current=new Set([...(select.selectedOptions||[])].map(o=>String(o.value||'').trim().toUpperCase()).filter(Boolean));
+    let rows=[];
+    try{rows=(data.airports||[]).map(x=>({code:String(x.code||x.airportCode||x.iata||x.stationCode||x.id||'').trim().toUpperCase(),name:String(x.name||x.airportName||x.city||'').trim()}));}catch(e){}
+    try{if(typeof GECore?.list==='function')rows=rows.concat((GECore.list('airports')||[]).map(x=>({code:String(x.code||x.airportCode||x.iata||x.stationCode||x.id||'').trim().toUpperCase(),name:String(x.name||x.airportName||x.city||'').trim()})));}catch(e){}
+    rows=rows.concat((data.lounges||[]).map(x=>({code:String(x.airport||'').trim().toUpperCase(),name:''})));
+    const seen=new Set(),unique=rows.filter(x=>x.code&&!seen.has(x.code)&&(seen.add(x.code),true)).sort((a,b)=>a.code.localeCompare(b.code));
+    select.innerHTML=unique.map(x=>`<option value="${esc(x.code)}" ${current.has(x.code)?'selected':''}>${esc(x.code+(x.name?' — '+x.name:''))}</option>`).join('');
+  }
+
+  function setupFilterCombosR12(){
+    document.querySelectorAll('.ge-combo-input-r12').forEach(input=>input.setAttribute('autocomplete','off'));
+    document.querySelectorAll('.ge-combo-toggle-r12').forEach(btn=>btn.setAttribute('aria-haspopup','listbox'));
+  }
+
+  function setupStationMultiSelectR12(){
+    const select=document.getElementById('loungeAirportFilter');if(!select)return;
+    const existing=select.parentElement?.querySelector('.ge-station-multi-r12');
+    if(existing){renderStationMultiOptionsR12(existing,select);return;}
+    select.classList.add('ge-station-source-r12');
+    const wrap=document.createElement('div');wrap.className='ge-station-multi-r12';
+    wrap.innerHTML='<button type="button" class="ge-station-trigger-r12" aria-haspopup="listbox" aria-expanded="false"><span>Semua Station</span><i>▾</i></button><div class="ge-station-menu-r12" role="listbox"><input class="ge-station-search-r12" type="search" placeholder="Cari Station..." autocomplete="off"><div class="ge-station-options-r12"></div><div class="ge-station-menu-actions-r12"><button type="button" data-action="clear">Clear</button><button type="button" data-action="done">Selesai</button></div></div>';
+    select.parentNode.insertBefore(wrap,select);
+    const trigger=wrap.querySelector('.ge-station-trigger-r12'),menu=wrap.querySelector('.ge-station-menu-r12'),search=wrap.querySelector('.ge-station-search-r12');
+    trigger.onclick=()=>{const open=menu.classList.toggle('show');trigger.setAttribute('aria-expanded',String(open));if(open){search.value='';renderStationMultiOptionsR12(wrap,select);search.focus()}};
+    search.oninput=()=>renderStationMultiOptionsR12(wrap,select);
+    wrap.querySelector('[data-action="clear"]').onclick=()=>{[...select.options].forEach(o=>o.selected=false);renderStationMultiOptionsR12(wrap,select);loungeCardPage=1;renderLounges()};
+    wrap.querySelector('[data-action="done"]').onclick=()=>{menu.classList.remove('show');trigger.setAttribute('aria-expanded','false');loungeCardPage=1;renderLounges()};
+    select.addEventListener('change',()=>{updateStationTriggerR12(wrap,select);loungeCardPage=1;renderLounges()});
+    document.addEventListener('pointerdown',e=>{if(!wrap.contains(e.target)){menu.classList.remove('show');trigger.setAttribute('aria-expanded','false')}});
+    renderStationMultiOptionsR12(wrap,select);
+  }
+
+  function updateStationTriggerR12(wrap,select){
+    const selected=[...(select.selectedOptions||[])].filter(o=>o.value);
+    const span=wrap.querySelector('.ge-station-trigger-r12 span');
+    if(span)span.textContent=!selected.length?'Semua Station':selected.length===1?selected[0].textContent:`${selected.length} Station dipilih`;
+  }
+  function renderStationMultiOptionsR12(wrap,select){
+    const q=String(wrap.querySelector('.ge-station-search-r12')?.value||'').trim().toLowerCase();
+    const box=wrap.querySelector('.ge-station-options-r12');
+    const opts=[...select.options].filter(o=>o.value&&(!q||o.textContent.toLowerCase().includes(q)));
+    box.innerHTML=opts.length?opts.map(o=>`<label><input type="checkbox" value="${esc(o.value)}" ${o.selected?'checked':''}><span>${esc(o.textContent)}</span></label>`).join(''):'<div class="ge-station-empty-r12">Station tidak ditemukan.</div>';
+    box.querySelectorAll('input').forEach(cb=>cb.onchange=()=>{const o=[...select.options].find(x=>x.value===cb.value);if(o)o.selected=cb.checked;updateStationTriggerR12(wrap,select);loungeCardPage=1;renderLounges()});
+    updateStationTriggerR12(wrap,select);
+  }
+
   function setupTypeFilter(){
     const card=document.querySelector('.lounge-filter-grid-ref');if(!card||document.getElementById('geP29ServiceTypeFilter'))return;
     const wrap=document.createElement('div');wrap.id='geP29ServiceTypeFilter';wrap.className='ge-p29-service-filter';wrap.innerHTML=`<span>Service Type</span><div role="group" aria-label="Service Type"><button type="button" class="active" data-ge-p29-service-filter="">All</button><button type="button" data-ge-p29-service-filter="Lounge">Lounge</button><button type="button" data-ge-p29-service-filter="Tenant">Tenant</button></div>`;
-    card.parentElement?.insertBefore(wrap,card);wrap.querySelectorAll('[data-ge-p29-service-filter]').forEach(btn=>btn.addEventListener('click',()=>{wrap.querySelectorAll('[data-ge-p29-service-filter]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');GE_LOUNGE_CARD_PAGE_V237=1;renderLounges()}));
+    card.parentElement?.insertBefore(wrap,card);wrap.querySelectorAll('[data-ge-p29-service-filter]').forEach(btn=>btn.addEventListener('click',()=>{wrap.querySelectorAll('[data-ge-p29-service-filter]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');loungeCardPage=1;renderLounges()}));
   }
 
   function setup(){
+    setupFilterCombosR12();
+    populateStationFilterOptions();
+    setupStationMultiSelectR12();
     setupTypeFilter();
     const templateBtn=[...document.querySelectorAll('button')].find(b=>/Unduh Template/i.test(b.textContent||''));if(templateBtn){templateBtn.textContent='Download CSV Template';templateBtn.title='Download CSV Template P29';}
-    ['loungeRegionFilter','loungeAirportFilter','loungeNameFilter','loungeStatusFilter'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('change',()=>{GE_LOUNGE_CARD_PAGE_V237=1;renderLounges()})});
+    ['loungeRegionFilter','loungeNameFilter','loungeStatusFilter'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('change',()=>{loungeCardPage=1;renderLounges()})});
     try{if(typeof fillAirportSelects==='function')fillAirportSelects()}catch(e){}
+    populateStationFilterOptions();
+    setupStationMultiSelectR12();
     renderLounges();
   }
 
@@ -598,5 +683,9 @@
     };
   }
 
+  window.geChangeLoungeCardPageP87=function(delta){loungeCardPage+=Number(delta||0);renderCards();document.querySelector('.lounge-open-heading-v237')?.scrollIntoView({behavior:'smooth',block:'start'});};
+  window.geLoungeViewSelectR6=function(value){window.geSetLoungeViewP87?.(value);};
+  function bindCanonicalLoungeView(){const view=document.getElementById('geLoungeViewSelectR6');if(view)view.onchange=function(){window.geLoungeViewSelectR6(this.value);};}
+  window.geSetLoungeViewP87=function(view){const detail=view==='detail',grid=document.getElementById('loungeCardGridV237'),table=document.querySelector('.lounge-table-fallback-v237'),pager=document.querySelector('.lounge-master-pager-v237');if(grid)grid.hidden=detail;if(table){table.hidden=!detail;table.classList.toggle('ge-p29-table-visible',detail)}if(pager)pager.hidden=detail;};
   window.addEventListener('DOMContentLoaded',()=>setTimeout(setup,0));
 })();

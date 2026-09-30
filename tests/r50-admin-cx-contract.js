@@ -1,0 +1,16 @@
+'use strict';
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const shell=fs.readFileSync('assets/portal-shell.js','utf8');
+const pov=vm.runInNewContext(shell.match(/function isExternalPortalUser\(s\)[\s\S]*?window\.GXDashboardPOV=dashboardPOV;/)[0]+'dashboardPOV',{window:{}});
+assert.strictEqual(pov({role:'Head Office',accessLevel:'Admin',organizationType:'Internal'}),'admin');
+assert.strictEqual(pov({role:'Management',accessLevel:'Admin'}),'management');
+assert.strictEqual(pov({role:'Branch Office',accessLevel:'Admin'}),'branch');
+assert.strictEqual(pov({role:'Head Office',accessLevel:'Editor',organizationType:'External'}),'external');
+const dash=fs.readFileSync('assets/dashboard-firestore.js','utf8'),match=dash.match(/function cxSignals\(rows,limit=4\)[\s\S]*?\nfunction attentionWithCX/);
+assert(match);const signals=vm.runInNewContext('const num=(x,keys)=>{for(const k of keys){if(x[k]!==undefined&&x[k]!==null&&x[k]!==\x27\x27)return Number(x[k])}return null};const stationVals=x=>x.stationCode?[x.stationCode]:[];'+match[0].slice(0,-'function attentionWithCX'.length)+'cxSignals');
+assert.deepStrictEqual(JSON.parse(JSON.stringify(signals([{status:'Published',period:'2026-09',csi:76,csiTarget:80,nps:45,npsTarget:50}]))).map(x=>[x.metric,x.below]),[['CSI',true],['NPS',true]]);
+assert(dash.includes('attentionWithCX(m,networkCX,10)'));
+assert(dash.includes('boTaskAttention(m,s,selected)'));
+for(const f of ['netlify/functions/auth-update-user.js','netlify/functions/auth-reset-password.js'])assert(fs.readFileSync(f,'utf8').includes('ADMIN_PEER_PROTECTED'));
+const create=fs.readFileSync('netlify/functions/auth-create-user.js','utf8');assert(create.includes('role, accessLevel, organizationType, userManagementEnabled:'));
+console.log('R50_ADMIN_CX_CONTRACT_PASS');

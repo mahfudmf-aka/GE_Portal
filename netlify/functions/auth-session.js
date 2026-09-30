@@ -9,7 +9,7 @@ exports.handler = async (event) => {
     const token = bearer(event);
     if (!token) return bad(401, 'AUTH_REQUIRED', 'Authentication required.');
     const { auth, db } = firebase();
-    const decoded = await auth.verifyIdToken(token, true);
+    const decoded = await auth.verifyIdToken(token);
     const snap = await db.collection('users').doc(decoded.uid).get();
     if (!snap.exists) return bad(403, 'PROFILE_NOT_FOUND', 'User profile tidak ditemukan.');
     if (String(snap.data().status || 'Active').trim().toLowerCase() === 'inactive') return bad(403, 'ACCOUNT_INACTIVE', 'Akun tidak aktif.');

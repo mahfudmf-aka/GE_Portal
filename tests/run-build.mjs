@@ -7,7 +7,15 @@ const tests = [
   'tests/p29-lounge-planning.js',
   'tests/p31-auth-role-runtime.js',
   'tests/p31b-login-access-assistance.js',
-  'tests/p32-access-assistance-runtime.js'
+  'tests/p32-access-assistance-runtime.js',
+  'tests/r15-functional-contract.js',
+  'tests/upload-template-contract.js',
+  'tests/r18-consolidation-contract.js',
+  'tests/r19-ui-consolidation-contract.js',
+  'tests/r20-consolidated-browser-contract.js',
+  'tests/r21-auth-persistence-contract.js',
+  'tests/r22-runtime-contract.js',
+  'tests/r23-cumulative-fix-contract.js'
 ];
 
 const netlify = process.argv.includes('--netlify');
@@ -24,3 +32,62 @@ try {
   console.error(e.message);
   process.exitCode = 1;
 }
+
+await import('./r25-root-cause-contract.js');
+await import('./r26-data-lifecycle-contract.js');
+await import('./r27-airport-marker-contract.js');
+await import('./r28-firestore-cache-contract.js');
+await import('./r29-instant-cache-contract.js');
+await import('./r30-role-scope-firestore-contract.js');
+
+await import('./r31-admin-firestore-contract.js');
+await import('./r31-1-partner-scope-contract.js');
+
+await import('./r32-pov-permission-map-contract.js');
+
+await import('./r38-master-save-contract.js');
+
+await import('./r38-1-master-table-actions-contract.js');
+
+await import('./r38-2-master-edit-modal-contract.js');
+
+await import('./r39-p1-p8-dashboard-cost-contract.js');
+
+await import('./r40-map-table-presentation-contract.js');
+
+await import('./r41-runtime-data-table-contract.js');
+await import('./r42-airport-map-presentation-contract.js');
+
+await import('./r43-airport-experience-foundation-contract.js');
+
+await import('./r44-sidebar-superadmin-contract.js');
+
+await import('./r45-routing-lifecycle-contract.js');
+
+await import('./r46-navigation-readiness-contract.js');
+
+await import('./r47-assessment-map-contract.js');
+await import('./r49-role-cx-contract.js');
+await import('./r50-admin-cx-contract.js');
+await import('./r51-dashboard-source-contract.js');
+await import('./r52-attention-decision-contract.js');
+
+await import('./r54-ground-integration-contract.js');
+
+await import('./r55-regression-contract.js');
+
+await import('./r56-checklist-bo-master-contract.js');
+
+await import('./r56-master-render-interaction.js');
+await import('./r57-form-management-workflow.js');
+await import('./r58-catalog-rules-access.js');
+
+await import('./r60-attention-ground-interaction.js');
+
+await import('./r62-script-loader.js');
+await import('./r70-requirement-engine.js');
+await import('./r72-planning-inbox.js');
+await import('./r72-read-persistence.js');
+
+import {execFileSync} from 'node:child_process';
+execFileSync(process.execPath,['tests/p83-canonical-reference-contract.js'],{stdio:'inherit'});

@@ -1,0 +1,16 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const context={};vm.runInNewContext(fs.readFileSync('assets/requirement-engine.js','utf8'),context);
+const engine=context.GERequirementEngine;
+const a=[{relationship:'SkyTeam',airline:'KL',capability:'Lounge Access',stations:[]},{relationship:'SkyTeam',airline:'KL',capability:'Lounge Access',stations:[]},{relationship:'SkyTeam',airline:'VN',capability:'Baggage Transfer',stations:['CGK']}];
+const summary=engine.alignmentSummary(a,'SkyTeam');
+assert.equal(summary.records,3);assert.equal(summary.combinations,2);assert.equal(summary.repeated,1);assert.equal(summary.explicitStationScope,1);
+const requirements=[{source:'SkyTeam',status:'Active',scopeType:'SPECIFIC',stationCodes:['CGK'],airlineId:'KL-ID',capabilityId:'CAP-LOUNGE',weight:3,title:'Lounge'},{source:'SkyTeam',status:'Active',scopeType:'ALL',stationCodes:[],airlineId:'KL-ID',capabilityId:'CAP-BAG',weight:1,title:'Bag'}];
+const data={requirements,current:[{stationCode:'CGK',capabilityId:'CAP-LOUNGE',availability:'Available',sourceRef:'lounges:1001'},{stationCode:'CGK',capabilityId:'CAP-BAG',availability:'Unavailable',evidenceReference:'SOP-01'}]};
+let r=engine.evaluate(data,{source:'SkyTeam',station:'CGK',partner:'KL-ID'});assert.equal(r.percent,75);assert.equal(r.counts.Available,1);assert.equal(r.counts.Unavailable,1);
+r=engine.evaluate(data,{source:'SkyTeam',station:'DPS',partner:'KL-ID'});assert.equal(r.rows.length,1);assert.equal(r.percent,null);assert.ok(r.issues.includes('CURRENT_UNVERIFIED'));
+r=engine.evaluate(data,{source:'SkyTeam',station:'CGK'});assert.equal(r.percent,null);assert.ok(r.issues.includes('PARTNER_NOT_SELECTED'));
+data.current[0].sourceRef='';r=engine.evaluate(data,{source:'SkyTeam',station:'CGK',partner:'KL-ID'});assert.equal(r.percent,null);assert.equal(r.counts.Unknown,1);
+data.current[0].sourceRef='lounges:1001';data.current[0].availability='Partial';r=engine.evaluate(data,{source:'SkyTeam',station:'CGK',partner:'KL-ID'});assert.equal(r.percent,null);assert.ok(r.issues.includes('PARTIAL_RULE_PENDING'));
+console.log('R70_REQUIREMENT_ENGINE_PASS');

@@ -1,0 +1,22 @@
+--- a/assets/edition1-canonical-shell.js
++++ b/assets/edition1-canonical-shell.js
+@@
+ const path=()=>location.pathname.split('/').pop()||'';
++// REPLACE the line above with the query-aware resolver below:
++const ROUTE_TO_CANONICAL={
++  'index.html':'index',
++  'inisiatif.html':'inisiatif',
++  'e1-inisiatif.html':'inisiatif',
++  'calendar.html':'calendar',
++  'e1-calendar.html':'calendar',
++  'network-stations.html':'airport-experience',
++  'airport-experience-map.html':'airport-experience',
++  'map.html':'airport-experience',
++  'e1-admin.html':'admin',
++  'admin.html':'admin'
++};
++const path=()=>{
++  const file=location.pathname.split('/').pop()||'';
++  const q=new URLSearchParams(location.search).get('page');
++  return q || ROUTE_TO_CANONICAL[file] || file;
++};

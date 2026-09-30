@@ -1,0 +1,16 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const {canChangeReadState}=require('../netlify/functions/inbox-policy');
+const item={id:'m1',recipientId:'uid-a',senderId:'uid-b',status:'Unread',notificationStatus:'Unread',subject:'Assignment'};
+assert(canChangeReadState('uid-a',item,{notificationStatus:'Read'}));
+assert(canChangeReadState('uid-a',item,{status:'Read'}));
+assert(!canChangeReadState('uid-b',item,{notificationStatus:'Read'}));
+assert(!canChangeReadState('uid-a',item,{subject:'Changed',notificationStatus:'Read'}));
+assert(!canChangeReadState('uid-a',item,{notificationStatus:'Unread'}));
+assert(!canChangeReadState('uid-a',item,{status:'Unread'}));
+const registry={window:{}};vm.runInNewContext(fs.readFileSync('assets/clean-page-registry.js','utf8'),registry);
+for(const key of ['planning-workspace','space-building','service-provider','station-resources','airport-systems-planning','planning-documents-hub','planning-standards'])assert(registry.window.P40_CLEAN_PAGES[key]?.scripts?.some(x=>x.src?.includes('planning-domains.js')),'Missing planning domain '+key);
+assert(!registry.window.P40_CLEAN_PAGES['planning-documents'].scripts.some(x=>x.src?.includes('planning-domains.js')),'Existing Planning Documents flow must remain intact');
+const planning=fs.readFileSync('assets/planning-domains.js','utf8');assert(planning.includes("'UNASSIGNED'")&&planning.includes('planningCategoryId')&&planning.includes('referenceCatalog'));assert(!planning.includes('Buka child'));
+const backend=fs.readFileSync('netlify/functions/edition1-data.js','utf8');assert(backend.includes('const actor={...snap.data(),id:decoded.uid}'));
+console.log('R72_PLANNING_INBOX_PASS');

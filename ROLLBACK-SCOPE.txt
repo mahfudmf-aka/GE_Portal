@@ -1,0 +1,9 @@
+Restore ONLY these files to the exact test-1 baseline:
+app.html
+assets/clean-page-registry.js
+assets/edition1-canonical-shell.js
+
+If using the test-1 git checkout:
+git restore -- app.html assets/clean-page-registry.js assets/edition1-canonical-shell.js
+
+Do not revert unrelated files.

@@ -1,0 +1,13 @@
+'use strict';
+const fs=require('fs'),assert=require('assert');
+const app=fs.readFileSync('app.html','utf8');
+const shell=fs.readFileSync('assets/portal-shell.js','utf8');
+assert(app.indexOf("classList.add('ge-route-pending')")<app.indexOf('assets/portal-shell.js'),'Pending gate must be set before shell loads');
+assert(/ge-route-pending body\.e1-page>\.shell[^}]*display:none!important/.test(app),'Canonical shell must be absent while auth is pending');
+assert(app.includes("const reveal=()=>document.documentElement.classList.remove('ge-route-pending')"),'Route reveal must clear the pending gate');
+assert(app.indexOf('outlet.innerHTML=def.html')<app.indexOf('  reveal();')&&app.indexOf('  reveal();')<app.indexOf('for(const item of def.scripts||[])'),'Destination content must appear before long script/data loading');
+assert(app.includes('outlet.replaceChildren(n);reveal()'),'Route error must reveal an actionable message');
+assert(shell.includes("item('monitoring-assessment.html','Monitoring & Assessment'"),'Assessment navigation is missing');
+for(const pov of ['ge-team','admin','management','superadmin'])assert(shell.includes("group('SERVICE GOVERNANCE',governanceItems())"),'Governance group must expose the Assessment route');
+assert(shell.includes("item('airport-experience.html','Network & Map'"),'Combined Network and Map navigation missing');
+console.log('R46_NAVIGATION_READINESS_PASS');

@@ -1,0 +1,10 @@
+const fs=require('fs'),assert=require('assert');
+const M=fs.readFileSync('assets/edition1-business-runtime.js','utf8'),C=fs.readFileSync('assets/portal.css','utf8'),R=fs.readFileSync('assets/clean-page-registry.js','utf8');
+assert(M.includes('R42 — Airport map presentation / hover summary'));
+assert(M.includes("['lounge','Lounge']")&&M.includes("['people','People']")&&M.includes("['facility','Facility']")&&M.includes("['system','System']")&&M.includes("['contract','Contract']"));
+assert(M.includes('window.showAirportTooltip=hover42'));
+assert(M.includes('Math.max(1,Math.min(3.20'));
+assert(C.includes('.r42-map-tabscroll')&&C.includes('overflow-x:auto'));
+assert(C.includes('.map-tooltip-v216.r42-tooltip'));
+assert(R.includes('edition1-business-runtime.js?v=r80')&&R.includes('portal.css?v=r80'));
+console.log('R42_AIRPORT_MAP_PRESENTATION_CONTRACT_PASS');

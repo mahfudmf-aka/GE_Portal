@@ -3,7 +3,7 @@
 (function(){
   'use strict';
 
-  const ROUTE = () => (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+  const ROUTE = () => {const f=(location.pathname.split('/').pop()||'index.html').toLowerCase();if(f==='app.html'){const r=String(new URLSearchParams(location.search).get('page')||'index').toLowerCase();const a=(window.P40_CLEAN_ALIASES||{})[r]||r;return a.split('?')[0]+'.html'}return f};
 
   const PAGE_IDENTITY = {
     'index.html': ['dashboard','Ground Experience Dashboard','Central workspace untuk memantau service experience, airport, inisiatif, lounge, dokumen, dan informasi Ground Experience.'],

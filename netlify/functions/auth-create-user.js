@@ -31,7 +31,8 @@ exports.handler = async (event) => {
     if (!fullName) return bad(400, 'INVALID_NAME', 'Employee Name wajib diisi.');
     if (!employeeNo) return bad(400, 'INVALID_EMPLOYEE_NO', 'Employee Number wajib diisi.');
     if (!unit) return bad(400, 'INVALID_UNIT', 'Unit / Department wajib diisi.');
-    if (!['Internal','Branch Office','Partner'].includes(organizationType)) return bad(400, 'INVALID_ORGANIZATION_TYPE', 'Organization Type tidak valid.');
+    if (!['Internal','External'].includes(organizationType)) return bad(400, 'INVALID_ORGANIZATION_TYPE', 'Organization Type harus Internal atau External.');
+    if (organizationType === 'External' && !['Viewer','Editor'].includes(accessLevel)) return bad(403, 'EXTERNAL_ACCESS_RESTRICTED', 'External hanya dapat memiliki access level Viewer atau Editor.');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return bad(400, 'INVALID_EMAIL', 'Email tidak valid.');
     if (body.accessLevel && !USER_ACCESS_LEVELS.includes(String(body.accessLevel).trim())) return bad(400, 'INVALID_ACCESS_LEVEL', 'Access Level tidak valid.');
     if (!hasUserManagementPermission(actor)) return bad(403, 'USER_MANAGEMENT_PERMISSION_REQUIRED', 'Akun tidak memiliki permission User Management.');
@@ -61,12 +62,12 @@ exports.handler = async (event) => {
         username, email,
         name: fullName || username,
         employeeNo,
-        role, unit: String(body.unit || '').trim(),
+        role, accessLevel, organizationType, userManagementEnabled:actor.role==='Super Admin'&&body.userManagementEnabled===true&&['Head Office','GE Team','Ground Experience Team'].includes(role)&&accessLevel==='Admin', unit: String(body.unit || '').trim(),
         scopeType: requestedScopeType,
         airports: Array.isArray(body.airports) ? body.airports.map(x => String(x).trim().toUpperCase()).filter(Boolean) : [],
         loungeIds: Array.isArray(body.loungeIds) ? body.loungeIds.map(String) : [],
-        tabs: Array.isArray(body.tabs) ? body.tabs.map(String) : defaultUserPermissions(role),
-        permissions: (() => { const requested = Array.isArray(body.permissions) ? body.permissions.map(String).filter(x => USER_MODULES.includes(x)) : []; return requested.length ? requested : defaultUserPermissions(role); })(),
+        tabs: organizationType === 'External' ? ['initiatives','support'] : (Array.isArray(body.tabs) ? body.tabs.map(String) : defaultUserPermissions(role)),
+        permissions: organizationType === 'External' ? ['initiatives','support'] : (() => { const requested = Array.isArray(body.permissions) ? body.permissions.map(String).filter(x => USER_MODULES.includes(x)) : []; return requested.length ? requested : defaultUserPermissions(role); })(),
         status,
         mustChangePassword: true,
         createdAt: new Date().toISOString(),

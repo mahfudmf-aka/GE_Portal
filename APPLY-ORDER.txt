@@ -1,0 +1,17 @@
+APPLY IN THIS ORDER
+
+1. Restore test-1 first if any P40 v1/v2 patch is still applied.
+2. Apply PATCH-app.html.diff.
+3. Apply PATCH-clean-page-registry.js.diff.
+4. Apply PATCH-edition1-canonical-shell.js.diff.
+5. Do NOT apply the previous P40 Clean Runtime v1/v2 patches.
+6. Deploy test-1 preview.
+7. Open /app.html?page=index with a hard refresh.
+
+Expected first gate:
+- no blank/empty legacy shell
+- canonical Edition 1 header + sidebar
+- Dashboard content mounts into #dashboardRoot
+- dashboard-firestore.js renders after GEStore authentication/hydration
+
+Only after this gate passes should we continue to Initiative/Calendar/etc.

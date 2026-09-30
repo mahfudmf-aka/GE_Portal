@@ -1,0 +1,13 @@
+diff --git a/tests/clean-draft-regression.js b/tests/clean-draft-regression.js
+--- a/tests/clean-draft-regression.js
++++ b/tests/clean-draft-regression.js
+@@
+-for(const asset of ['assets/firebase-config.js','assets/firebase-client.js','assets/edition1-store.js','assets/portal-shell.js']) assert(registry.includes(asset),`Canonical runtime registry missing ${asset}`);
++for(const asset of ['assets/firebase-config.js','assets/firebase-client.js','assets/edition1-store.js','assets/edition1-page-boot.js']) assert(registry.includes(asset),`Canonical runtime registry missing ${asset}`);
++for(const legacy of ['assets/portal-shell.js','assets/edition1-portal-shell-entry.js','assets/edition1-portal-route-adapter.js']) assert(!registry.includes(legacy),`Clean registry must not load legacy shell runtime: ${legacy}`);
++assert(app.includes('assets/clean-shell-runtime.js'),'Clean app shell runtime missing.');
++assert(app.includes('class="e1-top"'),'Clean app shell mount missing.');
++assert(registry.includes('id=\\"dashboardRoot\\"'),'Dashboard mount missing from Clean registry.');
+@@
+-assert(!netlify.includes('tests/run-build.mjs --netlify'),'Netlify must not bypass npm run test.');
++assert(!netlify.includes('tests/run-build.mjs --netlify'),'Netlify must not bypass npm run test.');

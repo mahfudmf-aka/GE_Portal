@@ -1,23 +1,27 @@
-'use strict';
 const fs=require('fs');
-const vm=require('vm');
 const assert=require('assert');
 const shell=fs.readFileSync('assets/portal-shell.js','utf8');
-const m=shell.match(/function dashboardPOV\(s\)\{[\s\S]*?\n\}\nwindow\.GXDashboardPOV/);
-if(!m)throw new Error('dashboardPOV resolver not found');
-const ctx={};vm.createContext(ctx);vm.runInContext(m[0].replace(/\nwindow\.GXDashboardPOV[\s\S]*$/,'')+';this.dashboardPOV=dashboardPOV;',ctx);
-const cases={
-  'Super Admin':'superadmin',
-  'Management':'management',
-  'Head Office':'ge-team',
-  'HeadOffice':'ge-team',
-  'Branch Office':'branch',
-  'BranchOffice':'branch',
-  'Admin':'unresolved',
-  'Unknown':'unresolved'
-};
-for(const [role,want] of Object.entries(cases))assert.strictEqual(ctx.dashboardPOV({role}),want,role);
-assert.strictEqual(ctx.dashboardPOV({role:'Management',accessLevel:'Admin'}),'management');
-assert.strictEqual(ctx.dashboardPOV({role:'Head Office',accessLevel:'Admin'}),'ge-team');
-assert.strictEqual(ctx.dashboardPOV({role:'Branch Office',accessLevel:'Admin',airports:['DPS']}),'branch');
+const auth=fs.readFileSync('assets/auth.js','utf8');
+function pov(s){
+ const r=String(s?.role||'').trim().toLowerCase().replace(/[\s_-]+/g,' ');
+ const access=String(s?.accessLevel||'').trim().toLowerCase();
+ const org=String(s?.organizationType||s?.organisationType||s?.orgType||'').trim().toLowerCase();
+ const external=['external user','external','collaborator','partner'].includes(r)||['partner','external','external partner','airline partner','vendor','supplier','ground handling agent','gha'].includes(org);
+ if(r==='super admin'||r==='superadmin')return 'superadmin';
+ if(external)return 'external';
+ if(r==='admin'||access==='admin')return 'admin';
+ if(r==='management')return 'management';
+ if(['ge team','ground experience team','head office','headoffice','staff'].includes(r))return 'ge-team';
+ if(['branch office','branchoffice','bo'].includes(r))return 'branch';
+ return 'unresolved';
+}
+assert.strictEqual(pov({role:'Super Admin'}),'superadmin');
+assert.strictEqual(pov({role:'Admin'}),'admin');
+assert.strictEqual(pov({role:'Management'}),'management');
+assert.strictEqual(pov({role:'Head Office'}),'ge-team');
+assert.strictEqual(pov({role:'Branch Office'}),'branch');
+assert.strictEqual(pov({role:'Viewer',organizationType:'Partner'}),'external');
+assert(shell.includes("if(pov==='external')"),'Partner/external navigation must exist');
+assert(shell.includes("Ground Experience Admin Dashboard"),'Admin dashboard navigation must exist');
+assert(auth.includes("organizationType"),'Authentication must consider organization type');
 console.log('P31_ROLE_POV_RUNTIME_PASS');

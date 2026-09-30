@@ -1,0 +1,10 @@
+diff --git a/app.html b/app.html
+--- a/app.html
++++ b/app.html
+@@
+-<link rel="stylesheet" href="assets/portal.css?v=clean01"><link rel="stylesheet" href="assets/edition1-pages.css?v=clean01"><link rel="stylesheet" href="assets/e1-canonical.css?v=clean01"><link rel="stylesheet" href="assets/clean-shell.css?v=clean01">
+<script src="assets/clean-page-registry.js?v=clean01"></script></head><body id="top" class="e1-page"><header class="top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet">
++<link rel="stylesheet" href="assets/portal.css?v=clean01"><link rel="stylesheet" href="assets/edition1-pages.css?v=clean01"><link rel="stylesheet" href="assets/e1-canonical.css?v=clean01"><link rel="stylesheet" href="assets/clean-shell.css?v=clean01">+<script src="assets/clean-page-registry.js?v=clean01"></script></head><body id="top" class="e1-page e1-modern"><header class="e1-top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet">
+@@
+-<script src="assets/clean-route-adapter.js?v=clean01"></script><script>
++<script src="assets/clean-route-adapter.js?v=clean02"></script><script src="assets/clean-shell-runtime.js?v=clean02"></script><script>

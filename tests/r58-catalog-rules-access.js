@@ -1,0 +1,13 @@
+'use strict';
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const master=fs.readFileSync('assets/master-reference.js','utf8'),dash=fs.readFileSync('assets/dashboard-firestore.js','utf8'),server=fs.readFileSync('netlify/functions/edition1-data.js','utf8'),auth=fs.readFileSync('assets/auth.js','utf8'),sidebar=fs.readFileSync('assets/portal-shell.js','utf8'),app=fs.readFileSync('app.html','utf8');
+assert(master.includes('const csiGroundCatalog=')&&master.includes('ensureGroundCatalog()'));
+const list=JSON.parse(master.match(/const csiGroundCatalog=(\[.*?\]);/)[1]);assert(list.length>=12);assert(list.some(x=>x.name==='Check-In & Drop Baggage'));assert(list.every(x=>x.journey!=='In-Flight'));
+assert(master.includes("x.sourceType==='CSI'?'':")&&master.includes("sourceType:'Initiative'"));
+assert(master.includes('const selected=tab')&&master.includes('rows(selected)')&&master.includes('selected===\'touchpoints\''));
+assert(server.includes('CSI_TOUCHPOINT_LOCKED')&&server.includes('attentionSettings'));
+assert(auth.includes("gxHasUserManagementPermission()")&&auth.includes("permission==='data'"));
+assert(sidebar.includes('Attention Rules')&&app.includes("route==='attention-settings'"));
+assert(dash.includes('attentionSettings')&&dash.includes('metricGapSignals'));
+const logic=dash.slice(dash.indexOf('function attentionLevel('),dash.indexOf('function initiativeUrgency('));const configured=vm.runInNewContext(logic+'attentionLevel',{D:()=>({attentionSettings:{indicators:[{key:'touchpoint_gap',lower:-2,upper:2}]}})});assert.strictEqual(configured(-2.1),'high');assert.strictEqual(configured(-2),'medium');assert.strictEqual(configured(2),'medium');assert.strictEqual(configured(2.1),'low');const specific=vm.runInNewContext(logic+'attentionLevel',{D:()=>({attentionSettings:{indicators:[{key:'touchpoint_gap',lower:-1,upper:1},{key:'custom',source:'touchpoint_gap',stationCode:'CGK',touchpointId:'tp1',lower:-3,upper:3}]}})});assert.strictEqual(specific(-2,'touchpoint_gap','CGK','tp1'),'medium');assert.strictEqual(specific(-2,'touchpoint_gap','DPS','tp1'),'high');
+console.log('R58_CATALOG_RULES_ACCESS_PASS');

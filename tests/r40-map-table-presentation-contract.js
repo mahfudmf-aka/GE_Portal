@@ -1,0 +1,12 @@
+const fs=require('fs'),assert=require('assert');
+const C=fs.readFileSync('assets/portal.css','utf8'),B=fs.readFileSync('assets/edition1-business-runtime.js','utf8'),R=fs.readFileSync('assets/clean-page-registry.js','utf8');
+assert(C.includes('R40 — Master reference table alignment'));
+assert(C.includes('.ge-ref-table input.ge-ref-row-select,.ge-ref-table #refSelectAll'));
+assert(C.includes('vertical-align:middle!important'));
+assert(B.includes('R40 — Airport Experience map detail / Station 360 navigation'));
+assert(B.includes("['service','Service'],['facility','Facility'],['system','System'],['contract','Contract']"));
+assert(B.includes('page=station-360&station='));
+assert(C.includes('.r40-map-tabs'));
+assert(R.includes('edition1-business-runtime.js?v=r80'));
+assert(R.includes('portal.css?v=r80'));
+console.log('R40_MAP_TABLE_PRESENTATION_CONTRACT_PASS');

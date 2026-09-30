@@ -1,0 +1,17 @@
+'use strict';
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const src=fs.readFileSync('assets/form-management.js','utf8').replace('window.geFormManagementInit=init;','window.geFormManagementInit=init;window.__formsTest={evaluated,visible,renderForm,empty,evaluateFormula,validateFormula};');
+const store={formTemplates:[],monitoringWorks:[],formSubmissions:[],touchpoints:[]};const window={GEStore:{get:()=>store},gxGetSession:()=>({})};
+vm.runInNewContext(src,{window,document:{addEventListener(){},getElementById(){return null}},crypto:{randomUUID:()=>Math.random().toString(36).slice(2)},console,Date});
+const logic=window.__formsTest,form=logic.empty();form.sections[0].fields=[{id:'a',label:'Counter',type:'yes_no',required:true,passValue:'Yes',weight:3,touchpointId:'tp1',journey:'Pre-Flight',pillar:'Premises'},{id:'b',label:'Observation',type:'long_text',showIf:{fieldId:'a',equals:'No'},required:true}];
+const failing=logic.evaluated(form,{a:'No',b:'Unavailable'});assert.strictEqual(failing.result,0);assert.strictEqual(failing.findings.length,1);assert.strictEqual(failing.findings[0].touchpointId,'tp1');assert.strictEqual(logic.visible(form.sections[0].fields[1],{a:'Yes'}),false);
+form.category='Custom';const custom=logic.evaluated(form,{a:'No',b:'Unavailable'});assert.strictEqual(custom.result,null);assert.strictEqual(custom.findings.length,0);
+assert(logic.renderForm(form,{a:'No'},false).includes('data-answer="a"'));
+assert.strictEqual(logic.evaluateFormula('@{atd} - @{std}',key=>({atd:'10:12',std:'10:00'})[key]),12);
+assert.strictEqual(logic.evaluateFormula('IF(@{delay} < 10, "On Time", "Late")',()=>9),'On Time');
+assert.strictEqual(logic.evaluateFormula('IF(@{delay} < 10, "On Time", "Late")',()=>12),'Late');
+assert.strictEqual(logic.evaluateFormula('@{missing} - 1',()=>undefined),null);
+assert.throws(()=>logic.validateFormula('2 + eval(1)'));
+assert(form.stationMode==='ALL'&&Array.isArray(form.stationCodes));
+const app=fs.readFileSync('app.html','utf8'),server=fs.readFileSync('netlify/functions/edition1-data.js','utf8');assert(app.includes('geFormManagementInit'));for(const c of ['formTemplates','monitoringWorks','formSubmissions'])assert(server.includes(`'${c}'`));
+console.log('R57_FORM_MANAGEMENT_WORKFLOW_PASS');

@@ -18,6 +18,7 @@ exports.handler = async (event) => {
     if (!snap.exists) return bad(404, 'USER_NOT_FOUND', 'User tidak ditemukan.');
     const target = snap.data();
     if (target.role === 'Super Admin') return bad(403, 'ROLE_PROTECTED', 'SuperAdmin adalah role terlindungi dan tidak dapat direset melalui User Management.');
+    if (actor.role !== 'Super Admin' && (String(target.accessLevel||'') === 'Admin' || target.role === 'Admin')) return bad(403, 'ADMIN_PEER_PROTECTED', 'Admin HO tidak dapat mereset akun admin lain.');
     if (!userManagementScopeAllowed(actor, target.scopeType, target.airports, target.loungeIds)) return bad(403, 'OUT_OF_SCOPE', 'User berada di luar scope User Management Anda.');
     const passwordError = validatePassword(password, target.username, target.email);
     if (passwordError) return bad(400, 'INVALID_PASSWORD', passwordError);

@@ -1,0 +1,22 @@
+P40 V5 — EXISTING FILE TRANSFORMATION
+=====================================
+Existing file:
+assets/clean-page-registry.js
+
+Preferred method:
+python tools/apply-p40-clean-registry-v5.py
+
+The transformer makes only these targeted changes:
+1. Removes these legacy shell runtimes from every registry page:
+   - assets/portal-shell.js
+   - assets/edition1-portal-shell-entry.js
+   - assets/edition1-portal-route-adapter.js
+2. Keeps the 56-route registry structure.
+3. Ensures index has <div id="dashboardRoot"></div> for compatibility, although V5 app.html owns index rendering directly.
+4. Converts programmatic Station 360 navigation through window.p40CleanRoute().
+5. Converts index.html#service-experience redirect to app.html?page=index#service-experience.
+6. Does not rewrite page business HTML or Firebase logic.
+
+After transformation, expected output:
+- routes: 56
+- legacy shell refs remaining: 0

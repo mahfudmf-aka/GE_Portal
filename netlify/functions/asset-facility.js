@@ -14,7 +14,7 @@ const UNIT_VALUES = new Set(CONFIG.units);
 const EDIT_LEVELS = new Set(['Editor', 'Admin']);
 
 async function recordAudit(db, actor, action, targetId, result = 'SUCCESS') {
-  await db.collection('auditLogs').add({
+  await db.collection('portalData').doc('auditLogs').collection('records').add({
     actorId: actor.id,
     actorRole: actor.role,
     targetUserId: '',
@@ -28,7 +28,7 @@ async function recordAudit(db, actor, action, targetId, result = 'SUCCESS') {
 async function assetHistory(db, assetId) {
   if (!assetId) return [];
   try {
-    const snap = await db.collection('auditLogs').where('targetType', '==', 'P39_ASSET_FACILITY').limit(100).get();
+    const snap = await db.collection('portalData').doc('auditLogs').collection('records').where('targetType', '==', 'P39_ASSET_FACILITY').limit(100).get();
     return snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(x => String(x.targetId || '') === String(assetId)).sort((a,b) => String(b.timestamp || '').localeCompare(String(a.timestamp || ''))).slice(0,30);
   } catch (e) {
     return [];
@@ -143,13 +143,13 @@ function validateAsset(body, existing = null) {
   };
 }
 async function getFacilities(db, actor) {
-  const snap = await db.collection('geFacilities').get();
+  const snap = await db.collection('portalData').doc('facilities').collection('records').get();
   const allowed = assignedStations(actor);
   return snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(x => !allowed || allowed.has(String(x.stationCode || '').toUpperCase()));
 }
 async function getLoungeOptions(db, actor) {
   try {
-    const snap = await db.collection('lounges').get();
+    const snap = await db.collection('portalData').doc('lounges').collection('records').get();
     const allowed = assignedStations(actor);
     const out = [];
     snap.docs.forEach(d => {
@@ -168,19 +168,19 @@ async function getLoungeOptions(db, actor) {
   }
 }
 async function getAssets(db, actor) {
-  const snap = await db.collection('geAssets').get();
+  const snap = await db.collection('portalData').doc('assets').collection('records').get();
   const allowed = assignedStations(actor);
   return snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(x => !allowed || allowed.has(String(x.stationCode || '').toUpperCase()));
 }
 async function ensureFacility(db, actor, facilityId) {
-  const snap = await db.collection('geFacilities').doc(facilityId).get();
+  const snap = await db.collection('portalData').doc('facilities').collection('records').doc(facilityId).get();
   if (!snap.exists) throw Object.assign(new Error('Facility tidak ditemukan.'), { statusCode: 400, code: 'FACILITY_NOT_FOUND' });
   const facility = { id: snap.id, ...snap.data() };
   ensureStation(actor, facility.stationCode);
   return facility;
 }
 async function ensureLounge(db, actor, loungeId, stationCode) {
-  const snap = await db.collection('lounges').doc(String(loungeId)).get();
+  const snap = await db.collection('portalData').doc('lounges').collection('records').doc(String(loungeId)).get();
   if (!snap.exists) throw Object.assign(new Error('Lounge referensi tidak ditemukan pada existing Lounge Master.'), { statusCode: 400, code: 'LOUNGE_NOT_FOUND' });
   const x = normalizeLounge(snap.id, snap.data(), stationCode);
   if (!x || x.stationCode !== stationCode) throw Object.assign(new Error('Lounge tidak sesuai dengan Station.'), { statusCode: 400, code: 'LOUNGE_STATION_MISMATCH' });
@@ -189,7 +189,7 @@ async function ensureLounge(db, actor, loungeId, stationCode) {
 }
 async function ensureUniqueAssetTag(db, stationCode, assetTag, id) {
   if (!assetTag) return;
-  const snap = await db.collection('geAssets').where('assetTag', '==', assetTag).get();
+  const snap = await db.collection('portalData').doc('assets').collection('records').where('assetTag', '==', assetTag).get();
   if (snap.docs.some(d => d.id !== id && String(d.data().stationCode || '').toUpperCase() === stationCode)) {
     throw Object.assign(new Error('Asset Tag sudah digunakan pada Station tersebut.'), { statusCode: 409, code: 'DUPLICATE_ASSET_TAG' });
   }
@@ -214,7 +214,7 @@ async function handleWrite(event, actor, db) {
   }
   if (action === 'CREATE_FACILITY' || action === 'UPDATE_FACILITY') {
     const id = action === 'UPDATE_FACILITY' ? idSafe(body.id) : '';
-    const existing = id ? await db.collection('geFacilities').doc(id).get() : null;
+    const existing = id ? await db.collection('portalData').doc('facilities').collection('records').doc(id).get() : null;
     if (action === 'UPDATE_FACILITY' && (!existing || !existing.exists)) throw Object.assign(new Error('Facility tidak ditemukan.'), { statusCode: 404, code: 'FACILITY_NOT_FOUND' });
     const prev = existing?.data() || {};
     const stationCode = upper(body.stationCode ?? prev.stationCode, 8);
@@ -239,7 +239,7 @@ async function handleWrite(event, actor, db) {
       updatedBy: actor.id
     };
     if (action === 'CREATE_FACILITY') { next.createdAt = next.updatedAt; next.createdBy = actor.id; }
-    const ref = id ? db.collection('geFacilities').doc(id) : db.collection('geFacilities').doc();
+    const ref = id ? db.collection('portalData').doc('facilities').collection('records').doc(id) : db.collection('portalData').doc('facilities').collection('records').doc();
     await ref.set(next, { merge: true });
     await recordAudit(db, actor, action, ref.id);
     return ok({ facility: { id: ref.id, ...next } });
@@ -247,7 +247,7 @@ async function handleWrite(event, actor, db) {
 
   if (action === 'RETIRE_ASSET') {
     const id = idSafe(body.id);
-    const ref = db.collection('geAssets').doc(id);
+    const ref = db.collection('portalData').doc('assets').collection('records').doc(id);
     const snap = await ref.get();
     if (!snap.exists) throw Object.assign(new Error('Asset tidak ditemukan.'), { statusCode: 404, code: 'ASSET_NOT_FOUND' });
     const prev = snap.data();
@@ -259,7 +259,7 @@ async function handleWrite(event, actor, db) {
   }
 
   const id = action === 'UPDATE_ASSET' ? idSafe(body.id) : '';
-  const existingSnap = id ? await db.collection('geAssets').doc(id).get() : null;
+  const existingSnap = id ? await db.collection('portalData').doc('assets').collection('records').doc(id).get() : null;
   if (action === 'UPDATE_ASSET' && (!existingSnap || !existingSnap.exists)) throw Object.assign(new Error('Asset tidak ditemukan.'), { statusCode: 404, code: 'ASSET_NOT_FOUND' });
   const existing = existingSnap?.data() || null;
   if (existing) ensureStation(actor, existing.stationCode);
@@ -272,7 +272,7 @@ async function handleWrite(event, actor, db) {
   next.updatedAt = new Date().toISOString(); next.updatedBy = actor.id;
   if (!id) { next.createdAt = next.updatedAt; next.createdBy = actor.id; }
   if (next.trackingMode === 'INDIVIDUAL') next.quantity = 1;
-  const ref = id ? db.collection('geAssets').doc(id) : db.collection('geAssets').doc();
+  const ref = id ? db.collection('portalData').doc('assets').collection('records').doc(id) : db.collection('portalData').doc('assets').collection('records').doc();
   await ref.set(next, { merge: true });
   await recordAudit(db, actor, action, ref.id);
   return ok({ asset: { id: ref.id, ...next } });
