@@ -1,0 +1,16 @@
+const fs=require('fs'),assert=require('assert');
+const B=fs.readFileSync('assets/budget-cost-v257.js','utf8');
+const D=fs.readFileSync('assets/clean-dashboard-management.js','utf8');
+const I=fs.readFileSync('assets/improvement-v257.js','utf8');
+assert(B.includes("const KEY='GE_V257_BUDGET_COST_P4'"),'P4 canonical storage identity missing');
+assert(B.includes('function initiative(id)')&&B.includes('legacy().initiatives'),'P4 must resolve Initiative from existing GEStore');
+assert(B.includes("list('costObjects',{initiativeId:String(id)})"),'P4 initiative financial view must use initiativeId');
+assert(B.includes("list('allocations',{costObjectId:id})")&&B.includes("list('actuals',{costObjectId:id})"),'P4 allocation and actual must resolve through Cost Object');
+assert(B.includes('variance:allocated==null||actual==null?null:allocated-actual'),'P4 variance formula must remain allocation minus actual');
+assert(B.includes('window.GEBudgetCost'),'P4 must expose one canonical runtime API');
+assert(D.includes('GEBudgetCost.read()'),'Dashboard must consume the existing P4 engine');
+assert(D.includes('x.status==="Approved"'),'Dashboard budget envelope must use approved budget');
+assert(D.includes('b.actuals'),'Dashboard actual must use existing P4 actual records');
+assert(I.includes('GEStore')&&I.includes('legacy.initiatives'),'P3 initiative source must remain the existing Initiative store');
+assert(!B.includes('window.GEStore={'),'P4 must not create a second Initiative engine');
+console.log('R78_P4_BUDGET_COST_CONTRACT_PASS');
