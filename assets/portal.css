@@ -5710,3 +5710,7 @@ html body.final-v257.final-shell-r5.e1-page .ge-sidebar-toggle:hover{background:
 .ge-p29-lounge-card .lounge-card-actions-v237 .btn:hover,.ge-p29-lounge-card .lounge-card-actions-v237 .btn:focus-visible{background:#082b59!important;color:#fff!important;border-color:#082b59!important}
 .ge-p29-lounge-card .lounge-card-actions-v237 .btn.danger{border-color:#b42318!important;color:#b42318!important;background:#fff!important}
 .ge-p29-lounge-card .lounge-card-actions-v237 .btn.danger:hover,.ge-p29-lounge-card .lounge-card-actions-v237 .btn.danger:focus-visible{background:#b42318!important;color:#fff!important;border-color:#b42318!important}
+
+/* P83 canonical modal typography: one readable treatment for Lounge and Planning dialogs. */
+.lounge-add-modal-v221 h2{font-size:20px;line-height:1.3;margin:0 0 8px;font-weight:700}
+.planning-dialog-body-level .planning-modal h2{font-size:20px;line-height:1.3;margin:0 0 8px;font-weight:700}

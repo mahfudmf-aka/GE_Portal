@@ -9559,7 +9559,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
   function setup(){
     setupTypeFilter();
     const heading=document.querySelector('.lounge-master-view-label-v237');
-    if(heading&&!document.getElementById('geP29ViewToggle')){const toggle=document.createElement('div');toggle.id='geP29ViewToggle';toggle.className='ge-p29-view-toggle';toggle.innerHTML='<button type="button" class="active" data-view="grid">Grid</button><button type="button" data-view="detail">Details</button><label class="ge-p29-history-toggle"><input id="geP29ShowHistory" type="checkbox"> Tampilkan history agreement</label>';heading.appendChild(toggle);document.getElementById('geP29ShowHistory').onchange=()=>renderLounges();toggle.querySelectorAll('button').forEach(b=>b.onclick=()=>{toggle.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));const detail=b.dataset.view==='detail';const grid=document.getElementById('loungeCardGridV237');if(grid)grid.style.display=detail?'none':'';const pager=document.getElementById('loungeCardPageInfoV237')?.parentElement;if(pager)pager.style.display=detail?'none':'';document.querySelector('.lounge-table-fallback-v237')?.classList.toggle('ge-p29-table-visible',detail);});}
+    if(heading&&!document.getElementById('geP29ShowHistory')){const history=document.createElement('label');history.className='ge-p29-history-toggle';history.innerHTML='<input id="geP29ShowHistory" type="checkbox"> Tampilkan history agreement';heading.appendChild(history);document.getElementById('geP29ShowHistory').onchange=()=>renderLounges();}
     const templateBtn=[...document.querySelectorAll('button')].find(b=>/Unduh Template/i.test(b.textContent||''));if(templateBtn){templateBtn.textContent='Download CSV Template';templateBtn.title='Download CSV Template P29';}
     ['loungeRegionFilter','loungeAirportFilter','loungeNameFilter','loungeStatusFilter'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('change',()=>{GE_LOUNGE_CARD_PAGE_V237=1;renderLounges()})});
     try{if(typeof fillAirportSelects==='function')fillAirportSelects()}catch(e){}
@@ -9884,12 +9884,10 @@ function setLoungeView(view){
  if(table){table.classList.toggle('ge-p29-table-visible',detail);table.hidden=!detail;}
  if(pager)pager.hidden=detail;
  const sel=byId('geLoungeViewSelectR6');if(sel&&sel.value!==window.GE_LOUNGE_VIEW_R19)sel.value=window.GE_LOUNGE_VIEW_R19;
- document.querySelectorAll('#geP29ViewToggle button').forEach(b=>b.classList.toggle('active',b.dataset.view===window.GE_LOUNGE_VIEW_R19));
 }
 window.geSetLoungeViewR6=setLoungeView;
 function bindLoungeView(){
  const sel=byId('geLoungeViewSelectR6');if(sel&&!sel.dataset.r19){sel.dataset.r19='1';sel.onchange=()=>setLoungeView(sel.value);}
- document.querySelectorAll('#geP29ViewToggle button').forEach(b=>{if(b.dataset.r19)return;b.dataset.r19='1';b.onclick=()=>setLoungeView(b.dataset.view);});
  setLoungeView(window.GE_LOUNGE_VIEW_R19||sel?.value||'grid');
 }
 function setInitiativeView(view){

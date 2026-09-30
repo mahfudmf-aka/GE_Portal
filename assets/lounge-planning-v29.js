@@ -53,6 +53,24 @@
     try{return new Date(s+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})}catch(e){return s}
   }
   const SUPPORTED_CURRENCIES=(()=>{try{return new Set(typeof Intl.supportedValuesOf==='function'?Intl.supportedValuesOf('currency'):['AUD','CAD','CHF','CNY','EUR','GBP','HKD','IDR','INR','JPY','KRW','MYR','NZD','SAR','SGD','THB','USD'])}catch(e){return new Set(['AUD','CAD','CHF','CNY','EUR','GBP','HKD','IDR','INR','JPY','KRW','MYR','NZD','SAR','SGD','THB','USD'])}})();
+  function airportMasterOptions(selected=''){
+    let airports=[];
+    try{airports=typeof GECore?.list==='function'?(GECore.list('airports')||[]):[]}catch(e){airports=[]}
+    const rows=airports.map(x=>({code:String(x.code||x.airportCode||x.iata||x.stationCode||x.id||'').trim(),name:String(x.name||x.airportName||x.city||'').trim()})).filter(x=>x.code);
+    const seen=new Set();
+    return rows.filter(x=>{if(seen.has(x.code))return false;seen.add(x.code);return true}).map(x=>`<option value="${esc(x.code)}" ${x.code===String(selected||'').trim()?'selected':''}>${esc(x.code+(x.name?' — '+x.name:''))}</option>`).join('');
+  }
+  function currencyMasterOptions(selected=''){
+    let rows=[];
+    try{const catalog=typeof GEStore?.get==='function'?(GEStore.get()?.referenceCatalog||[]):[];rows=catalog.filter(x=>x&&x.kind==='currency'&&x.status!=='Inactive');}catch(e){rows=[]}
+    const codes=[...new Set(rows.map(x=>String(x.code||x.id||'').trim().toUpperCase()).filter(Boolean))];
+    return codes.map(code=>`<option value="${esc(code)}" ${code===String(selected||'').trim().toUpperCase()?'selected':''}>${esc(code)}</option>`).join('');
+  }
+  function moveModalToBody(modal){
+    if(modal&&modal.parentElement!==document.body)document.body.appendChild(modal);
+    return modal;
+  }
+
   function currencyCode(v){
     const s=String(v??'').trim().toUpperCase();
     if(!/^[A-Z]{3}$/.test(s)||!SUPPORTED_CURRENCIES.has(s))return '';
@@ -209,7 +227,7 @@
       <div><label>Effective From<input data-price-field="effectiveFrom" type="date" value="${esc(s.effectiveFrom||'')}"></label></div>
       <div><label>Effective To<input data-price-field="effectiveTo" type="date" value="${esc(s.effectiveTo||'')}"></label></div>
       <div><label>Price<input data-price-field="price" type="number" min="0" step="0.01" value="${esc(s.price??'')}"></label></div>
-      <div><label>Currency<input data-price-field="currency" maxlength="3" placeholder="IDR" value="${esc(s.currency||'')}"></label></div>
+      <div><label>Currency<select data-price-field="currency"><option value="">Pilih Mata Uang</option>${currencyMasterOptions(s.currency)}</select></label></div>
       <div><label>Price Basis<input data-price-field="priceBasis" value="${esc(s.priceBasis||'pax')}" placeholder="pax"></label></div>
       <div><label>Note<input data-price-field="priceNote" value="${esc(s.priceNote||'')}"></label></div>
       <button type="button" class="btn secondary compact-btn ge-p29-remove-price" ${rows.length===1?'disabled':''}>Hapus</button>
@@ -227,13 +245,13 @@
     const m=model||{};
     return `<div class="formgrid ge-p29-form-grid">
       <label>Region<select id="${prefix}Region"><option value="">Pilih Region</option><option ${m.region==='WEST'?'selected':''}>WEST</option><option ${m.region==='EAST'?'selected':''}>EAST</option><option ${m.region==='INT'?'selected':''}>INT</option></select></label>
-      <label>Station<input id="${prefix}Airport" required value="${esc(m.airport||'')}" placeholder="CGK"></label>
+      <label>Station<select id="${prefix}Airport" required><option value="">Pilih Station</option>${airportMasterOptions(m.airport)}</select></label>
       <label>Nama Layanan / Provider<input id="${prefix}Name" required value="${esc(m.name||'')}"></label>
       <label>Jenis Layanan<select id="${prefix}ServiceType" required><option value="">Pilih Jenis Layanan</option>${TYPES.map(t=>`<option value="${t}" ${m.serviceType===t?'selected':''}>${t}</option>`).join('')}</select></label>
       <label>PIC<input id="${prefix}Pic" value="${esc(m.pic||'')}"></label>
       <label>Agreement Start Date<input id="${prefix}Start" type="date" value="${esc(m.startDate||'')}"></label>
       <label>Agreement End Date<input id="${prefix}End" type="date" value="${esc(m.endDate||'')}"></label>
-      <label>Mata Uang (single price)<input id="${prefix}Currency" maxlength="3" value="${esc(m.currency||'')}" placeholder="IDR"></label>
+      <label>Mata Uang (single price)<select id="${prefix}Currency"><option value="">Pilih Mata Uang</option>${currencyMasterOptions(m.currency)}</select></label>
       <label>Harga Per Pax (single price)<input id="${prefix}Price" type="number" min="0" step="0.01" value="${m.pricePerPax?esc(m.pricePerPax):''}"></label>
       <label>Nomor Dokumen / Agreement Identity<input id="${prefix}DocumentNumber" value="${esc(m.documentNumber||'')}"></label>
       <label>Jenis Dokumen<input id="${prefix}DocumentType" value="${esc(m.documentType||'')}"></label>
@@ -263,7 +281,7 @@
   }
 
   function replaceModalContent(id,title,prefix,model){
-    const modal=document.getElementById(id);if(!modal)return;
+    const modal=moveModalToBody(document.getElementById(id));if(!modal)return;
     const card=modal.querySelector('.modal-card');if(!card)return;
     card.innerHTML=`<button class="modal-x" type="button" onclick="${id==='loungeAddModalV221'?'closeLoungeAddModalV221()':'closeLoungeEdit()'}">×</button>
       <h2>${esc(title)}</h2><p class="section-subtitle">Satu struktur data untuk Add, Update, dan CSV. Lounge dan Tenant tetap merupakan Service Type yang berbeda.</p>
