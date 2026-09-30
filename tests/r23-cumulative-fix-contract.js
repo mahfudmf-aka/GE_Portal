@@ -1,10 +1,10 @@
 const fs=require('fs'),assert=require('assert');
-const css=fs.readFileSync('assets/portal.css','utf8'),m=fs.readFileSync('assets/master-reference.js','utf8'),a=fs.readFileSync('assets/asset-facility-p39.js','utf8'),r=fs.readFileSync('assets/clean-page-registry.js','utf8'),st=fs.readFileSync('assets/edition1-store.js','utf8'),api=fs.readFileSync('netlify/functions/edition1-data.js','utf8');
+const css=fs.readFileSync('assets/portal.css','utf8'),m=fs.readFileSync('assets/master-reference.js','utf8'),pd=fs.readFileSync('assets/planning-domains.js','utf8'),a=fs.readFileSync('assets/asset-facility-p39.js','utf8'),r=fs.readFileSync('assets/clean-page-registry.js','utf8'),st=fs.readFileSync('assets/edition1-store.js','utf8'),api=fs.readFileSync('netlify/functions/edition1-data.js','utf8');
 assert(css.includes('#initRows:has(.ge-initiative-list-r4)'), 'Initiative list must occupy full content width');
 assert(css.includes('position:fixed!important;inset:0!important;z-index:2147483001'), 'Reference modal must be above global shell');
-assert(m.includes('ge-ref-combo-pop') && !m.includes('<datalist id='), 'New master reference fields must use canonical searchable combo, not native datalist UI');
-assert(m.includes('AHAN / Additional Handling') && m.includes('stations:stationsVal'), 'GHA must support AHAN and multi-station agreement');
-assert(m.includes('function addAircraft') && m.includes("'MTOW × Charge'"), 'MTOW formula requires Aircraft Master');
+assert(m.includes('geMasterKind')&&m.includes('geMasterSearch')&&!m.includes('<datalist id='), 'Master reference selection must use canonical dropdown + searchable listing, not native datalist UI');
+assert(pd.includes("groundHandlers:")&&pd.includes("'stations'")&&pd.includes("'ahan'")&&pd.includes("'agreement'"), 'GHA must support AHAN and multi-station agreement');
+assert(m.includes('Cabin F')&&m.includes('Cabin C')&&m.includes('Cabin Y')&&m.includes('Total Configuration')&&pd.includes("airportCosts:")&&pd.includes("'basis'"), 'Aircraft configuration and airport cost basis must remain supported');
 assert(st.includes('aircraftConfigs:[]') && api.includes("aircraftConfigs:'data'"), 'Aircraft Master must be persisted');
 assert(a.includes("GEStore.hydrate(['assets','facilities','lounges'])") && a.includes('Firestore load timeout'), 'Asset page must use bounded Firestore loading');
 assert(r.includes('station-material.html') && r.includes('Station Material'), 'Station Material must be visible from planning/BO context');
