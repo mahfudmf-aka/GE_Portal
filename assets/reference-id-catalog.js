@@ -42,20 +42,21 @@
     <p id="entityCatalogStatus" role="status" aria-live="polite"></p><div id="entityCatalogDialog" class="ge-id-dialog" hidden></div>`;
   function $(id){return host.querySelector('#'+id)}
   function $e(id){return idHost.querySelector('#'+id)}
+  const refRows=kind=>Array.isArray(state?.referenceCatalog)?state.referenceCatalog.filter(x=>x.kind===kind&&x.status!=='Inactive'):[];
   const entityConfig={
-    airlines:{headers:['IATA','Nama','Status'],rows:()=> (state?.airlines||[]).map(x=>[x.iata||x.code||'',x.name||x.airlineName||'',x.status||'Active'])},
-    aircraftConfigs:{headers:['Aircraft Code','Aircraft','Configuration','Status'],rows:()=> (state?.aircraftConfigs||[]).map(x=>[x.aircraftType||x.code||x.name||'',x.name||x.aircraftName||x.aircraftType||'',x.configuration||x.registration||'',x.status||'Active'])},
-    currencyExchange:{headers:['Currency / Rate','Reference','Detail','Status'],rows:()=>[...(state?.currencies||[]).map(x=>[x.code||'',x.name||'',x.symbol||'',x.status||'Active']),...(state?.exchangeRates||[]).map(x=>[`${x.baseCurrency||''}/${x.quoteCurrency||''}`,`${x.baseCurrency||''} → ${x.quoteCurrency||''}`,`${x.rate??''}${x.effectiveDate?' · '+x.effectiveDate:''}`,x.status||'Active'])]},
-    touchpoints:{headers:['Touch Point','Nama','Journey','Status'],rows:()=> (state?.touchpoints||[]).map(x=>[x.code||x.touchpointCode||x.name||x.title||'',x.name||x.title||x.touchpointName||'',Array.isArray(x.journeys)?x.journeys.join('; '):(x.journeys||x.journey||''),x.status||'Active'])},
-    personnel:{headers:['Employee No.','Nama','Station','Position'],rows:()=> (state?.personnel||[]).map(x=>[x.employeeNo||x.employeeId||x.personnelNo||x.id||'',x.name||'',x.airport||x.station||'',x.position||x.jabatan||''])},
-    stations:{headers:['IATA','Station','Airport','Status'],rows:()=> (state?.airports||[]).map(x=>[x.iata||x.stationCode||x.code||'',x.stationName||x.code||x.iata||'',x.name||x.airportName||'',x.status||'Active'])},
-    branchOffices:{headers:['Branch Office Code','Branch Office','Station','Status'],rows:()=> (state?.boSpaces||[]).map(x=>[x.branchOfficeCode||x.branchCode||x.branchOffice||x.officeCode||'',x.branchOffice||x.officeName||x.name||'',x.station||x.airport||'',x.status||'Active'])},
-    airports:{headers:['IATA','Airport','ICAO','Status'],rows:()=> (state?.airports||[]).map(x=>[x.iata||x.code||'',x.name||x.airportName||x.stationName||'',x.icao||'',x.status||'Active'])},
-    vendors:{headers:['Vendor Code','Vendor / Supplier','Service','Status'],rows:()=> (state?.serviceProcurement||[]).map(x=>[x.vendorCode||x.supplierCode||x.code||'',x.vendor||x.supplier||x.provider||x.name||'',x.serviceName||x.serviceType||x.category||'',x.status||'Active'])},
-    serviceProviders:{headers:['Provider Code','Provider','Scope','Status'],rows:()=>[...(state?.serviceProcurement||[]).map(x=>[x.providerCode||x.vendorCode||x.code||'',x.provider||x.vendor||x.name||x.serviceName||'',x.scope||x.serviceType||x.category||'',x.status||'Active']),...(state?.groundHandlers||[]).map(x=>[x.code||x.iata||'',x.name||'',x.scope||'Ground Handling',x.status||'Active'])]},
-    agreements:{headers:['Agreement No.','Agreement','Type','Status'],rows:()=>[...(state?.lounges||[]).map(x=>[x.documentNumber||'',x.documentNumber||x.name||'',x.documentType||'Agreement',x.documentStatus||x.status||'Active']),...(state?.serviceProcurement||[]).filter(x=>x.agreement||x.documentNumber).map(x=>[x.documentNumber||x.agreement||'',x.agreement||x.documentNumber||'',x.documentType||'Agreement',x.status||'Active'])]},
-    locations:{headers:['Location Code','Location / Area','Station','Status'],rows:()=>[...(state?.facilities||[]).map(x=>[x.code||x.locationCode||'',x.name||x.area||x.location||'',x.station||x.airport||'',x.status||'Active']),...(state?.boSpaces||[]).map(x=>[x.spaceCode||x.code||'',x.spaceName||x.name||x.area||'',x.station||x.airport||'',x.status||'Active'])]},
-    positions:{headers:['Position','Position Name','Station','Status'],rows:()=>{const m=new Map();(state?.personnel||[]).forEach(x=>{const n=String(x.position||x.jabatan||'').trim();if(n&&!m.has(n))m.set(n,[n,n,x.airport||x.station||'',x.status||'Active'])});return [...m.values()]}}
+    airlines:{headers:['ID / IATA','Nama','Status'],rows:()=>[...(state?.airlines||[]).map(x=>[x.id||x.iata||x.code||'',x.name||x.airlineName||'',x.status||'Active']),...refRows('airlinePartner').map(x=>[x.id,x.name,x.status||'Active'])]},
+    aircraftConfigs:{headers:['ID / Code','Aircraft','Configuration','Status'],rows:()=>[...(state?.aircraftConfigs||[]).map(x=>[x.id||x.aircraftType||x.code||'',x.name||x.aircraftName||x.aircraftType||'',x.configuration||x.registration||'',x.status||'Active']),...refRows('aircraftMaster').map(x=>[x.id,x.name,x.note||'',x.status||'Active'])]},
+    currencyExchange:{headers:['ID / Code','Currency / Rate','Detail','Status'],rows:()=>[...refRows('currency'),...refRows('exchangeRate').map(x=>[x.id,x.name,x.note||'',x.status||'Active']) .map(x=>x.length===4?x:[x[0],x[1],x[2],x[3]])]},
+    touchpoints:{headers:['ID','Touch Point','Journey','Status'],rows:()=>[...(state?.touchpoints||[]).map(x=>[x.id||x.code||x.touchpointCode||'',x.name||x.title||x.touchpointName||'',Array.isArray(x.journeys)?x.journeys.join('; '):(x.journeys||x.journey||''),x.status||'Active']),...refRows('touchpoint').map(x=>[x.id,x.name,x.note||'',x.status||'Active'])]},
+    personnel:{headers:['ID / Employee No.','Nama','Station','Position'],rows:()=>[...(state?.personnel||[]).map(x=>[x.id||x.employeeNo||x.employeeId||x.personnelNo||'',x.name||'',x.airport||x.station||'',x.position||x.jabatan||'' ]),...refRows('personnel').map(x=>[x.id,x.name,x.note||'',x.status||'Active'])]},
+    stations:{headers:['ID / IATA','Station','Airport','Status'],rows:()=>[...(state?.airports||[]).map(x=>[x.id||x.iata||x.stationCode||x.code||'',x.stationName||x.code||x.iata||'',x.name||x.airportName||'',x.status||'Active']),...refRows('station').map(x=>[x.id,x.name,x.note||'',x.status||'Active'])]},
+    branchOffices:{headers:['ID / Code','Branch Office','Station','Status'],rows:()=>[...(state?.boSpaces||[]).map(x=>[x.branchOfficeId||x.branchCode||x.branchOffice||x.officeCode||x.id||'',x.branchOffice||x.officeName||x.name||'',x.station||x.airport||'',x.status||'Active']),...refRows('branchOffice').map(x=>[x.id,x.name,x.note||'',x.status||'Active'])]},
+    airports:{headers:['ID / IATA','Airport','ICAO','Status'],rows:()=>[...(state?.airports||[]).map(x=>[x.id||x.iata||x.code||'',x.name||x.airportName||x.stationName||'',x.icao||'',x.status||'Active']),...refRows('airport').map(x=>[x.id,x.name,x.note||'',x.status||'Active'])]},
+    vendors:{headers:['ID / Code','Vendor / Supplier','Service','Status'],rows:()=>[...(state?.serviceProcurement||[]).map(x=>[x.vendorCode||x.supplierCode||x.code||x.id||'',x.vendor||x.supplier||x.provider||x.name||'',x.serviceName||x.serviceType||x.category||'',x.status||'Active']),...refRows('vendor').map(x=>[x.id,x.name,x.note||'',x.status||'Active'])]},
+    serviceProviders:{headers:['ID / Code','Provider','Scope','Status'],rows:()=>[...(state?.serviceProcurement||[]).map(x=>[x.providerCode||x.vendorCode||x.code||x.id||'',x.provider||x.vendor||x.name||x.serviceName||'',x.scope||x.serviceType||x.category||'',x.status||'Active']),...(state?.groundHandlers||[]).map(x=>[x.code||x.iata||x.id||'',x.name||'',x.scope||'Ground Handling',x.status||'Active']),...refRows('serviceProvider').map(x=>[x.id,x.name,x.note||'',x.status||'Active'])]},
+    agreements:{headers:['Agreement No. / ID','Agreement','Type','Status'],rows:()=>[...(state?.lounges||[]).map(x=>[x.documentNumber||x.id||'',x.documentNumber||x.name||'',x.documentType||'Agreement',x.documentStatus||x.status||'Active']),...(state?.serviceProcurement||[]).filter(x=>x.agreement||x.documentNumber).map(x=>[x.documentNumber||x.agreement||x.id||'',x.agreement||x.documentNumber||'',x.documentType||'Agreement',x.status||'Active']),...refRows('agreement').map(x=>[x.id,x.name,x.note||'',x.status||'Active'])]},
+    locations:{headers:['ID / Code','Location / Area','Station','Status'],rows:()=>[...(state?.facilities||[]).map(x=>[x.id||x.code||x.locationCode||'',x.name||x.area||x.location||'',x.station||x.airport||'',x.status||'Active']),...(state?.boSpaces||[]).map(x=>[x.spaceCode||x.code||x.id||'',x.spaceName||x.name||x.area||'',x.station||x.airport||'',x.status||'Active']),...refRows('location').map(x=>[x.id,x.name,x.note||'',x.status||'Active'])]},
+    positions:{headers:['ID / Position','Position','Station','Status'],rows:()=>{const m=new Map();(state?.personnel||[]).forEach(x=>{const n=String(x.position||x.jabatan||'').trim();if(n&&!m.has(n))m.set(n,[`position:${n}`,n,x.airport||x.station||'',x.status||'Active'])});refRows('position').forEach(x=>m.set(x.id,[x.id,x.name,x.note||'',x.status||'Active']));return [...m.values()]}}
   };
   function entityRows(){
     const cfg=entityConfig[idKind]||entityConfig.airlines;
@@ -146,36 +147,24 @@
     };
     window.dispatchEvent(new CustomEvent('ge-master-data-ready'));
   }
-  async function init(){const main=document.querySelector('body > .shell > .main')||document.querySelector('main');const existing=main?.querySelector('.ge-panel');const tabs=existing?.querySelector('.ge-ref-tabs');if(!tabs)return;
-    const tabButton=tabs.querySelector('[data-ref-tab="jenis"]')||tabs.querySelector('button');const idButton=tabs.querySelector('[data-ref-tab="id"]')||Array.from(tabs.querySelectorAll('button')).find(b=>b!==tabButton);if(!tabButton||!idButton)return;tabButton.textContent='Jenis & Referensi';idButton.textContent='ID & MASTER REFERENSI';host.hidden=true;idHost.hidden=true;existing.appendChild(host);existing.appendChild(idHost);
-    const select=()=>{const selected=tabButton.classList.contains('active'),selectedId=idButton.classList.contains('active');existing.querySelectorAll(':scope > :not(.ge-ref-tabs):not(#geIdCatalog):not(#geEntityCatalog)').forEach(el=>el.hidden=selected||selectedId);host.hidden=!selected;idHost.hidden=!selectedId};
-    const activate=which=>{tabs.querySelectorAll('button').forEach(b=>b.classList.remove('active'));which.classList.add('active');select()};
-    tabButton.onclick=()=>activate(tabButton);idButton.onclick=()=>{activate(idButton);renderEntities()};
-    tabs.querySelectorAll('[data-ref-tab]').forEach(b=>b.onclick=()=>{tabButton.classList.remove('active');idButton.classList.remove('active');b.classList.add('active');select()});
-    const bind=(id,event,handler)=>{const el=$(id);if(el)el[event]=handler;return el};
-    bind('idCatalogType','onchange',e=>{kind=e.target.value;render()});
-    bind('idCatalogSearch','oninput',render);
-    const entityTypeSelect=$e('entityCatalogType');
-    if(entityTypeSelect){
-      entityTypeSelect.onchange=null;
-      entityTypeSelect.addEventListener('change',()=>{
-        idKind=entityTypeSelect.value;
-        entitySortIndex=-1;
-        entitySortDir=1;
-        const search=$e('entityCatalogSearch');
-        if(search)search.value='';
-        renderEntities();
-      });
-    }
-    bind('entityCatalogSearch','oninput',renderEntities);
-    bind('entityCatalogAdd','onclick',editEntity);
-    bind('idCatalogAdd','onclick',()=>edit());
-    bind('idCatalogTemplate','onclick',()=>download('id,name,status,note\r\n',`Template_ID_${kind}.csv`));
-    bind('idCatalogExport','onclick',()=>download('id,name,status,note\r\n'+rows().map(x=>[x.id,x.name,x.status,x.note].map(csvCell).join(',')).join('\r\n'),`ID_${kind}.csv`));
-    bind('idCatalogUpload','onclick',()=>$('idCatalogFile')?.click());
-    bind('idCatalogFile','onchange',e=>{upload(e.target.files?.[0]);e.target.value=''});
-    try{await GEStore.waitAuth();state=await GEStore.hydrate(['referenceCatalog','serviceAlignments','airlines','aircraftConfigs','currencies','exchangeRates','touchpoints','personnel','airports','groundHandlers','serviceProcurement','boSpaces','airportSystems','lounges','facilities']);publishMasterReferences();render();tabButton.click();renderEntities();status('Daftar referensi siap dikelola.')}
-    catch(e){$('idCatalogRows').innerHTML='<tr><td colspan="5">Katalog belum dapat dimuat. Coba buka ulang halaman.</td></tr>';status(e.message)}
-  }
+  async function init(){
+    const main=document.querySelector('body > .shell > .main')||document.querySelector('main');
+    const existing=main?.querySelector('.ge-panel');
+    if(!existing)return;
+    const oldTabs=existing.querySelector('.ge-ref-tabs');
+    if(oldTabs)oldTabs.remove();
+    existing.querySelectorAll('#refRows,#refHead,#refAdd,#refTemplate,#refUpload,#refUploadFile,#refSearch,#refModal,.ge-ref-guidance').forEach(el=>el.closest('.ge-ref-toolbar')?.remove()||el.remove());
+    const tabs=document.createElement('div');tabs.className='ge-ref-tabs';tabs.innerHTML='<button type="button" class="active" data-ref-tab="jenis">JENIS &amp; REFERENSI</button><button type="button" data-ref-tab="id">ID &amp; MASTER REFERENSI</button>';
+    existing.prepend(tabs);
+    host.hidden=true;idHost.hidden=true;existing.append(host,idHost);
+    const activate=which=>{tabs.querySelectorAll('button').forEach(b=>b.classList.remove('active'));which.classList.add('active');host.hidden=which.dataset.refTab!=='jenis';idHost.hidden=which.dataset.refTab!=='id';};
+    const jenis=tabs.querySelector('[data-ref-tab="jenis"]'), ids=tabs.querySelector('[data-ref-tab="id"]');
+    jenis.onclick=()=>{activate(jenis);render()}; ids.onclick=()=>{activate(ids);renderEntities()};
+    const bind=(id,event,handler)=>{const el=$(id);if(el)el[event]=handler};
+    bind('idCatalogType','onchange',e=>{kind=e.target.value;render()});bind('idCatalogSearch','oninput',render);bind('idCatalogAdd','onclick',()=>edit());bind('idCatalogTemplate','onclick',()=>download('id,name,status,note\r\n',`Template_ID_${kind}.csv`));bind('idCatalogExport','onclick',()=>download('id,name,status,note\r\n'+rows().map(x=>[x.id,x.name,x.status,x.note].map(csvCell).join(',')).join('\r\n'),`ID_${kind}.csv`));bind('idCatalogUpload','onclick',()=>$('idCatalogFile')?.click());bind('idCatalogFile','onchange',e=>{upload(e.target.files?.[0]);e.target.value=''});
+    const et=$e('entityCatalogType');if(et)et.onchange=()=>{idKind=et.value;entitySortIndex=-1;entitySortDir=1;renderEntities()};bindEntity('entityCatalogSearch','oninput',renderEntities);bindEntity('entityCatalogAdd','onclick',editEntity);bindEntity('entityCatalogExport','onclick',()=>downloadEntity());
+    function bindEntity(id,event,handler){const el=$e(id);if(el)el[event]=handler}
+    try{await GEStore.waitAuth();state=await GEStore.hydrate(['referenceCatalog','serviceAlignments','airlines','aircraftConfigs','touchpoints','personnel','airports','groundHandlers','serviceProcurement','boSpaces','airportSystems','lounges','facilities']);publishMasterReferences();render();renderEntities();activate(jenis);status('Daftar referensi siap dikelola.')}catch(e){$('idCatalogRows').innerHTML='<tr><td colspan="5">Katalog belum dapat dimuat. Coba buka ulang halaman.</td></tr>';status(e.message)}}
+  function downloadEntity(){const cfg=entityConfig[idKind]||entityConfig.airlines;const rows=entityRows();download(cfg.headers.join(',')+'\r\n'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n'),`Master_${idKind}.csv`)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
