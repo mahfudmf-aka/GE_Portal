@@ -35,9 +35,10 @@
   idHost.innerHTML=`<h2>ID &amp; MASTER REFERENSI</h2><p>Daftar ID/master operasional yang digunakan bersama oleh Planning, Experience, Cost dan workspace lainnya.</p>
     <div class="ge-ref-toolbar"><label>Kelompok <select id="entityCatalogType" class="ge-input">${idTypes.map(([id,label])=>`<option value="${id}" ${id===idKind?'selected':''}>${label}</option>`).join('')}</select></label>
     <input id="entityCatalogSearch" class="ge-input" placeholder="Cari ID atau nama...">
+    <button id="entityCatalogAdd" class="ge-btn primary" type="button">+ Tambah Satuan / ID</button>
     <button id="entityCatalogExport" class="ge-btn" type="button">Unduh Data</button></div>
     <div class="ge-table-wrap"><table><thead id="entityCatalogHead"></thead><tbody id="entityCatalogRows"><tr><td>Memuat data...</td></tr></tbody></table></div>
-    <p id="entityCatalogStatus" role="status" aria-live="polite"></p>`;
+    <p id="entityCatalogStatus" role="status" aria-live="polite"></p><div id="entityCatalogDialog" class="ge-id-dialog" hidden></div>`;
   function $(id){return host.querySelector('#'+id)}
   function $e(id){return idHost.querySelector('#'+id)}
   const entityConfig={
@@ -55,8 +56,25 @@
     locations:{headers:['ID','Location / Area','Station','Status'],rows:()=>[...(state?.facilities||[]).map(x=>[x.id||x.code||'',x.name||x.area||x.location||'',x.station||x.airport||'',x.status||'Active']),...(state?.boSpaces||[]).map(x=>[x.id||'',x.spaceName||x.name||x.area||'',x.station||x.airport||'',x.status||'Active'])]},
     positions:{headers:['ID','Position','Station','Status'],rows:()=>{const m=new Map();(state?.personnel||[]).forEach(x=>{const n=String(x.position||x.jabatan||'').trim();if(n&&!m.has(n))m.set(n,['position:'+n,n,x.airport||x.station||'',x.status||'Active'])});return [...m.values()]} }
   };
-  function entityRows(){return entityConfig[idKind]?.rows?.()||[]}
+  function entityRows(){
+    const base=entityConfig[idKind]?.rows?.()||[];
+    const manual=(state?.referenceCatalog||[]).filter(x=>x.kind===`id:${idKind}`).map(x=>[x.id||'',x.name||'',x.note||'',x.status||'Active']);
+    return [...base,...manual];
+  }
   function renderEntities(){const cfg=entityConfig[idKind]||entityConfig.airlines,q=String($e('entityCatalogSearch')?.value||'').trim().toLocaleLowerCase();$e('entityCatalogHead').innerHTML='<tr>'+cfg.headers.map(h=>`<th>${esc(h)}</th>`).join('')+'</tr>';const rows=entityRows().filter(r=>r.some(v=>String(v??'').toLocaleLowerCase().includes(q)));$e('entityCatalogRows').innerHTML=rows.map(r=>'<tr>'+r.map(v=>`<td>${esc(Array.isArray(v)?v.join('; '):v)}</td>`).join('')+'</tr>').join('')||`<tr><td colspan="${cfg.headers.length}">Belum ada data pada kelompok ini.</td></tr>`;$e('entityCatalogStatus').textContent=`${rows.length} data ditampilkan`; }
+  function editEntity(){
+    if(!canEdit())return;
+    const label=idTypes.find(x=>x[0]===idKind)?.[1]||'Master Referensi';
+    dialogEntity(`Tambah ${label}`,`<label>ID / Kode <input id="entityEditCode" class="ge-input" placeholder="Masukkan ID / kode"></label><label>Nama <input id="entityEditName" class="ge-input" placeholder="Masukkan nama"></label><label>Catatan <input id="entityEditNote" class="ge-input" placeholder="Opsional"></label><label>Status <select id="entityEditState" class="ge-input"><option>Active</option><option>Inactive</option></select></label>`,async d=>{
+      const code=d.querySelector('#entityEditCode').value.trim(),name=d.querySelector('#entityEditName').value.trim();
+      if(!code||!name)throw Error('ID dan nama wajib diisi.');
+      if(entityRows().some(r=>String(r[0]||'').toLocaleLowerCase()===code.toLocaleLowerCase()))throw Error('ID sudah ada pada kelompok ini.');
+      state.referenceCatalog.push({kind:`id:${idKind}`,id:code,name,note:d.querySelector('#entityEditNote').value.trim(),status:d.querySelector('#entityEditState').value});
+      await persist();
+      renderEntities();
+    });
+  }
+  function dialogEntity(title,content,save){const d=$e('entityCatalogDialog');if(!d)return;d.hidden=false;d.innerHTML=`<div class="ge-id-backdrop"><div class="ge-id-modal" role="dialog" aria-modal="true" aria-label="${esc(title)}"><h3>${esc(title)}</h3>${content}<p id="entityDialogStatus" role="status"></p><div class="ge-id-actions"><button type="button" data-cancel class="ge-btn">Batal</button><button type="button" data-save class="ge-btn primary">Simpan</button></div></div></div>`;d.querySelector('[data-cancel]').onclick=()=>{d.hidden=true;d.replaceChildren()};d.querySelector('[data-save]').onclick=async e=>{e.target.disabled=true;try{await save(d);d.hidden=true;d.replaceChildren()}catch(err){d.querySelector('#entityDialogStatus').textContent='Gagal menyimpan: '+err.message;e.target.disabled=false}}; }
   function rows(){const stored=(state?.referenceCatalog||[]).filter(x=>x.kind===kind);const existing=kind==='capability'?[...new Set((state?.serviceAlignments||[]).map(x=>String(x.capability||'').trim()).filter(Boolean))].map(name=>[name,name]):[];return [...[...(baseCategories[kind]||[]),...existing].filter(([id])=>!stored.some(x=>x.id===id)).map(([id,name])=>({kind,id,name,status:'Active',note:'Kategori dasar',builtIn:true})),...stored]}
   function status(message){$('idCatalogStatus').textContent=message}
   function render(){const q=$('idCatalogSearch').value.trim().toLocaleLowerCase();const r=rows().filter(x=>[x.id,x.name,x.note].some(v=>String(v||'').toLocaleLowerCase().includes(q)));
@@ -115,6 +133,9 @@
     const bind=(id,event,handler)=>{const el=$(id);if(el)el[event]=handler;return el};
     bind('idCatalogType','onchange',e=>{kind=e.target.value;render()});
     bind('idCatalogSearch','oninput',render);
+    bind('entityCatalogType','onchange',e=>{idKind=e.target.value;renderEntities()});
+    bind('entityCatalogSearch','oninput',renderEntities);
+    bind('entityCatalogAdd','onclick',editEntity);
     bind('idCatalogAdd','onclick',()=>edit());
     bind('idCatalogTemplate','onclick',()=>download('id,name,status,note\r\n',`Template_ID_${kind}.csv`));
     bind('idCatalogExport','onclick',()=>download('id,name,status,note\r\n'+rows().map(x=>[x.id,x.name,x.status,x.note].map(csvCell).join(',')).join('\r\n'),`ID_${kind}.csv`));
