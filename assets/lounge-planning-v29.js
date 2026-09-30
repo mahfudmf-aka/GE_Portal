@@ -611,6 +611,8 @@
   }
 
   window.geChangeLoungeCardPageP87=function(delta){loungeCardPage+=Number(delta||0);renderCards();document.querySelector('.lounge-open-heading-v237')?.scrollIntoView({behavior:'smooth',block:'start'});};
+  window.geLoungeViewSelectR6=function(value){window.geSetLoungeViewP87?.(value);};
+  function bindCanonicalLoungeView(){const view=document.getElementById('geLoungeViewSelectR6');if(view)view.onchange=function(){window.geLoungeViewSelectR6(this.value);};}
   window.geSetLoungeViewP87=function(view){const detail=view==='detail',grid=document.getElementById('loungeCardGridV237'),table=document.querySelector('.lounge-table-fallback-v237'),pager=document.querySelector('.lounge-master-pager-v237');if(grid)grid.hidden=detail;if(table){table.hidden=!detail;table.classList.toggle('ge-p29-table-visible',detail)}if(pager)pager.hidden=detail;};
   window.addEventListener('DOMContentLoaded',()=>setTimeout(setup,0));
 })();
