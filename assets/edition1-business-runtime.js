@@ -6035,7 +6035,7 @@ function renderLoungeCardsV237(){
   const prev=document.getElementById('loungeCardPrevV237'),next=document.getElementById('loungeCardNextV237');
   if(prev)prev.disabled=GE_LOUNGE_CARD_PAGE_V237<=1;if(next)next.disabled=GE_LOUNGE_CARD_PAGE_V237>=pages;
 }
-function changeLoungeCardPageV237(delta){GE_LOUNGE_CARD_PAGE_V237+=delta;renderLoungeCardsV237();document.querySelector('.lounge-open-heading-v237')?.scrollIntoView({behavior:'smooth',block:'start'})}
+function changeLoungeCardPageV237(delta){GE_LOUNGE_CARD_PAGE_V237=Math.max(1,Number(GE_LOUNGE_CARD_PAGE_V237||1)+Number(delta||0));renderLoungeCardsV237();document.querySelector('.lounge-open-heading-v237')?.scrollIntoView({behavior:'smooth',block:'start'})}
 window.addEventListener('DOMContentLoaded',()=>{
   renderLoungeCardsV237();
   ['loungeSearch','loungeSearchV234','loungeAirportFilter','loungeAirportFilterV234'].forEach(id=>{
@@ -9340,7 +9340,7 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
       const priceMeta=scheduleCount?`${scheduleCount} Price Period${scheduleCount===1?'':'s'}`:'';
       const review=rt.status==='REVIEW'?`<div class="ge-p29-review-note">Requires Review: ${esc(rt.reason)}</div>`:'';
       const update=canEdit()?`<button class="btn secondary compact-btn" type="button" onclick="openLoungeEdit(${Number(x.id)})">Update</button>`:'';
-      const del=typeof geIsAdmin==='function'&&geIsAdmin()?`<button class="btn danger compact-btn" type="button" onclick="deleteLoungeV239(${Number(x.id)})">Hapus</button>`:'';
+      const del=canEdit()?`<button class="btn danger compact-btn" type="button" onclick="deleteLoungeV239(${Number(x.id)})">Hapus</button>`:'';
       const detail=scheduleCount?`<button class="btn secondary compact-btn" type="button" onclick="geP29ViewPriceSchedule(${Number(x.id)})">View Price Schedule</button>`:'';
       return `<article class="lounge-master-card-v237 ge-p29-lounge-card">
         <div class="lounge-master-code-v237">${esc(x.airport||'-')}</div>
@@ -9557,7 +9557,9 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
 
   function setup(){
     setupTypeFilter();
-    const heading=document.querySelector('.lounge-master-view-label-v237');    const templateBtn=[...document.querySelectorAll('button')].find(b=>/Unduh Template/i.test(b.textContent||''));if(templateBtn){templateBtn.textContent='Download CSV Template';templateBtn.title='Download CSV Template P29';}
+    const heading=document.querySelector('.lounge-master-view-label-v237');
+    if(heading&&!document.getElementById('geP29ViewToggle')){const toggle=document.createElement('div');toggle.id='geP29ViewToggle';toggle.className='ge-p29-view-toggle';toggle.innerHTML='<button type="button" class="active" data-view="grid">Grid</button><button type="button" data-view="detail">Details</button><label class="ge-p29-history-toggle"><input id="geP29ShowHistory" type="checkbox"> Tampilkan history agreement</label>';heading.appendChild(toggle);document.getElementById('geP29ShowHistory').onchange=()=>renderLounges();toggle.querySelectorAll('button').forEach(b=>b.onclick=()=>{toggle.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));const detail=b.dataset.view==='detail';const grid=document.getElementById('loungeCardGridV237');if(grid)grid.style.display=detail?'none':'';const pager=document.getElementById('loungeCardPageInfoV237')?.parentElement;if(pager)pager.style.display=detail?'none':'';document.querySelector('.lounge-table-fallback-v237')?.classList.toggle('ge-p29-table-visible',detail);});}
+    const templateBtn=[...document.querySelectorAll('button')].find(b=>/Unduh Template/i.test(b.textContent||''));if(templateBtn){templateBtn.textContent='Download CSV Template';templateBtn.title='Download CSV Template P29';}
     ['loungeRegionFilter','loungeAirportFilter','loungeNameFilter','loungeStatusFilter'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('change',()=>{GE_LOUNGE_CARD_PAGE_V237=1;renderLounges()})});
     try{if(typeof fillAirportSelects==='function')fillAirportSelects()}catch(e){}
     renderLounges();
@@ -9822,6 +9824,13 @@ window.geInitAirportCanonical=function(){const rows=(typeof geAirportVisibleRows
 })();
 
 
+/* Canonical view controls shared by Initiative and Lounge/Tenant. */
+(function(){
+ window.geSetLoungeViewR6=function(view){const detail=view==='detail',grid=document.getElementById('loungeCardGridV237'),table=document.querySelector('.lounge-table-fallback-v237'),pager=document.getElementById('loungeCardPageInfoV237')?.parentElement;if(grid)grid.style.display=detail?'none':'';if(table){table.classList.toggle('ge-p29-table-visible',detail);table.style.removeProperty('display');}if(pager)pager.style.display=detail?'none':'';};
+ const oldRender=window.renderLounges; if(oldRender)window.renderLounges=function(){oldRender();const v=document.getElementById('geLoungeViewSelectR6')?.value||'grid';window.geSetLoungeViewR6(v)};
+})();
+
+
 /* R12 CANONICAL UI CONTRACT — replaces obsolete mutation behavior; no parallel data model. */
 (function(){
 'use strict';
@@ -9837,6 +9846,24 @@ const open0=window.openInitiativeModalV224;
 window.openInitiativeModalV224=function(id=null){ensureInitiativeCanonicalFields();return open0?.(id)};
 window.geEnsureInitiativeCanonicalFieldsR12=ensureInitiativeCanonicalFields;
 
+function installSearchableSelect(select){
+ if(!select||select.dataset.comboR12)return;select.dataset.comboR12='1';
+ const wrap=document.createElement('div');wrap.className='ge-combo-r12';
+ const input=document.createElement('input');input.type='text';input.className='ge-combo-input-r12';input.placeholder=select.options[0]?.textContent||'Pilih atau ketik...';input.autocomplete='off';
+ const toggle=document.createElement('button');toggle.type='button';toggle.className='ge-combo-toggle-r12';toggle.setAttribute('aria-label','Buka pilihan');toggle.textContent='⌄';
+ const menu=document.createElement('div');menu.className='ge-combo-menu-r12';
+ select.parentNode.insertBefore(wrap,select);wrap.append(input,toggle,menu,select);select.classList.add('ge-combo-source-r12');
+ const render=()=>{const q=input.value.trim().toLowerCase(),opts=[...select.options].filter((o,i)=>i>0&&(!q||o.textContent.toLowerCase().includes(q)));menu.innerHTML=opts.length?opts.map(o=>`<button type="button" data-value="${esc12(o.value)}">${esc12(o.textContent)}</button>`).join(''):'<div class="ge-combo-empty-r12">Tidak ada pilihan yang cocok.</div>';menu.querySelectorAll('button').forEach(b=>b.onclick=()=>{select.value=b.dataset.value;input.value=b.textContent;menu.classList.remove('show');select.dispatchEvent(new Event('change',{bubbles:true}))})};
+ const open=()=>{render();menu.classList.add('show')};toggle.onclick=()=>menu.classList.toggle('show')?render():null;input.onfocus=open;input.oninput=()=>{select.value='';open();select.dispatchEvent(new Event('change',{bubbles:true}))};
+ document.addEventListener('pointerdown',e=>{if(!wrap.contains(e.target))menu.classList.remove('show')});
+ select.addEventListener('change',()=>{const o=select.selectedOptions?.[0];if(o&&select.value)input.value=o.textContent;else if(!select.value&&document.activeElement!==input)input.value=''});
+}
+window.geInstallLoungeFiltersR12=function(){
+ const free=document.getElementById('loungeFilterTextR6');if(free)free.remove();
+ ['loungeRegionFilter','loungeAirportFilter','loungeNameFilter','loungeStatusFilter'].forEach(id=>installSearchableSelect(document.getElementById(id)));
+};
+const lounge0=window.renderLounges;
+if(lounge0)window.renderLounges=function(){const r=lounge0();window.geInstallLoungeFiltersR12();const v=document.getElementById('geLoungeViewSelectR6')?.value||'grid';window.geSetLoungeViewR6?.(v);return r};
 })();
 
 /* R19 — consolidated interaction fixes: planning actions + canonical list/detail views. */
@@ -9847,6 +9874,23 @@ function byId(id){return document.getElementById(id)}
 ['openPlanningRecordModal','closePlanningRecordModal','savePlanningRecord','deletePlanningRecord','openServiceProcurementModalV243','closeServiceProcurementModalV243','saveServiceProcurementV243','deleteServiceProcurementV243','renderLoungeProcurement','renderTouchpointStandards'].forEach(name=>{
   try{ if(typeof eval(name)==='function') window[name]=eval(name); }catch(_e){}
 });
+function setLoungeView(view){
+ const detail=view==='detail';
+ window.GE_LOUNGE_VIEW_R19=detail?'detail':'grid';
+ const grid=byId('loungeCardGridV237'), table=document.querySelector('.lounge-table-fallback-v237');
+ const pager=byId('loungeCardPageInfoV237')?.parentElement;
+ if(grid){grid.hidden=false;grid.style.display=detail?'none':'';}
+ if(table){table.hidden=false;table.classList.toggle('ge-p29-table-visible',detail);table.style.display=detail?'block':'none';}
+ if(pager){pager.hidden=false;pager.style.display=detail?'none':'';}
+ const sel=byId('geLoungeViewSelectR6');if(sel&&sel.value!==window.GE_LOUNGE_VIEW_R19)sel.value=window.GE_LOUNGE_VIEW_R19;
+ document.querySelectorAll('#geP29ViewToggle button').forEach(b=>b.classList.toggle('active',b.dataset.view===window.GE_LOUNGE_VIEW_R19));
+}
+window.geSetLoungeViewR6=setLoungeView;
+function bindLoungeView(){
+ const sel=byId('geLoungeViewSelectR6');if(sel&&!sel.dataset.r19){sel.dataset.r19='1';sel.onchange=()=>setLoungeView(sel.value);}
+ document.querySelectorAll('#geP29ViewToggle button').forEach(b=>{if(b.dataset.r19)return;b.dataset.r19='1';b.onclick=()=>setLoungeView(b.dataset.view);});
+ setLoungeView(window.GE_LOUNGE_VIEW_R19||sel?.value||'grid');
+}
 function setInitiativeView(view){
  window.GE_INITIATIVE_VIEW_R4=view==='list'?'list':'grid';
  const sel=byId('geInitiativeViewSelectR6');if(sel&&sel.value!==window.GE_INITIATIVE_VIEW_R4)sel.value=window.GE_INITIATIVE_VIEW_R4;
@@ -9861,9 +9905,9 @@ function bindInitiativeView(){
 function bindPlanningActions(){
  document.querySelectorAll('button[onclick*="openPlanningRecordModal"],button[onclick*="openServiceProcurementModalV243"]').forEach(b=>{b.disabled=false;b.style.pointerEvents='auto';});
 }
-function init(){bindInitiativeView();bindPlanningActions();}
+function init(){bindLoungeView();bindInitiativeView();bindPlanningActions();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,80));else setTimeout(init,80);
-const mo=new MutationObserver(()=>{bindInitiativeView();bindPlanningActions();});
+const mo=new MutationObserver(()=>{bindLoungeView();bindInitiativeView();bindPlanningActions();});
 if(document.body)mo.observe(document.body,{childList:true,subtree:true});else document.addEventListener('DOMContentLoaded',()=>mo.observe(document.body,{childList:true,subtree:true}));
 })();
 
