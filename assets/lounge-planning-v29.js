@@ -348,14 +348,23 @@
   }
 
   function filterType(){return document.querySelector('[data-ge-p29-service-filter].active')?.dataset.geP29ServiceFilter||''}
+  function comboText(selectId){
+    const select=document.getElementById(selectId);
+    return String(select?.closest('.ge-combo-r12')?.querySelector('.ge-combo-input-r12')?.value||'').trim().toLowerCase();
+  }
+  function selectedStations(){
+    const select=document.getElementById('loungeAirportFilter');
+    if(!select)return [];
+    return [...(select.selectedOptions||[])].map(o=>String(o.value||'').trim().toUpperCase()).filter(Boolean);
+  }
   function filteredRows(){
     const base=(data.lounges||[]).slice();
-    const comboText=id=>String(val(id)||'').trim().toLowerCase();
-    const region=val('loungeRegionFilter'),station=val('loungeAirportFilter'),provider=val('loungeNameFilter'),status=val('loungeStatusFilter'),type=filterType();
-    const regionText=comboText('loungeRegionFilterTextR12'),stationText=comboText('loungeAirportFilterTextR12'),providerText=comboText('loungeNameFilterTextR12'),statusText=comboText('loungeStatusFilterTextR12');
+    const region=val('loungeRegionFilter'),provider=val('loungeNameFilter'),status=val('loungeStatusFilter'),type=filterType();
+    const stations=selectedStations();
+    const regionText=comboText('loungeRegionFilter'),providerText=comboText('loungeNameFilter'),statusText=comboText('loungeStatusFilter');
     return base.filter(x=>{
-      const rt=resolveType(x),t=rt.value,rv=String(x.region||''),sv=String(x.airport||''),pv=String(x.name||''),st=String(x.documentStatus||'');
-      return (!region||rv===region)&&(!station||sv===station)&&(!provider||pv===provider)&&(!status||st===status)&&(!regionText||rv.toLowerCase().includes(regionText))&&(!stationText||sv.toLowerCase().includes(stationText))&&(!providerText||pv.toLowerCase().includes(providerText))&&(!statusText||st.toLowerCase().includes(statusText))&&(!type||t===type);
+      const rt=resolveType(x),t=rt.value,rv=String(x.region||''),sv=String(x.airport||'').trim().toUpperCase(),pv=String(x.name||''),st=String(x.documentStatus||'');
+      return (!region||rv===region)&&(!stations.length||stations.includes(sv))&&(!provider||pv===provider)&&(!status||st===status)&&(!regionText||rv.toLowerCase().includes(regionText))&&(!providerText||pv.toLowerCase().includes(providerText))&&(!statusText||st.toLowerCase().includes(statusText))&&(!type||t===type);
     });
   }
   window.loungeFiltered=function(){return filteredRows()};
@@ -586,9 +595,53 @@
     const blob=new Blob(['\ufeff'+lines.join('\r\n')+'\r\n'],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Daftar_Lounge_Tenant_P29.csv';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},300);
   };
 
+  function populateStationFilterOptions(){
+    const select=document.getElementById('loungeAirportFilter');
+    if(!select)return;
+    const current=new Set([...(select.selectedOptions||[])].map(o=>String(o.value||'').trim().toUpperCase()).filter(Boolean));
+    let rows=[];
+    try{rows=(data.airports||[]).map(x=>({code:String(x.code||x.airportCode||x.iata||x.stationCode||x.id||'').trim().toUpperCase(),name:String(x.name||x.airportName||x.city||'').trim()}));}catch(e){}
+    try{if(typeof GECore?.list==='function')rows=rows.concat((GECore.list('airports')||[]).map(x=>({code:String(x.code||x.airportCode||x.iata||x.stationCode||x.id||'').trim().toUpperCase(),name:String(x.name||x.airportName||x.city||'').trim()})));}catch(e){}
+    rows=rows.concat((data.lounges||[]).map(x=>({code:String(x.airport||'').trim().toUpperCase(),name:''})));
+    const seen=new Set(),unique=rows.filter(x=>x.code&&!seen.has(x.code)&&(seen.add(x.code),true)).sort((a,b)=>a.code.localeCompare(b.code));
+    select.innerHTML=unique.map(x=>`<option value="${esc(x.code)}" ${current.has(x.code)?'selected':''}>${esc(x.code+(x.name?' — '+x.name:''))}</option>`).join('');
+  }
+
   function setupFilterCombosR12(){
     document.querySelectorAll('.ge-combo-input-r12').forEach(input=>input.setAttribute('autocomplete','off'));
     document.querySelectorAll('.ge-combo-toggle-r12').forEach(btn=>btn.setAttribute('aria-haspopup','listbox'));
+  }
+
+  function setupStationMultiSelectR12(){
+    const select=document.getElementById('loungeAirportFilter');if(!select)return;
+    const existing=select.parentElement?.querySelector('.ge-station-multi-r12');
+    if(existing){renderStationMultiOptionsR12(existing,select);return;}
+    select.classList.add('ge-station-source-r12');
+    const wrap=document.createElement('div');wrap.className='ge-station-multi-r12';
+    wrap.innerHTML='<button type="button" class="ge-station-trigger-r12" aria-haspopup="listbox" aria-expanded="false"><span>Semua Station</span><i>▾</i></button><div class="ge-station-menu-r12" role="listbox"><input class="ge-station-search-r12" type="search" placeholder="Cari Station..." autocomplete="off"><div class="ge-station-options-r12"></div><div class="ge-station-menu-actions-r12"><button type="button" data-action="clear">Clear</button><button type="button" data-action="done">Selesai</button></div></div>';
+    select.parentNode.insertBefore(wrap,select);
+    const trigger=wrap.querySelector('.ge-station-trigger-r12'),menu=wrap.querySelector('.ge-station-menu-r12'),search=wrap.querySelector('.ge-station-search-r12');
+    trigger.onclick=()=>{const open=menu.classList.toggle('show');trigger.setAttribute('aria-expanded',String(open));if(open){search.value='';renderStationMultiOptionsR12(wrap,select);search.focus()}};
+    search.oninput=()=>renderStationMultiOptionsR12(wrap,select);
+    wrap.querySelector('[data-action="clear"]').onclick=()=>{[...select.options].forEach(o=>o.selected=false);renderStationMultiOptionsR12(wrap,select);loungeCardPage=1;renderLounges()};
+    wrap.querySelector('[data-action="done"]').onclick=()=>{menu.classList.remove('show');trigger.setAttribute('aria-expanded','false');loungeCardPage=1;renderLounges()};
+    select.addEventListener('change',()=>{updateStationTriggerR12(wrap,select);loungeCardPage=1;renderLounges()});
+    document.addEventListener('pointerdown',e=>{if(!wrap.contains(e.target)){menu.classList.remove('show');trigger.setAttribute('aria-expanded','false')}});
+    renderStationMultiOptionsR12(wrap,select);
+  }
+
+  function updateStationTriggerR12(wrap,select){
+    const selected=[...(select.selectedOptions||[])].filter(o=>o.value);
+    const span=wrap.querySelector('.ge-station-trigger-r12 span');
+    if(span)span.textContent=!selected.length?'Semua Station':selected.length===1?selected[0].textContent:`${selected.length} Station dipilih`;
+  }
+  function renderStationMultiOptionsR12(wrap,select){
+    const q=String(wrap.querySelector('.ge-station-search-r12')?.value||'').trim().toLowerCase();
+    const box=wrap.querySelector('.ge-station-options-r12');
+    const opts=[...select.options].filter(o=>o.value&&(!q||o.textContent.toLowerCase().includes(q)));
+    box.innerHTML=opts.length?opts.map(o=>`<label><input type="checkbox" value="${esc(o.value)}" ${o.selected?'checked':''}><span>${esc(o.textContent)}</span></label>`).join(''):'<div class="ge-station-empty-r12">Station tidak ditemukan.</div>';
+    box.querySelectorAll('input').forEach(cb=>cb.onchange=()=>{const o=[...select.options].find(x=>x.value===cb.value);if(o)o.selected=cb.checked;updateStationTriggerR12(wrap,select);loungeCardPage=1;renderLounges()});
+    updateStationTriggerR12(wrap,select);
   }
 
   function setupTypeFilter(){
@@ -599,12 +652,14 @@
 
   function setup(){
     setupFilterCombosR12();
+    populateStationFilterOptions();
+    setupStationMultiSelectR12();
     setupTypeFilter();
     const templateBtn=[...document.querySelectorAll('button')].find(b=>/Unduh Template/i.test(b.textContent||''));if(templateBtn){templateBtn.textContent='Download CSV Template';templateBtn.title='Download CSV Template P29';}
-    ['loungeRegionFilter','loungeAirportFilter','loungeNameFilter','loungeStatusFilter'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('change',()=>{loungeCardPage=1;renderLounges()})});
-    ['loungeRegionFilterTextR12','loungeAirportFilterTextR12','loungeNameFilterTextR12','loungeStatusFilterTextR12'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('input',()=>{loungeCardPage=1;renderLounges()})});
-    document.querySelectorAll('.ge-combo-toggle-r12').forEach(btn=>btn.addEventListener('click',()=>{const select=btn.parentElement?.querySelector('select');if(select){select.focus();try{select.showPicker?.()}catch(e){}}}));
+    ['loungeRegionFilter','loungeNameFilter','loungeStatusFilter'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('change',()=>{loungeCardPage=1;renderLounges()})});
     try{if(typeof fillAirportSelects==='function')fillAirportSelects()}catch(e){}
+    populateStationFilterOptions();
+    setupStationMultiSelectR12();
     renderLounges();
   }
 

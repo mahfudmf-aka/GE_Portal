@@ -9848,7 +9848,7 @@ window.openInitiativeModalV224=function(id=null){ensureInitiativeCanonicalFields
 window.geEnsureInitiativeCanonicalFieldsR12=ensureInitiativeCanonicalFields;
 
 function installSearchableSelect(select){
- if(!select||select.dataset.comboR12)return;select.dataset.comboR12='1';
+ if(!select||select.multiple||select.dataset.comboR12)return;select.dataset.comboR12='1';
  const wrap=document.createElement('div');wrap.className='ge-combo-r12';
  const input=document.createElement('input');input.type='text';input.className='ge-combo-input-r12';input.placeholder=select.options[0]?.textContent||'Pilih atau ketik...';input.autocomplete='off';
  const toggle=document.createElement('button');toggle.type='button';toggle.className='ge-combo-toggle-r12';toggle.setAttribute('aria-label','Buka pilihan');toggle.textContent='⌄';
