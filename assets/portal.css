@@ -5700,3 +5700,41 @@ html body.final-v257.final-shell-r5.e1-page .ge-sidebar-toggle:hover{background:
 #r43Monitoring button:not(.ge-btn):not(.ge-tab-btn) {
   -webkit-appearance:none!important; appearance:none!important;
 }
+
+/* Canonical Monitoring & Assessment button system — one portal theme */
+#r43Monitoring .ge-assess-card button:not(.ge-btn),
+#r43Monitoring .ge-form-builder button:not(.ge-btn),
+#r43Monitoring .ge-form-palette button:not(.ge-btn),
+#r43Monitoring .ge-form-field button:not(.ge-btn),
+#r43Monitoring .ge-form-section-title button:not(.ge-btn),
+#r43Monitoring .ge-form-inspector button:not(.ge-btn),
+#r43Monitoring .ge-form-multi-menu button:not(.ge-btn) {
+  -webkit-appearance:none;
+  appearance:none;
+  border:1px solid #a9bfd9;
+  border-radius:8px;
+  min-height:36px;
+  padding:8px 12px;
+  background:#fff;
+  color:#082b59;
+  font:inherit;
+  font-weight:700;
+  cursor:pointer;
+}
+#r43Monitoring .ge-assess-card button:not(.ge-btn):hover,
+#r43Monitoring .ge-form-builder button:not(.ge-btn):hover,
+#r43Monitoring .ge-form-palette button:not(.ge-btn):hover,
+#r43Monitoring .ge-form-field button:not(.ge-btn):hover,
+#r43Monitoring .ge-form-section-title button:not(.ge-btn):hover,
+#r43Monitoring .ge-form-inspector button:not(.ge-btn):hover,
+#r43Monitoring .ge-form-multi-menu button:not(.ge-btn):hover {
+  background:#082b59;
+  color:#fff;
+  border-color:#082b59;
+}
+#r43Monitoring .ge-form-field-select,
+#r43Monitoring .ge-form-section-select { text-align:left; }
+#r43Monitoring .ge-form-palette button.ge-btn { width:100%; text-align:left; margin:5px 0; }
+#r43Monitoring .ge-form-field > span,
+#r43Monitoring .ge-form-section-title > span { display:flex; flex-wrap:wrap; gap:5px; }
+#r43Monitoring .ge-btn:disabled { opacity:.45; cursor:not-allowed; transform:none; }

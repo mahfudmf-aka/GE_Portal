@@ -5701,9 +5701,15 @@ deletePlanningRecordV222 = async function(type,id){
 
 deleteInitiativeV224 = async function(id){
   if(!geInitiativeAdminV224())return;
-  const x=(data.initiatives||[]).find(v=>v.id===id);if(!x)return;
-  if(!await geConfirmDeleteV234({title:'Hapus Inisiatif?',item:x.name||'Inisiatif',message:'Timeline, milestone, dan referensi dokumen yang terkait dengan inisiatif ini akan ikut terhapus dari master inisiatif.'}))return;
-  data.initiatives=data.initiatives.filter(v=>v.id!==id);save();renderInitiatives();
+  const key=String(id??'');
+  if(!key)return;
+  const x=(data.initiatives||[]).find(v=>String(v.id??'')===key);
+  if(!x)return;
+  if(!await geConfirmDeleteV234({title:'Delete Initiative?',item:x.name||'Initiative',message:'Timeline, milestone, dan referensi dokumen yang terkait dengan initiative ini akan ikut terhapus dari master initiative.'}))return;
+  data.initiatives=data.initiatives.filter(v=>String(v.id??'')!==key);
+  save();
+  await window.GEStore?.flush?.();
+  renderInitiatives();
 };
 
 deleteInitiativeDocumentV227 = async function(id,kind,index){

@@ -89,5 +89,5 @@ await import('./r70-requirement-engine.js');
 await import('./r72-planning-inbox.js');
 await import('./r72-read-persistence.js');
 await import('./r81-p8-production-deployment-contract.js');
-await import('./r88-initiative-action-bridge-contract.js');
-await import('./r89-checklist-share-header-contract.js');
+
+await import('./r90-assessment-initiative-inbox-contract.js');
