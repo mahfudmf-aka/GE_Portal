@@ -15,8 +15,7 @@ const tests = [
   'tests/r20-consolidated-browser-contract.js',
   'tests/r21-auth-persistence-contract.js',
   'tests/r22-runtime-contract.js',
-  'tests/r23-cumulative-fix-contract.js',
-  'tests/r93-checklist-analytics-auth-contract.js'
+  'tests/r23-cumulative-fix-contract.js'
 ];
 
 const netlify = process.argv.includes('--netlify');
@@ -93,3 +92,6 @@ await import('./r81-p8-production-deployment-contract.js');
 
 await import('./r90-assessment-initiative-inbox-contract.js');
 await import('./r92-initiative-button-weight-contract.js');
+
+import { execFileSync } from 'node:child_process';
+execFileSync(process.execPath,['tests/r94-checklist-results-initiative-delete-contract.js'],{stdio:'inherit'});

@@ -4420,13 +4420,24 @@ function saveInitiativeV224(){
   save();closeInitiativeModalV224();renderInitiatives();
   geStorageNoticeV223('Inisiatif Tersimpan',`${obj.name} berhasil disimpan.`,'success');
 }
-function deleteInitiativeV224(id){
-  if(!geInitiativeAdminV224()||!confirm('Hapus inisiatif ini?'))return;
+async function deleteInitiativeV224(id){
+  if(!geInitiativeAdminV224()||!confirm('Delete this initiative?'))return;
   const key=String(id);
-  const exists=(data.initiatives||[]).some(x=>String(x.id)===key);
-  if(!exists)return;
-  data.initiatives=data.initiatives.filter(x=>String(x.id)!==key);
-  save();renderInitiatives();
+  const list=Array.isArray(data.initiatives)?data.initiatives:[];
+  const exists=list.some(x=>String(x.id)===key);
+  if(!exists){geStorageNoticeV223?.('Delete failed','Initiative record was not found.','error');return;}
+  const previous=list.slice();
+  data.initiatives=list.filter(x=>String(x.id)!==key);
+  try{
+    window.GEStore.save(data);
+    await window.GEStore.flush();
+    window.renderInitiatives?.();
+    geStorageNoticeV223?.('Initiative deleted','The initiative has been removed.','success');
+  }catch(error){
+    data.initiatives=previous;
+    window.renderInitiatives?.();
+    geStorageNoticeV223?.('Delete failed',error?.message||String(error),'error');
+  }
 }
 
 /* Staff / BO progress-only edit */
@@ -8888,7 +8899,7 @@ function installInitiativeControls(){
    refreshInitiativeFilters();
    let rows=currentInitiativeRows().filter(geInitiativeScopedV224);
    const p=$('geV2554Priority')?.value||'';if(p)rows=rows.filter(x=>String(x.priority||'Normal')===p);
-   const t=$('initRows');if(t){if(window.GE_INITIATIVE_VIEW_R4==='list'&&rows.length){t.innerHTML=`<div class="ge-initiative-list-r4"><table><thead><tr><th>Initiative</th><th>Journey</th><th>Touch Point</th><th>Station</th><th>PIC</th><th>Due</th><th>Progress</th><th>Action</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${geEsc(x.name||'-')}</b></td><td>${geEsc(geScopesV252(x).join(', '))}</td><td>${geEsc(geTPsV252(x).join(', '))}</td><td>${geEsc(x.airport||'-')}</td><td>${geEsc(x.pic||'-')}</td><td>${geEsc(x.dueDate||'-')}</td><td>${geEsc(String(x.real||0))}% / ${geEsc(String(x.plan||0))}%</td><td><button class="btn secondary compact-btn" data-initiative-action="update" data-initiative-id="${geEsc(String(x.id))}">Update</button><button class="btn secondary compact-btn" data-initiative-action="timeline" data-initiative-id="${geEsc(String(x.id))}">Milestone</button></td></tr>`).join('')}</tbody></table></div>`;}else t.innerHTML=rows.length?rows.map(geInitiativeCardV251).join(''):'<div class="initiative-empty-v246">Belum ada inisiatif pada filter ini.</div>';}
+   const t=$('initRows');if(t){if(window.GE_INITIATIVE_VIEW_R4==='list'&&rows.length){t.innerHTML=`<div class="ge-initiative-list-r4"><table><thead><tr><th>Initiative</th><th>Journey</th><th>Touch Point</th><th>Station</th><th>PIC</th><th>Due</th><th>Progress</th><th>Action</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${geEsc(x.name||'-')}</b></td><td>${geEsc(geScopesV252(x).join(', '))}</td><td>${geEsc(geTPsV252(x).join(', '))}</td><td>${geEsc(x.airport||'-')}</td><td>${geEsc(x.pic||'-')}</td><td>${geEsc(x.dueDate||'-')}</td><td>${geEsc(String(x.real||0))}% / ${geEsc(String(x.plan||0))}%</td><td><button type="button" class="btn secondary compact-btn" data-initiative-action="update" data-initiative-id="${geEsc(String(x.id))}">Update</button><button type="button" class="btn secondary compact-btn" data-initiative-action="timeline" data-initiative-id="${geEsc(String(x.id))}">Detail / Timeline</button>${geInitiativeAdminV224()?`<button type="button" class="btn danger compact-btn" data-initiative-action="delete" data-initiative-id="${geEsc(String(x.id))}">Delete</button>`:''}</td></tr>`).join('')}</tbody></table></div>`;}else t.innerHTML=rows.length?rows.map(geInitiativeCardV251).join(''):'<div class="initiative-empty-v246">Belum ada inisiatif pada filter ini.</div>';}
    renderInitiativeCharts(rows);
  };
  renderInitiatives();

@@ -5740,3 +5740,23 @@ html body.final-v257.final-shell-r5.e1-page .ge-sidebar-toggle:hover{background:
 #r43Monitoring .ge-btn:disabled { opacity:.45; cursor:not-allowed; transform:none; }
 /* R93 canonical checklist analytics and action controls */
 .ge-submission-tools{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap}.ge-submission-tools label{min-width:260px}.ge-submission-tools select{display:block;margin-top:5px;min-height:38px}.ge-result-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}.ge-result-grid>section{border:1px solid #d9e3ef;border-radius:12px;padding:14px;background:#fff}.ge-result-grid h3{margin:0 0 12px;font-size:15px;color:#17395f}.ge-bar-row{display:grid;grid-template-columns:minmax(100px,1.2fr) 42px 2fr;gap:8px;align-items:center;margin:9px 0;font-size:13px}.ge-bar-row>i{display:block;height:8px;border-radius:999px;background:#e9eef5;overflow:hidden}.ge-bar-row>i>em{display:block;height:100%;border-radius:999px;background:#17395f}.ge-submission-analytics .r43-kpi-grid{margin-bottom:4px}.ge-checklist-header-main h2{font-weight:600}.ge-checklist-meta b{font-weight:600}@media(max-width:900px){.ge-result-grid{grid-template-columns:1fr}.ge-submission-tools{width:100%}.ge-submission-tools label{flex:1;min-width:220px}}
+
+/* R94 — Checklist hierarchy: section/title remains stronger than question labels. */
+#r43Monitoring .ge-form-question > label{font-weight:400;color:#17395f;line-height:1.45}
+#r43Monitoring .ge-form-question-label{display:inline;font-weight:500;color:#17395f}
+#r43Monitoring .ge-form-question > label > .ge-form-question-label + *{font-weight:400}
+#r43Monitoring .ge-form-section > h3{font-weight:700;color:#123b68}
+/* R94 — Indicator-aware submission charts. */
+#r43Monitoring .ge-result-chart{border:1px solid #d9e3ef;border-radius:12px;padding:16px;background:#fff;min-height:220px}
+#r43Monitoring .ge-result-chart h3{margin:0 0 5px;font-size:15px;color:#17395f}
+#r43Monitoring .ge-result-chart p{margin:0 0 14px;color:#687b91;font-size:13px}
+#r43Monitoring .ge-pie-chart{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;margin:12px auto;box-shadow:inset 0 0 0 12px #fff}
+#r43Monitoring .ge-pie-chart span{width:82px;height:82px;border-radius:50%;display:grid;place-items:center;background:#fff;color:#17395f;font-weight:700;font-size:20px}
+#r43Monitoring .ge-chart-legend{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;font-size:12px;color:#536b84}
+#r43Monitoring .ge-chart-legend i{display:inline-block;width:9px;height:9px;border-radius:50%;background:#17395f;margin-right:5px}
+#r43Monitoring .ge-chart-legend span+span i{background:#e8eef5}
+#r43Monitoring .ge-traffic-chart{display:grid;gap:16px;margin-top:20px}
+#r43Monitoring .ge-traffic-item{display:grid;grid-template-columns:100px 1fr 38px;gap:9px;align-items:center;font-size:13px}
+#r43Monitoring .ge-traffic-item>div{height:18px;border-radius:5px;background:#e8eef5;overflow:hidden}
+#r43Monitoring .ge-traffic-item i{display:block;height:100%;background:#17395f;border-radius:5px}
+#r43Monitoring .ge-traffic-item b{text-align:right}

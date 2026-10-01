@@ -23,7 +23,7 @@ function isEditor(u){return u?.role==='Super Admin'||u?.role==='Admin'||String(u
 function token(){return crypto.randomBytes(32).toString('base64url');}
 function publicWork(id,work){
   const share=work.share||{};
-  return {id, title:work.title||'', stationCode:work.stationCode||'', dueDate:work.dueDate||'', templateId:work.templateId||'', templateVersion:work.templateVersion||0, formSnapshot:work.formSnapshot||null, share:{accessMode:share.accessMode||'both',requireName:share.requireName!==false,requireEmail:!!share.requireEmail,maxSubmissions:Number(share.maxSubmissions)||0,expiresAt:share.expiresAt||'',active:share.active!==false}};
+  return {id, title:work.title||'', stationCode:work.stationCode||'', dueDate:work.dueDate||'', templateId:work.templateId||'', templateVersion:work.templateVersion||0, formSnapshot:work.formSnapshot||null, share:{token:share.token||'',accessMode:share.accessMode||'both',requireName:share.requireName!==false,requireEmail:!!share.requireEmail,maxSubmissions:Number(share.maxSubmissions)||0,expiresAt:share.expiresAt||'',active:share.active!==false}};
 }
 async function findByToken(tokenValue){
   const snap=await WORKS().where('share.token','==',tokenValue).limit(1).get();
