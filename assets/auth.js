@@ -72,6 +72,9 @@ function gxAuthDiagnostic(stage,details={}){try{const q=new URLSearchParams(loca
 async function gxLoadFirebaseRuntime(){if(window.GXFirebase)return true;const add=src=>new Promise((resolve,reject)=>{if(document.querySelector('script[src^="'+src+'"]'))return resolve();const s=document.createElement('script');s.src=src;s.async=false;s.onload=resolve;s.onerror=reject;document.head.appendChild(s)});try{await add('assets/firebase-config.js');await add('assets/firebase-client.js');return !!window.GXFirebase}catch(e){return false}}
 async function gxBootstrapProtectedPage(){
   if(location.pathname.endsWith('login.html'))return;
+  const publicChecklistShare=new URLSearchParams(location.search).get('share');
+  const publicChecklistRoute=String(new URLSearchParams(location.search).get('page')||'').trim().toLowerCase()==='monitoring-assessment' && !!publicChecklistShare;
+  if(publicChecklistRoute){window.GE_PUBLIC_CHECKLIST_SHARE=true;return;}
   const loaded=await gxLoadFirebaseRuntime();
   gxAuthDiagnostic('SESSION_INIT_START',{firebaseRuntimeLoaded:loaded,page:(location.pathname.split('/').pop()||'index.html')});
   if(loaded){try{

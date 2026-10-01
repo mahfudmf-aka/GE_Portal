@@ -1,0 +1,15 @@
+'use strict';
+const fs=require('fs');const assert=require('assert');
+const fm=fs.readFileSync('assets/form-management.js','utf8');
+const api=fs.readFileSync('netlify/functions/checklist-share.js','utf8');
+const app=fs.readFileSync('app.html','utf8');
+const auth=fs.readFileSync('assets/auth.js','utf8');
+for(const key of ['GROUND EXPERIENCE CHECKLIST','Checklist ID','Station','Touch Point','Journey','Due Date','Version'])assert(fm.includes(key),`Checklist header field missing: ${key}`);
+for(const key of ['accessMode','guest','user','both','requireName','requireEmail','maxSubmissions','share.token','formSubmissions'])assert(fm.includes(key)||api.includes(key),`Checklist share contract missing: ${key}`);
+assert(api.includes("DATA('monitoringWorks')")&&api.includes("DATA('formSubmissions')"),'Share must use existing Monitoring Work + formSubmissions collections.');
+assert(api.includes("accessType:kind"),'Shared submissions must record guest/user access type.');
+assert(api.includes('submittedByEmail'),'Shared submissions must retain submitter email when supplied.');
+assert(api.includes("action==='submit'"),'Guest/user submission endpoint missing.');
+assert(auth.includes('publicChecklistShare'),'Auth bootstrap must explicitly allow public checklist share links.');
+assert(app.includes('publicChecklistShare'),'App shell must explicitly allow the public checklist share route.');
+console.log('R89_CHECKLIST_SHARE_HEADER_CONTRACT_PASS');
