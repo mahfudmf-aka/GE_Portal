@@ -91,3 +91,4 @@ await import('./r72-read-persistence.js');
 await import('./r81-p8-production-deployment-contract.js');
 
 await import('./r90-assessment-initiative-inbox-contract.js');
+await import('./r92-initiative-button-weight-contract.js');

@@ -1,0 +1,10 @@
+const fs=require('fs'),assert=require('assert');
+const runtime=fs.readFileSync('assets/edition1-business-runtime.js','utf8');
+const css=fs.readFileSync('assets/portal.css','utf8');
+assert(/data-initiative-action="delete"/.test(runtime),'Initiative list/card must expose canonical Delete action');
+assert(/data-initiative-action="timeline"/.test(runtime),'Initiative list/card must expose canonical Detail / Timeline action');
+assert(/data-initiative-action="update"/.test(runtime),'Initiative list/card must expose canonical Update action');
+assert(/data-initiative-action="delete"[^>]*data-initiative-id="\$\{esc\(String\(x\.id\)\)\}"/.test(runtime),'Initiative list Delete must pass normalized record ID');
+assert(/#r43Monitoring button\.ge-btn[^\{]*\{[\s\S]*?font-weight:600/.test(css),'Monitoring button text must use regular/semibold weight, not bold 700');
+assert(!/R43Monitoring button\.ge-btn[\s\S]*?font-weight:700/.test(css),'Monitoring canonical button system must not force bold 700');
+console.log('R92_INITIATIVE_BUTTON_WEIGHT_CONTRACT_PASS');

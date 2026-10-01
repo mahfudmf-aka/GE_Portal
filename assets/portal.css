@@ -5682,7 +5682,7 @@ html body.final-v257.final-shell-r5.e1-page .ge-sidebar-toggle:hover{background:
   box-sizing:border-box; min-height:38px; padding:8px 13px;
   border:1px solid #a9bfd9!important; border-radius:8px!important;
   background:#fff!important; color:#082b59!important;
-  font:inherit; font-weight:700; line-height:1.2; cursor:pointer;
+  font:inherit; font-weight:600; line-height:1.2; cursor:pointer;
   box-shadow:none!important; text-decoration:none;
   transition:background .16s ease,color .16s ease,border-color .16s ease;
 }
@@ -5718,7 +5718,7 @@ html body.final-v257.final-shell-r5.e1-page .ge-sidebar-toggle:hover{background:
   background:#fff;
   color:#082b59;
   font:inherit;
-  font-weight:700;
+  font-weight:600;
   cursor:pointer;
 }
 #r43Monitoring .ge-assess-card button:not(.ge-btn):hover,
