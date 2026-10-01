@@ -95,3 +95,4 @@ await import('./r83-master-button-theme-contract.js');
 await import('./r84-assessment-button-theme-contract.js');
 await import('./r85-initiative-delete-filter-reset-contract.js');
 await import('./r86-checklist-required-optional-contract.js');
+await import('./r87-initiative-action-filter-bridge-contract.js');

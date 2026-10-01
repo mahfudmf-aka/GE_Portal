@@ -107,7 +107,7 @@ function renderInitiativeCharts(rows){
    const r=58,c=2*Math.PI*r;
    const td=(target/100)*c,ad=(actual/100)*c;
    const tone=geProgressToneR17(actual);
-   return `<button type="button" class="radial-card ge-touchpoint-filter-card" style="--ge-progress-tone:${tone}" title="Buka Gantt: ${geEsc(tp)}" onclick="geFilterInitiativeTouchpoint(${JSON.stringify(tp)})">
+   return `<button type="button" class="radial-card ge-touchpoint-filter-card" style="--ge-progress-tone:${tone}" title="Filter daftar Initiative: ${geEsc(tp)}" onclick="window.geFilterInitiativeTouchpoint(${JSON.stringify(tp)})">
     <div class="radial-chart">
       <svg viewBox="0 0 140 140">
         <circle class="track" cx="70" cy="70" r="${r}"></circle>
@@ -122,8 +122,16 @@ function renderInitiativeCharts(rows){
  }).join('');
 }
 function geFilterInitiativeTouchpoint(tp){
- resetInitiativeLowerFiltersV85();
- location.href='app.html?page=calendar&view=gantt&touchpoint='+encodeURIComponent(tp||'');
+ const value=String(tp||'').trim();
+ const ft=document.getElementById('ft');
+ const q=document.getElementById('q');
+ const fs=document.getElementById('fs');
+ if(q)q.value='';
+ if(fs)fs.value='';
+ refreshInitiativeFilters();
+ if(ft){ft.value=value; if(ft.value!==value)ft.value='';}
+ renderInitiatives();
+ document.getElementById('initRows')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function renderInitiatives(){
  refreshInitiativeFilters();
@@ -4304,12 +4312,12 @@ function geDueLabelV224(x){
 }
 function geInitiativeManageButtonsV224(x){
   const id=JSON.stringify(String(x?.id??''));
-  const parts=[`<button type="button" class="btn secondary compact-btn" onclick="openInitiativeTimelineV224(${id})">Detail / Timeline</button>`];
+  const parts=[`<button type="button" class="btn secondary compact-btn" onclick="window.openInitiativeTimelineV224(${id})">Detail / Timeline</button>`];
   if(geInitiativeAdminV224()){
-    parts.push(`<button type="button" class="btn secondary compact-btn" onclick="openInitiativeModalV224(${id})">Update</button>`);
-    parts.push(`<button type="button" class="btn danger compact-btn" onclick="deleteInitiativeV224(${id})">Delete</button>`);
+    parts.push(`<button type="button" class="btn secondary compact-btn" onclick="window.openInitiativeModalV224(${id})">Update</button>`);
+    parts.push(`<button type="button" class="btn danger compact-btn" onclick="window.deleteInitiativeV224(${id})">Delete</button>`);
   }else if(geInitiativeProgressAllowedV224(x)){
-    parts.push(`<button type="button" class="btn secondary compact-btn" onclick="openInitiativeProgressV224(${id})">Edit Progress</button>`);
+    parts.push(`<button type="button" class="btn secondary compact-btn" onclick="window.openInitiativeProgressV224(${id})">Edit Progress</button>`);
   }
   return `<div class="initiative-actions-v224">${parts.join('')}</div>`;
 }
@@ -8856,7 +8864,7 @@ function installInitiativeControls(){
    refreshInitiativeFilters();
    let rows=currentInitiativeRows().filter(geInitiativeScopedV224);
    const p=$('geV2554Priority')?.value||'';if(p)rows=rows.filter(x=>String(x.priority||'Normal')===p);
-   const t=$('initRows');if(t){if(window.GE_INITIATIVE_VIEW_R4==='list'&&rows.length){t.innerHTML=`<div class="ge-initiative-list-r4"><table><thead><tr><th>Initiative</th><th>Journey</th><th>Touch Point</th><th>Station</th><th>PIC</th><th>Due</th><th>Progress</th><th>Action</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${geEsc(x.name||'-')}</b></td><td>${geEsc(geScopesV252(x).join(', '))}</td><td>${geEsc(geTPsV252(x).join(', '))}</td><td>${geEsc(x.airport||'-')}</td><td>${geEsc(x.pic||'-')}</td><td>${geEsc(x.dueDate||'-')}</td><td>${geEsc(String(x.real||0))}% / ${geEsc(String(x.plan||0))}%</td><td><button class="btn secondary compact-btn" onclick="openInitiativeModalV224(${Number(x.id)})">Update</button><button class="btn secondary compact-btn" onclick="openInitiativeTimelineV224(${Number(x.id)})">Milestone</button></td></tr>`).join('')}</tbody></table></div>`;}else t.innerHTML=rows.length?rows.map(geInitiativeCardV251).join(''):'<div class="initiative-empty-v246">Belum ada inisiatif pada filter ini.</div>';}
+   const t=$('initRows');if(t){if(window.GE_INITIATIVE_VIEW_R4==='list'&&rows.length){t.innerHTML=`<div class="ge-initiative-list-r4"><table><thead><tr><th>Initiative</th><th>Journey</th><th>Touch Point</th><th>Station</th><th>PIC</th><th>Due</th><th>Progress</th><th>Action</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${geEsc(x.name||'-')}</b></td><td>${geEsc(geScopesV252(x).join(', '))}</td><td>${geEsc(geTPsV252(x).join(', '))}</td><td>${geEsc(x.airport||'-')}</td><td>${geEsc(x.pic||'-')}</td><td>${geEsc(x.dueDate||'-')}</td><td>${geEsc(String(x.real||0))}% / ${geEsc(String(x.plan||0))}%</td><td><button class="btn secondary compact-btn" onclick="window.openInitiativeModalV224(${JSON.stringify(String(x.id))})">Update</button><button class="btn secondary compact-btn" onclick="window.openInitiativeTimelineV224(${JSON.stringify(String(x.id))})">Milestone</button></td></tr>`).join('')}</tbody></table></div>`;}else t.innerHTML=rows.length?rows.map(geInitiativeCardV251).join(''):'<div class="initiative-empty-v246">Belum ada inisiatif pada filter ini.</div>';}
    renderInitiativeCharts(rows);
  };
  renderInitiatives();
@@ -9693,7 +9701,8 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
   if(typeof geCalOpenDetailV2533==='function') window.geCalOpenDetailV2533=geCalOpenDetailV2533;
   if(typeof geRequestNotificationV253==='function') window.geRequestNotificationV253=geRequestNotificationV253;
   if(typeof openInitiativeTimelineV224==='function') window.openInitiativeTimelineV224=openInitiativeTimelineV224;
-  if(typeof installInitiativeControls==='function') window.installInitiativeControls=installInitiativeControls;
+  if(typeof openInitiativeProgressV224==='function') window.openInitiativeProgressV224=openInitiativeProgressV224;
+  if(typeof deleteInitiativeV224==='function') window.deleteInitiativeV224=deleteInitiativeV224;  if(typeof installInitiativeControls==='function') window.installInitiativeControls=installInitiativeControls;
   if(typeof geInitAirportV214==='function') window.geInitAirportV214=geInitAirportV214;
   if(typeof renderAirports==='function') window.renderAirports=renderAirports;
   if(typeof renderAirportMapMarkers==='function') window.renderAirportMapMarkers=renderAirportMapMarkers;
@@ -9769,7 +9778,7 @@ window.geFocusInitiativeR65=function(id,milestone){
  if(milestone!==null&&milestone!==undefined&&milestone!==''){const index=Number(milestone),step=row.workflow?.[index],cards=document.querySelectorAll('#initiativeTimelineModalV224 .timeline-card-v224');if(!step||!cards[index]){notice.textContent='Milestone yang dituju tidak tersedia dalam Initiative ini.';return}cards[index].style.outline='3px solid #287db5';cards[index].scrollIntoView({block:'center'})}
 };
 window.geInitInitiativeCanonical=function(){window.renderInitiatives?.()};
-window.geFilterInitiativeTouchpoint=tp=>{resetInitiativeLowerFiltersV85();location.href='app.html?page=calendar&view=gantt&touchpoint='+encodeURIComponent(tp||'')};
+window.geFilterInitiativeTouchpoint=tp=>{if(typeof geFilterInitiativeTouchpoint==='function')return geFilterInitiativeTouchpoint(tp)};
 
 let geGanttSortStateR13={key:'title',dir:1};
 let geGanttStateR16={scale:'default',from:'',to:'',filters:{journey:'',touchpoint:'',station:'',pic:'',kind:'',initiative:''}};
@@ -9943,7 +9952,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 /* Final canonical Initiative Grid/List view. This wrapper is intentionally last so legacy exports cannot overwrite it. */
 const initRender=window.renderInitiatives;
-if(initRender)window.renderInitiatives=function(){const out=initRender.apply(this,arguments),view=window.GE_INITIATIVE_VIEW_R4||document.getElementById('geInitiativeViewSelectR6')?.value||'grid';if(view!=='list')return out;let rows=[];try{rows=typeof currentInitiativeRows==='function'?currentInitiativeRows().filter(typeof geInitiativeScopedV224==='function'?geInitiativeScopedV224:()=>true):(store().initiatives||[])}catch(e){rows=store().initiatives||[]}const host=document.getElementById('initRows');if(host){host.innerHTML=`<div class="ge-initiative-list-r4"><table data-initiative-list-r26><thead><tr><th data-sort="0">Initiative ↕</th><th data-sort="1">Journey ↕</th><th data-sort="2">Touch Point ↕</th><th data-sort="3">Station ↕</th><th data-sort="4">PIC ↕</th><th data-sort="5">Due ↕</th><th data-sort="6">Progress ↕</th><th>Action</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.name||'-')}</b></td><td>${esc((x.journeyScopes||[x.journey]).filter(Boolean).join(', '))}</td><td>${esc((x.touchpoints||[x.tp||x.touchpoint]).filter(Boolean).join(', '))}</td><td>${esc((x.stations||[x.airport]).filter(Boolean).join(', '))}</td><td>${esc(x.pic||'-')}</td><td>${esc(x.dueDate||x.endDate||'-')}</td><td>${Number(x.real||0)}% / ${Number(x.plan||0)}%</td><td><button class="btn secondary compact-btn" onclick="openInitiativeModalV224('${esc(x.id)}')">Update</button><button class="btn secondary compact-btn" onclick="openInitiativeTimelineV224('${esc(x.id)}')">Milestone</button></td></tr>`).join('')||'<tr><td colspan="8">Belum ada inisiatif pada filter ini.</td></tr>'}</tbody></table></div>`;window.geEnhanceAllTables?.();const t=host.querySelector('table[data-initiative-list-r26]');t?.querySelectorAll('th[data-sort]').forEach(th=>{th.style.cursor='pointer';th.onclick=()=>{const i=Number(th.dataset.sort),body=t.tBodies[0],dir=th.dataset.dir==='asc'?-1:1;[...body.rows].sort((a,b)=>a.cells[i].innerText.localeCompare(b.cells[i].innerText,'id',{numeric:true})*dir).forEach(r=>body.appendChild(r));th.dataset.dir=dir===1?'asc':'desc'}})}return out};
+if(initRender)window.renderInitiatives=function(){const out=initRender.apply(this,arguments),view=window.GE_INITIATIVE_VIEW_R4||document.getElementById('geInitiativeViewSelectR6')?.value||'grid';if(view!=='list')return out;let rows=[];try{rows=typeof currentInitiativeRows==='function'?currentInitiativeRows().filter(typeof geInitiativeScopedV224==='function'?geInitiativeScopedV224:()=>true):(store().initiatives||[])}catch(e){rows=store().initiatives||[]}const host=document.getElementById('initRows');if(host){host.innerHTML=`<div class="ge-initiative-list-r4"><table data-initiative-list-r26><thead><tr><th data-sort="0">Initiative ↕</th><th data-sort="1">Journey ↕</th><th data-sort="2">Touch Point ↕</th><th data-sort="3">Station ↕</th><th data-sort="4">PIC ↕</th><th data-sort="5">Due ↕</th><th data-sort="6">Progress ↕</th><th>Action</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.name||'-')}</b></td><td>${esc((x.journeyScopes||[x.journey]).filter(Boolean).join(', '))}</td><td>${esc((x.touchpoints||[x.tp||x.touchpoint]).filter(Boolean).join(', '))}</td><td>${esc((x.stations||[x.airport]).filter(Boolean).join(', '))}</td><td>${esc(x.pic||'-')}</td><td>${esc(x.dueDate||x.endDate||'-')}</td><td>${Number(x.real||0)}% / ${Number(x.plan||0)}%</td><td><button class="btn secondary compact-btn" onclick="window.openInitiativeModalV224(${JSON.stringify(String(x.id))})">Update</button><button class="btn secondary compact-btn" onclick="window.openInitiativeTimelineV224(${JSON.stringify(String(x.id))})">Milestone</button></td></tr>`).join('')||'<tr><td colspan="8">Belum ada inisiatif pada filter ini.</td></tr>'}</tbody></table></div>`;window.geEnhanceAllTables?.();const t=host.querySelector('table[data-initiative-list-r26]');t?.querySelectorAll('th[data-sort]').forEach(th=>{th.style.cursor='pointer';th.onclick=()=>{const i=Number(th.dataset.sort),body=t.tBodies[0],dir=th.dataset.dir==='asc'?-1:1;[...body.rows].sort((a,b)=>a.cells[i].innerText.localeCompare(b.cells[i].innerText,'id',{numeric:true})*dir).forEach(r=>body.appendChild(r));th.dataset.dir=dir===1?'asc':'desc'}})}return out};
 window.geSetInitiativeViewR20=function(v){window.GE_INITIATIVE_VIEW_R4=v;document.querySelectorAll('#geInitiativeViewToggleR4 [data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v));window.renderInitiatives?.()};
 setTimeout(()=>{document.querySelectorAll('#geInitiativeViewToggleR4 [data-view]').forEach(b=>b.onclick=()=>window.geSetInitiativeViewR20(b.dataset.view));const s=document.getElementById('geInitiativeViewSelectR6');if(s)s.onchange=()=>window.geSetInitiativeViewR20(s.value)},0);
 
