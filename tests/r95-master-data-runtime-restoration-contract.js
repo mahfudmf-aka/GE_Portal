@@ -1,0 +1,11 @@
+const fs=require('fs'),assert=require('assert');
+const reg=fs.readFileSync('assets/clean-page-registry.js','utf8');
+const css=fs.readFileSync('assets/portal.css','utf8');
+const master=reg.slice(reg.indexOf('"master-data"'),reg.indexOf('"planning-documents"',reg.indexOf('"master-data"')));
+for(const needle of ['id=\\"geMasterKind\\"','id=\\"geMasterSearch\\"','id=\\"geMasterAdd\\"','id=\\"geMasterTemplate\\"','id=\\"geMasterUpload\\"','id=\\"geMasterUploadFile\\"']) assert(master.includes(needle),`Missing canonical Master Data control: ${needle}`);
+assert(master.includes('class=\\"ge-btn ge-master-group active\\"'),'Master Data primary tab must use canonical button theme');
+assert(master.includes('class=\\"ge-btn ge-master-group\\"'),'Master Data secondary tab must use canonical button theme');
+assert(master.includes('"styles":["assets/portal.css?v=r81"]'),'Master Data must retain canonical theme cache-bust');
+assert(css.includes('.ge-master-groups .ge-master-group{appearance:none;'),'Master Data buttons must remove native appearance');
+assert(!master.includes('reference-id-catalog.js'),'Legacy reference renderer must not load');
+console.log('R95_MASTER_DATA_RUNTIME_RESTORATION_CONTRACT_PASS');

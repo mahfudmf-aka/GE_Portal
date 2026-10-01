@@ -95,3 +95,5 @@ await import('./r92-initiative-button-weight-contract.js');
 
 import { execFileSync } from 'node:child_process';
 execFileSync(process.execPath,['tests/r94-checklist-results-initiative-delete-contract.js'],{stdio:'inherit'});
+
+execFileSync(process.execPath,['tests/r95-master-data-runtime-restoration-contract.js'],{stdio:'inherit'});
