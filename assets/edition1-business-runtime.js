@@ -121,7 +121,10 @@ function renderInitiativeCharts(rows){
    </button>`;
  }).join('');
 }
-function geFilterInitiativeTouchpoint(tp){location.href='app.html?page=calendar&view=gantt&touchpoint='+encodeURIComponent(tp||'');}
+function geFilterInitiativeTouchpoint(tp){
+ resetInitiativeLowerFiltersV85();
+ location.href='app.html?page=calendar&view=gantt&touchpoint='+encodeURIComponent(tp||'');
+}
 function renderInitiatives(){
  refreshInitiativeFilters();
  const rows=currentInitiativeRows();
@@ -140,8 +143,15 @@ function renderInitiatives(){
  }
  renderInitiativeCharts(rows);
 }
+function resetInitiativeLowerFiltersV85(){
+ ['q','ft','fs','fp','geV2554Priority'].forEach(id=>{
+   const el=document.getElementById(id);
+   if(el)el.value='';
+ });
+}
 function setJourneyFilter(journey){
  activeJourney=journey||'';
+ resetInitiativeLowerFiltersV85();
  document.querySelectorAll('.journey-tab').forEach(x=>
    x.classList.toggle('active',x.dataset.journey===activeJourney)
  );
@@ -4293,12 +4303,13 @@ function geDueLabelV224(x){
   return`<span class="due-badge">${d}</span>`;
 }
 function geInitiativeManageButtonsV224(x){
-  const parts=[`<button class="btn secondary compact-btn" onclick="openInitiativeTimelineV224(${x.id})">Detail / Timeline</button>`];
+  const id=JSON.stringify(String(x?.id??''));
+  const parts=[`<button type="button" class="btn secondary compact-btn" onclick="openInitiativeTimelineV224(${id})">Detail / Timeline</button>`];
   if(geInitiativeAdminV224()){
-    parts.push(`<button class="btn secondary compact-btn" onclick="openInitiativeModalV224(${x.id})">Update</button>`);
-    parts.push(`<button class="btn danger compact-btn" onclick="deleteInitiativeV224(${x.id})">Hapus</button>`);
+    parts.push(`<button type="button" class="btn secondary compact-btn" onclick="openInitiativeModalV224(${id})">Update</button>`);
+    parts.push(`<button type="button" class="btn danger compact-btn" onclick="deleteInitiativeV224(${id})">Delete</button>`);
   }else if(geInitiativeProgressAllowedV224(x)){
-    parts.push(`<button class="btn secondary compact-btn" onclick="openInitiativeProgressV224(${x.id})">Edit Progress</button>`);
+    parts.push(`<button type="button" class="btn secondary compact-btn" onclick="openInitiativeProgressV224(${id})">Edit Progress</button>`);
   }
   return `<div class="initiative-actions-v224">${parts.join('')}</div>`;
 }
@@ -4376,9 +4387,20 @@ function saveInitiativeV224(){
   save();closeInitiativeModalV224();renderInitiatives();
   geStorageNoticeV223('Inisiatif Tersimpan',`${obj.name} berhasil disimpan.`,'success');
 }
-function deleteInitiativeV224(id){
-  if(!geInitiativeAdminV224()||!confirm('Hapus inisiatif ini?'))return;
-  data.initiatives=data.initiatives.filter(x=>x.id!==id);save();renderInitiatives();
+async function deleteInitiativeV224(id){
+  if(!geInitiativeAdminV224()||!confirm('Delete this initiative?'))return;
+  const key=String(id);
+  const target=(data.initiatives||[]).find(x=>String(x.id)===key);
+  if(!target)return;
+  data.initiatives=data.initiatives.filter(x=>String(x.id)!==key);
+  try{
+    save();
+    await window.GEStore?.flush?.();
+    renderInitiatives();
+    geStorageNoticeV223('Initiative Deleted',`${target.name||'Initiative'} was deleted.`,'success');
+  }catch(error){
+    geStorageNoticeV223('Delete Failed',error?.message||'The initiative could not be deleted.','error');
+  }
 }
 
 /* Staff / BO progress-only edit */
@@ -9747,7 +9769,7 @@ window.geFocusInitiativeR65=function(id,milestone){
  if(milestone!==null&&milestone!==undefined&&milestone!==''){const index=Number(milestone),step=row.workflow?.[index],cards=document.querySelectorAll('#initiativeTimelineModalV224 .timeline-card-v224');if(!step||!cards[index]){notice.textContent='Milestone yang dituju tidak tersedia dalam Initiative ini.';return}cards[index].style.outline='3px solid #287db5';cards[index].scrollIntoView({block:'center'})}
 };
 window.geInitInitiativeCanonical=function(){window.renderInitiatives?.()};
-window.geFilterInitiativeTouchpoint=tp=>{location.href='app.html?page=calendar&view=gantt&touchpoint='+encodeURIComponent(tp||'')};
+window.geFilterInitiativeTouchpoint=tp=>{resetInitiativeLowerFiltersV85();location.href='app.html?page=calendar&view=gantt&touchpoint='+encodeURIComponent(tp||'')};
 
 let geGanttSortStateR13={key:'title',dir:1};
 let geGanttStateR16={scale:'default',from:'',to:'',filters:{journey:'',touchpoint:'',station:'',pic:'',kind:'',initiative:''}};
