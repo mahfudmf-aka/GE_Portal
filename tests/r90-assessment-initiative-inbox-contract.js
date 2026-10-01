@@ -1,0 +1,12 @@
+const fs=require('fs'),assert=require('assert');
+const runtime=fs.readFileSync('assets/edition1-business-runtime.js','utf8');
+const forms=fs.readFileSync('assets/form-management.js','utf8');
+const css=fs.readFileSync('assets/portal.css','utf8');
+assert(/openInitiativeTimelineV224\(id\)\{\s*const x=\(data\.initiatives\|\|\[\]\)\.find\(v=>String\(v\.id\)===String\(id\)\)/.test(runtime),'Initiative Detail/Timeline must resolve numeric/string IDs consistently');
+assert(/deleteInitiativeV224\(id\)\{[\s\S]*?String\(x\.id\)!==key/.test(runtime),'Initiative Delete must compare IDs canonically');
+assert(/data-initiative-action=\"timeline\"/.test(runtime)&&/data-initiative-action=\"delete\"/.test(runtime),'Initiative action bridge controls missing');
+assert(/recipientId:String\(userId\)/.test(runtime)&&/recipientName:recipient\./.test(runtime),'Assignment notifications must reference the target account');
+assert(/senderId,senderUserId:senderId/.test(runtime)&&/senderEmail:extra\.senderEmail/.test(runtime),'Inbox records must reference sender account identity');
+assert(/class=\"ge-btn[^\"]*\" data-start=/.test(forms)&&/class=\"ge-btn[^\"]*\" data-view=/.test(forms),'Monitoring action buttons must use canonical theme');
+assert(css.includes('R90 canonical Monitoring & Assessment button theme'),'Canonical Monitoring & Assessment button theme missing');
+console.log('R90_ASSESSMENT_INITIATIVE_INBOX_CONTRACT_PASS');

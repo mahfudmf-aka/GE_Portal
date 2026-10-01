@@ -2170,9 +2170,11 @@ function renderAdminOverview(){
 /* ---------- Inbox ---------- */
 function submitInbox(type,subject,body,extra={}){
  const u=geAuditUser();
+ const senderId=String(extra.senderId||u.uid||u.id||'');
+ const senderName=extra.senderName||u.name||u.displayName||u.username||u.email||'User';
  data.inbox.unshift({
   id:Date.now(),type,subject,body,status:'Unread',createdAt:new Date().toISOString(),
-  senderName:extra.senderName||u.name||'User',senderUsername:u.username||'',senderRole:u.role||'',
+  senderId,senderUserId:senderId,senderName,senderUsername:extra.senderUsername||u.username||'',senderEmail:extra.senderEmail||u.email||'',senderRole:extra.senderRole||u.role||'',
   senderArea:extra.senderArea||u.unit||(u.airports||[]).join(', '),...extra
  });
  save();renderAdminOverview();
@@ -2187,7 +2189,7 @@ function renderAdminInbox(){
  const filter=document.getElementById('inboxTypeFilter');if(filter){const current=filter.value;filter.innerHTML='<option value="">Semua Jenis</option>'+[...new Set((data.inbox||[]).map(x=>x.type).filter(Boolean))].sort().map(v=>`<option value="${geEsc(v)}">${geEsc(v)}</option>`).join('');filter.value=current}
  t.innerHTML=inboxFiltered().map((x,i)=>`<tr class="${x.status==='Unread'?'unread-row':''}" data-inbox-id="${geEsc(x.id)}" style="cursor:pointer">
  <td>${i+1}</td><td>${geDateTime(x.createdAt)}</td><td><span class="inbox-type">${geEsc(x.type||'-')}</span></td>
- <td><b>${geEsc(x.senderName||x.from||'-')}</b><small>${geEsc(x.senderRole||'')}</small></td><td>${geEsc(x.senderArea||x.area||'-')}</td><td>${geEsc(x.subject||x.title||'-')}</td>
+ <td><b>${geEsc(x.senderName||x.from||'-')}</b><small>${geEsc(x.senderUsername||x.senderEmail||x.senderRole||'')}</small></td><td>${geEsc(x.senderArea||x.area||'-')}</td><td><b>${geEsc(x.recipientName||x.recipientUsername||x.recipientId||'-')}</b><small>${geEsc(x.recipientUsername||x.recipientEmail||x.recipientId||'')}</small></td><td>${geEsc(x.subject||x.title||'-')}</td>
  <td><span class="pill">${geEsc(x.status||'Unread')}</span></td><td class="inbox-actions">
  <button class="btn secondary compact-btn" data-inbox-open="${geEsc(x.id)}">Buka</button>
  ${x.type==='Article Proposal'&&x.status!=='Handled'?`<button class="btn compact-btn" data-inbox-review="${geEsc(x.id)}">Review</button>`:''}
@@ -4420,7 +4422,11 @@ function saveInitiativeV224(){
 }
 function deleteInitiativeV224(id){
   if(!geInitiativeAdminV224()||!confirm('Hapus inisiatif ini?'))return;
-  data.initiatives=data.initiatives.filter(x=>x.id!==id);save();renderInitiatives();
+  const key=String(id);
+  const exists=(data.initiatives||[]).some(x=>String(x.id)===key);
+  if(!exists)return;
+  data.initiatives=data.initiatives.filter(x=>String(x.id)!==key);
+  save();renderInitiatives();
 }
 
 /* Staff / BO progress-only edit */
@@ -4556,7 +4562,7 @@ function geWorkflowStatusClassV224(status){
   return String(status||'').toLowerCase().replace(/\s+/g,'-');
 }
 function openInitiativeTimelineV224(id){
-  const x=(data.initiatives||[]).find(v=>v.id===id);if(!x)return;
+  const x=(data.initiatives||[]).find(v=>String(v.id)===String(id));if(!x)return;
   x.workflow=Array.isArray(x.workflow)?x.workflow:[];
   geInitDocsV227(x);
   const steps=x.workflow;
@@ -9761,7 +9767,7 @@ function assignment(kind,refId,title,userId,dueDate){
  const d=store();d.inbox=Array.isArray(d.inbox)?d.inbox:[];
  const key=`${kind}:${refId}:${userId}`;
  if(d.inbox.some(x=>x.assignmentKey===key&&!x.archived))return false;
- const actor=typeof gxGetSession==='function'?(gxGetSession()||{}):window.GX_CURRENT_USER||{};const related=(d.initiatives||[]).find(x=>String(x.id)===String(refId).split(':')[0]);const subject=kind==='Milestone'?`Penugasan Milestone: ${String(title).split(' — ').pop()}`:`Penugasan PIC: ${title}`;d.inbox.unshift({id:String(Date.now())+'-'+Math.random().toString(36).slice(2,7),assignmentKey:key,type:'Task Assignment',subject,title:subject,body:`Anda ditetapkan sebagai PIC ${kind} pada ${title}. Tenggat: ${dueDate||'belum ditentukan'}.`,message:`Anda ditetapkan sebagai PIC ${kind} pada ${title}. Tenggat: ${dueDate||'belum ditentukan'}.`,senderId:String(actor.uid||actor.id||''),senderName:actor.name||actor.username||actor.email||'System',senderArea:related?.airport||'',recipientId:String(userId),userId:String(userId),status:'Unread',createdAt:new Date().toISOString(),dueDate:dueDate||'',referenceType:kind,referenceId:String(refId).split(':')[0],milestoneIndex:kind==='Milestone'?String(refId).split(':')[1]:'',destination:`app.html?page=inisiatif&initiative=${encodeURIComponent(String(refId).split(':')[0])}${kind==='Milestone'?'&milestone='+encodeURIComponent(String(refId).split(':')[1]):''}`});
+ const actor=typeof gxGetSession==='function'?(gxGetSession()||{}):window.GX_CURRENT_USER||{};const recipient=(d.users||[]).find(u=>String(u.uid||u.id||u.userId||u.username||'')===String(userId))||{};const related=(d.initiatives||[]).find(x=>String(x.id)===String(refId).split(':')[0]);const subject=kind==='Milestone'?`Penugasan Milestone: ${String(title).split(' — ').pop()}`:`Penugasan PIC: ${title}`;d.inbox.unshift({id:String(Date.now())+'-'+Math.random().toString(36).slice(2,7),assignmentKey:key,type:'Task Assignment',subject,title:subject,body:`Anda ditetapkan sebagai PIC ${kind} pada ${title}. Tenggat: ${dueDate||'belum ditentukan'}.`,message:`Anda ditetapkan sebagai PIC ${kind} pada ${title}. Tenggat: ${dueDate||'belum ditentukan'}.`,senderId:String(actor.uid||actor.id||''),senderName:actor.name||actor.username||actor.email||'System',senderArea:related?.airport||'',recipientId:String(userId),recipientUserId:String(userId),recipientName:recipient.name||recipient.fullName||recipient.displayName||recipient.username||recipient.email||'',recipientUsername:recipient.username||'',recipientEmail:recipient.email||'',userId:String(userId),status:'Unread',notificationStatus:'Unread',createdAt:new Date().toISOString(),dueDate:dueDate||'',referenceType:kind,referenceId:String(refId).split(':')[0],milestoneIndex:kind==='Milestone'?String(refId).split(':')[1]:'',destination:`app.html?page=inisiatif&initiative=${encodeURIComponent(String(refId).split(':')[0])}${kind==='Milestone'?'&milestone='+encodeURIComponent(String(refId).split(':')[1]):''}`});
  window.GEStore.save(d);return true;
 }
 function setv(id,v){const e=document.getElementById(id);if(e)e.value=v??''}

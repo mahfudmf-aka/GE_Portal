@@ -5675,3 +5675,28 @@ html body.final-v257.final-shell-r5.e1-page .ge-sidebar-toggle:hover{background:
 
 /* Canonical checklist header + share workspace */
 .ge-checklist-header{margin:18px 0 20px;padding:22px;border:1px solid #dbe4ef;border-radius:18px;background:#fff;box-shadow:0 8px 24px rgba(18,61,114,.07);position:relative}.ge-checklist-header-main{padding-right:140px}.ge-checklist-eyebrow{display:inline-block;font-size:11px;letter-spacing:.12em;font-weight:800;color:#123d72;text-transform:uppercase}.ge-checklist-header h2{margin:6px 0 4px;color:#102f56;font-size:24px}.ge-checklist-header p{margin:0;color:#60738a}.ge-checklist-status{position:absolute;right:22px;top:22px;border-radius:999px;padding:7px 11px;background:#edf3fa;color:#123d72;font-size:11px;font-weight:800;letter-spacing:.08em}.ge-checklist-meta{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:18px}.ge-checklist-meta>div{padding:10px 12px;border-radius:12px;background:#f7f9fc}.ge-checklist-meta span{display:block;font-size:10px;color:#73849a;text-transform:uppercase;letter-spacing:.06em}.ge-checklist-meta b{display:block;margin-top:4px;color:#18395f;font-size:13px}.ge-share-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:24px;background:rgba(12,30,52,.48)}.ge-share-dialog{width:min(720px,96vw);max-height:90vh;overflow:auto;padding:24px;border-radius:18px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.22)}.ge-share-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}.ge-share-grid label,.ge-share-link label,.ge-guest-identity label{display:grid;gap:6px;font-weight:700;color:#304967}.ge-share-grid small{font-weight:400;color:#75869a}.ge-share-actions,.ge-share-link{display:flex;gap:10px;align-items:end;margin-top:14px}.ge-share-link label{flex:1}.ge-share-gate,.ge-share-success{max-width:720px;margin:40px auto;padding:28px;text-align:center}.ge-guest-identity{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0;padding:18px;border:1px solid #dbe4ef;border-radius:14px;background:#f7f9fc}.ge-shared-checklist{max-width:980px;margin:0 auto}.ge-checklist-wrap{width:100%}@media(max-width:900px){.ge-checklist-meta{grid-template-columns:repeat(2,minmax(0,1fr))}.ge-share-grid,.ge-guest-identity{grid-template-columns:1fr}}@media(max-width:560px){.ge-checklist-header-main{padding-right:0}.ge-checklist-status{position:static;display:inline-block;margin-top:14px}.ge-checklist-meta{grid-template-columns:1fr}.ge-share-actions,.ge-share-link{flex-direction:column;align-items:stretch}}
+
+/* R90 canonical Monitoring & Assessment button theme: replace native/old button treatment without changing form controls. */
+#r43Monitoring button.ge-btn, #r43Monitoring .ge-assess-tabs button {
+  -webkit-appearance:none!important; appearance:none!important;
+  box-sizing:border-box; min-height:38px; padding:8px 13px;
+  border:1px solid #a9bfd9!important; border-radius:8px!important;
+  background:#fff!important; color:#082b59!important;
+  font:inherit; font-weight:700; line-height:1.2; cursor:pointer;
+  box-shadow:none!important; text-decoration:none;
+  transition:background .16s ease,color .16s ease,border-color .16s ease;
+}
+#r43Monitoring button.ge-btn:hover, #r43Monitoring button.ge-btn:focus-visible,
+#r43Monitoring .ge-assess-tabs button:hover, #r43Monitoring .ge-assess-tabs button:focus-visible,
+#r43Monitoring .ge-assess-tabs button.active {
+  background:#082b59!important; color:#fff!important; border-color:#082b59!important;
+}
+#r43Monitoring button.ge-btn.primary { background:#082b59!important; color:#fff!important; border-color:#082b59!important; }
+#r43Monitoring button.ge-btn.primary:hover, #r43Monitoring button.ge-btn.primary:focus-visible { background:#061f42!important; border-color:#061f42!important; }
+#r43Monitoring button.ge-btn.danger { background:#fff!important; color:#9f2d27!important; border-color:#dca6a2!important; }
+#r43Monitoring button.ge-btn.danger:hover, #r43Monitoring button.ge-btn.danger:focus-visible { background:#fff4f3!important; color:#8c221c!important; border-color:#b86b64!important; }
+#r43Monitoring .ge-assess-tabs { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 16px; }
+#r43Monitoring .ge-assess-tabs button { min-height:36px; }
+#r43Monitoring button:not(.ge-btn):not(.ge-tab-btn) {
+  -webkit-appearance:none!important; appearance:none!important;
+}
