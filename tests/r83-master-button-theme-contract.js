@@ -1,0 +1,10 @@
+const fs=require('fs'),assert=require('assert');
+const reg=fs.readFileSync('assets/clean-page-registry.js','utf8');
+const css=fs.readFileSync('assets/portal.css','utf8');
+const master=reg.slice(reg.indexOf('"master-data"'),reg.indexOf('},"planning-documents"',reg.indexOf('"master-data"')));
+assert(master.includes('class=\\"ge-btn ge-master-group active\\" data-master-group=\\"types\\"'),'Master Data primary tab must use canonical ge-btn theme');
+assert(master.includes('class=\\"ge-btn ge-master-group\\" data-master-group=\\"masters\\"'),'Master Data secondary tab must use canonical ge-btn theme');
+assert(master.includes('"styles":["assets/portal.css?v=r81"]'),'Master Data must cache-bust the updated button theme');
+assert(css.includes('.ge-master-groups .ge-master-group{appearance:none;'),'Master Data tabs must remove browser-native button appearance');
+assert(css.includes('.ge-master-groups .ge-master-group:hover,.ge-master-groups .ge-master-group:focus-visible,.ge-master-groups .ge-master-group.active{background:#082b59;color:#fff;border-color:#082b59}'),'Master Data tabs must use navy active/hover/focus state');
+console.log('R83_MASTER_BUTTON_THEME_CONTRACT_PASS');
