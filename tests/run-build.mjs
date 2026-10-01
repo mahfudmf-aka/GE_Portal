@@ -91,3 +91,5 @@ await import('./r72-read-persistence.js');
 await import('./r81-p8-production-deployment-contract.js');
 await import('./r82-form-preview-master-data-contract.js');
 await import('./r83-master-button-theme-contract.js');
+
+await import('./r84-assessment-button-theme-contract.js');

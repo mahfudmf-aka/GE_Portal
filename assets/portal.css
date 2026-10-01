@@ -5678,3 +5678,385 @@ html body.final-v257.final-shell-r5.e1-page .ge-sidebar-toggle:hover{background:
 .ge-id-catalog th[data-entity-sort]:hover{background:#f1f6fa}
 .ge-id-catalog .ge-ref-tabs{display:flex;gap:6px;overflow-x:auto;border-bottom:1px solid #d9e5ef;margin-bottom:14px}
 .ge-id-catalog .ge-ref-tabs button{border:0;border-bottom:3px solid transparent;background:transparent;color:#536c84;padding:10px 13px;white-space:nowrap;font-weight:700;cursor:pointer}
+
+/* R84 — Monitoring & Assessment / Checklist: use the established Planning button language
+   and give the builder + preview one consistent visual system. */
+#r43Monitoring .ge-btn,
+#r43Monitoring .ge-assess-tabs button,
+#r43Monitoring .ge-form-ref-list button,
+#r43Monitoring .ge-form-palette button,
+#r43Monitoring .ge-form-field button,
+#r43Monitoring .ge-form-section-title > span button,
+#r43Monitoring .ge-form-completion [data-add-repeat] {
+  appearance:none;
+  -webkit-appearance:none;
+  box-sizing:border-box;
+  font:inherit;
+}
+
+#r43Monitoring .ge-assess-tabs {
+  display:flex;
+  gap:7px;
+  overflow-x:auto;
+  margin:14px 0 16px;
+  padding:2px 0 8px;
+  border-bottom:1px solid #d9e4ee;
+}
+#r43Monitoring .ge-assess-tabs button {
+  min-height:38px;
+  padding:8px 13px;
+  border:1px solid #a9bfd9;
+  border-radius:8px;
+  background:#fff;
+  color:#082b59;
+  font-size:11px;
+  font-weight:750;
+  line-height:1;
+  white-space:nowrap;
+  cursor:pointer;
+}
+#r43Monitoring .ge-assess-tabs button:hover,
+#r43Monitoring .ge-assess-tabs button:focus-visible,
+#r43Monitoring .ge-assess-tabs button.active {
+  background:#082b59;
+  color:#fff;
+  border-color:#082b59;
+}
+
+#r43Monitoring .ge-btn {
+  min-height:38px;
+  padding:8px 13px;
+  border:1px solid #a9bfd9;
+  border-radius:8px;
+  background:#fff;
+  color:#082b59;
+  font-size:11px;
+  font-weight:750;
+  line-height:1.1;
+  text-decoration:none;
+  cursor:pointer;
+  transition:background .15s ease,border-color .15s ease,color .15s ease,transform .15s ease,box-shadow .15s ease;
+}
+#r43Monitoring .ge-btn:hover,
+#r43Monitoring .ge-btn:focus-visible {
+  background:#082b59;
+  color:#fff;
+  border-color:#082b59;
+  box-shadow:0 4px 10px rgba(8,43,89,.10);
+}
+#r43Monitoring .ge-btn.primary {
+  background:#082b59;
+  color:#fff;
+  border-color:#082b59;
+}
+#r43Monitoring .ge-btn.primary:hover,
+#r43Monitoring .ge-btn.primary:focus-visible {
+  background:#123f73;
+  border-color:#123f73;
+}
+#r43Monitoring .ge-btn.danger {
+  background:#fff;
+  color:#9f2d27;
+  border-color:#d9aaa6;
+}
+#r43Monitoring .ge-btn.danger:hover,
+#r43Monitoring .ge-btn.danger:focus-visible {
+  background:#fff4f3;
+  color:#8e241f;
+  border-color:#c9857e;
+}
+#r43Monitoring .ge-btn.compact {
+  min-height:32px;
+  padding:6px 10px;
+  font-size:10px;
+}
+#r43Monitoring .ge-btn.icon {
+  width:32px;
+  min-width:32px;
+  padding:6px;
+  text-align:center;
+}
+#r43Monitoring .ge-btn:disabled {
+  opacity:.42;
+  cursor:not-allowed;
+  box-shadow:none;
+  transform:none;
+}
+
+#r43Monitoring .ge-form-builder-grid {
+  grid-template-columns:minmax(185px,.8fr) minmax(390px,2.2fr) minmax(260px,1.15fr);
+  gap:14px;
+  align-items:start;
+}
+#r43Monitoring .ge-form-builder-grid > aside,
+#r43Monitoring .ge-form-canvas {
+  border:1px solid #d6e1ec;
+  border-radius:10px;
+  background:#f7faff;
+  padding:14px;
+}
+#r43Monitoring .ge-form-palette {
+  position:sticky;
+  top:12px;
+}
+#r43Monitoring .ge-form-palette h3,
+#r43Monitoring .ge-form-inspector h3 {
+  margin:0 0 8px;
+  color:#082b59;
+}
+#r43Monitoring .ge-form-palette p {
+  margin:0 0 10px;
+  color:#6a8095;
+  font-size:10px;
+  line-height:1.45;
+}
+#r43Monitoring .ge-form-palette button.ge-form-tool-btn {
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  width:100%;
+  min-height:34px;
+  margin:5px 0;
+  padding:7px 10px;
+  border:1px solid #b9cde2;
+  border-radius:7px;
+  background:#fff;
+  color:#173b61;
+  font-size:10px;
+  font-weight:700;
+  text-align:left;
+}
+#r43Monitoring .ge-form-palette button.ge-form-tool-btn:hover,
+#r43Monitoring .ge-form-palette button.ge-form-tool-btn:focus-visible {
+  background:#082b59;
+  border-color:#082b59;
+  color:#fff;
+}
+
+#r43Monitoring .ge-form-section {
+  border:1px solid #d2dfeb;
+  border-radius:9px;
+  background:#fff;
+  padding:13px;
+  margin:10px 0;
+  box-shadow:0 1px 2px rgba(8,43,89,.03);
+}
+#r43Monitoring .ge-form-section.selected {
+  outline:2px solid #9eb9d4;
+  outline-offset:0;
+}
+#r43Monitoring .ge-form-section-title {
+  padding-bottom:8px;
+  border-bottom:1px solid #edf1f5;
+}
+#r43Monitoring .ge-form-section-select,
+#r43Monitoring .ge-form-field-select {
+  appearance:none;
+  border:0;
+  background:transparent;
+  color:#173b61;
+  font:inherit;
+  font-weight:750;
+  text-align:left;
+  cursor:pointer;
+  padding:5px 2px;
+}
+#r43Monitoring .ge-form-section-select:hover,
+#r43Monitoring .ge-form-field-select:hover,
+#r43Monitoring .ge-form-section-select:focus-visible,
+#r43Monitoring .ge-form-field-select:focus-visible {
+  color:#082b59;
+  text-decoration:underline;
+  outline:none;
+}
+#r43Monitoring .ge-form-field {
+  margin:8px 0;
+  padding:9px 10px;
+  border:1px solid #e0e8ef;
+  border-radius:8px;
+  background:#fbfdff;
+}
+#r43Monitoring .ge-form-field.selected {
+  outline:2px solid #b1c8df;
+  background:#f5f9fd;
+}
+#r43Monitoring .ge-form-field small {
+  color:#607b91;
+  font-size:9px;
+}
+#r43Monitoring .ge-form-field > span,
+#r43Monitoring .ge-form-section-title > span {
+  display:flex;
+  align-items:center;
+  gap:4px;
+  flex-wrap:wrap;
+}
+
+#r43Monitoring .ge-form-inspector {
+  background:#fff;
+}
+#r43Monitoring .ge-form-inspector label {
+  display:grid;
+  gap:5px;
+  margin:9px 0;
+  color:#244260;
+  font-size:10px;
+  font-weight:700;
+}
+#r43Monitoring .ge-form-inspector details {
+  margin-top:12px;
+  padding:10px;
+  border:1px solid #dbe5ee;
+  border-radius:8px;
+  background:#f8fbfd;
+}
+#r43Monitoring .ge-form-inspector details summary {
+  color:#082b59;
+  font-weight:750;
+  cursor:pointer;
+}
+#r43Monitoring .ge-form-ref-picker {
+  margin:10px 0;
+  padding:10px;
+  border:1px solid #cbdbea;
+  border-radius:8px;
+  background:#fff;
+}
+#r43Monitoring .ge-form-ref-list {
+  max-height:200px;
+  overflow:auto;
+  display:grid;
+  gap:5px;
+  margin-top:8px;
+}
+#r43Monitoring .ge-form-ref-list button.ge-btn {
+  width:100%;
+  min-height:32px;
+  text-align:left;
+}
+
+#r43Monitoring .ge-form-preview {
+  margin-top:16px;
+  padding:18px;
+  border:1px solid #d3dfeb;
+  border-radius:10px;
+  background:#f7faff;
+}
+#r43Monitoring .ge-form-preview-head {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding:0 0 13px;
+  margin:0 0 13px;
+  border-bottom:1px solid #dfe8f0;
+}
+#r43Monitoring .ge-form-preview-head h3 {
+  margin:0;
+  color:#082b59;
+  font-size:15px;
+}
+#r43Monitoring .ge-form-preview-head p {
+  margin:4px 0 0;
+  color:#6c8196;
+  font-size:10px;
+}
+#r43Monitoring .ge-form-preview .ge-form-completion {
+  max-width:900px;
+  margin:0 auto;
+}
+#r43Monitoring .ge-form-preview .ge-form-section {
+  padding:16px;
+  margin:0 0 12px;
+  border-color:#d4e0eb;
+  box-shadow:0 2px 7px rgba(8,43,89,.04);
+}
+#r43Monitoring .ge-form-preview .ge-form-section h3 {
+  margin:0 0 12px;
+  color:#0b3564;
+  font-size:13px;
+}
+#r43Monitoring .ge-form-preview .ge-form-question {
+  margin:9px 0;
+  padding:12px 13px;
+  border:1px solid #dbe5ee;
+  border-radius:8px;
+  background:#fff;
+}
+#r43Monitoring .ge-form-preview .ge-form-question > label > b {
+  display:block;
+  color:#173b61;
+  font-size:11px;
+  line-height:1.45;
+}
+#r43Monitoring .ge-form-preview .ge-form-question > label > small,
+#r43Monitoring .ge-form-preview .ge-form-question > small {
+  display:block;
+  margin-top:7px;
+  color:#71869a;
+  font-size:9px;
+}
+#r43Monitoring .ge-form-preview .ge-form-question select,
+#r43Monitoring .ge-form-preview .ge-form-question input:not([type=checkbox]):not([type=radio]),
+#r43Monitoring .ge-form-preview .ge-form-question textarea {
+  width:100%;
+  min-height:38px;
+  margin-top:8px;
+  box-sizing:border-box;
+  border:1px solid #c7d7e5;
+  border-radius:7px;
+  background:#fff;
+  color:#173b61;
+  padding:8px 10px;
+}
+#r43Monitoring .ge-form-preview .ge-form-question select:focus,
+#r43Monitoring .ge-form-preview .ge-form-question input:focus,
+#r43Monitoring .ge-form-preview .ge-form-question textarea:focus {
+  border-color:#315e78;
+  outline:none;
+  box-shadow:0 0 0 2px rgba(49,94,120,.10);
+}
+#r43Monitoring .ge-form-preview .ge-form-question [data-multiple] {
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:8px;
+}
+#r43Monitoring .ge-form-preview .ge-form-question [data-multiple] label {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  min-height:32px;
+  padding:5px 9px;
+  border:1px solid #c7d7e5;
+  border-radius:7px;
+  background:#fff;
+  color:#244260;
+  font-size:10px;
+  cursor:pointer;
+}
+#r43Monitoring .ge-form-preview .ge-form-question [data-multiple] label:has(input:checked) {
+  background:#082b59;
+  color:#fff;
+  border-color:#082b59;
+}
+#r43Monitoring .ge-form-preview .ge-form-question [data-multiple] input {
+  margin:0;
+  accent-color:#082b59;
+}
+#r43Monitoring .ge-form-preview .ge-form-question output {
+  display:block;
+  margin-top:8px;
+  padding:10px;
+  min-height:20px;
+  border:1px solid #cbd8e5;
+  border-radius:7px;
+  background:#eef4f8;
+  color:#173b61;
+}
+
+@media(max-width:950px){
+  #r43Monitoring .ge-form-builder-grid{grid-template-columns:1fr}
+  #r43Monitoring .ge-form-palette{position:static;max-height:none}
+  #r43Monitoring .ge-form-palette button.ge-form-tool-btn{display:inline-flex;width:auto;margin:3px}
+}
