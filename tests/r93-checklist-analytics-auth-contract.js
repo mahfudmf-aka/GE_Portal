@@ -1,0 +1,17 @@
+const fs=require('fs'),assert=require('assert');
+const fm=fs.readFileSync('assets/form-management.js','utf8');
+const store=fs.readFileSync('assets/edition1-store.js','utf8');
+const share=fs.readFileSync('netlify/functions/checklist-share.js','utf8');
+const css=fs.readFileSync('assets/portal.css','utf8');
+assert(fm.includes('getIdToken(true)'),'Checklist share must refresh the Firebase token after a 401');
+assert(store.includes('if(r.status===401)'),'Canonical data save must retry once with a refreshed Firebase token');
+assert(fm.includes('Submission Results'),'Submission analytics must render');
+assert(fm.includes('data-submission-work'),'Submission analytics must filter by Monitoring Work');
+assert(fm.includes('Download CSV'),'Submission analytics must expose CSV export');
+assert(fm.includes('Website User')&&fm.includes('Guest'),'Submission analytics must separate user and guest respondents');
+assert(fm.includes('Domestic')&&fm.includes('International'),'Submission analytics must show station region coverage');
+assert(fm.includes('submittedByRole')&&fm.includes('submittedByAccessLevel'),'Submission records must preserve respondent profile metadata');
+assert(fm.includes('accessType:\'user\''),'Authenticated submissions must identify access type');
+assert(share.includes('action===\'create\'')&&share.includes('verifyIdToken'),'Checklist share endpoint must authenticate share management');
+assert(css.includes('.ge-submission-analytics')&&css.includes('.ge-bar-row'),'Submission analytics must use canonical portal styling');
+console.log('R93_CHECKLIST_ANALYTICS_AUTH_CONTRACT_PASS');
