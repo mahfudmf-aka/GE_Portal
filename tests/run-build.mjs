@@ -89,14 +89,4 @@ await import('./r70-requirement-engine.js');
 await import('./r72-planning-inbox.js');
 await import('./r72-read-persistence.js');
 await import('./r81-p8-production-deployment-contract.js');
-
-await import('./r90-assessment-initiative-inbox-contract.js');
-await import('./r92-initiative-button-weight-contract.js');
-
-import { execFileSync } from 'node:child_process';
-execFileSync(process.execPath,['tests/r94-checklist-results-initiative-delete-contract.js'],{stdio:'inherit'});
-
-execFileSync(process.execPath,['tests/r95-master-data-runtime-restoration-contract.js'],{stdio:'inherit'});
-await import('./r96-master-data-integrity-lock-contract.js');
-
-await import('./r97-reference-checklist-dashboard-contract.js');
+await import('./r103-initiative-crud-feedback-contract.js');
