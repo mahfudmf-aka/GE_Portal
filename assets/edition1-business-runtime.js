@@ -1,18 +1,13 @@
 /* Edition 1 Business Runtime
- * Consolidated legacy business definitions. DOMContentLoaded auto-boot is intentionally suppressed.
- * Page boot is owned by edition1-page-boot.js after Firestore hydration.
+ * Canonical consolidated business implementation for legacy/v257 and Edition 1 routes.
+ * Canonical routes use explicit page boot; legacy registry routes may use the synthetic DOMContentLoaded dispatch from app.html.
  */
 (function(){
   const UI_STATE=window.__GE_EDITION1_UI_STATE||(window.__GE_EDITION1_UI_STATE={});
   const geUiGet=(key)=>Object.prototype.hasOwnProperty.call(UI_STATE,key)?UI_STATE[key]:null;
   const geUiSet=(key,value)=>{UI_STATE[key]=String(value);return value};
   const geUiRemove=(key)=>{delete UI_STATE[key]};
-  const _w=window.addEventListener.bind(window);
-  const _d=document.addEventListener.bind(document);
-  window.addEventListener=function(type,fn,opt){ if(type==='DOMContentLoaded') return; return _w(type,fn,opt); };
-  document.addEventListener=function(type,fn,opt){ if(type==='DOMContentLoaded') return; return _d(type,fn,opt); };
-
-/* SOURCE: assets/app.js */
+/* Canonical consolidated business implementation. */
 
 const store=window.GEStore;
 let data=store.get();
@@ -8779,7 +8774,7 @@ if(originalRenderUserAccounts){
 }
 })();
 
-/* SOURCE: assets/v254-project.js */
+/* Canonical project compatibility retained inline where required by existing consumers. */
 /* Compatibility shim for legacy pages that reference the historical project bundle.
  * The current project-tracking implementation remains in the existing page scripts.
  * This file intentionally has no destructive initialization or data migration.
@@ -8789,14 +8784,14 @@ if(originalRenderUserAccounts){
   window.GXProjectCompat = window.GXProjectCompat || {version:'2.54.4-compat',ready:true};
 })();
 
-/* SOURCE: assets/v2544-modal-fix.js */
+/* Canonical modal compatibility retained inline. */
 /* Compatibility shim for legacy modal enhancements. */
 (function(){
   'use strict';
   window.GXModalCompat = window.GXModalCompat || {version:'2.54.4-compat',ready:true};
 })();
 
-/* SOURCE: assets/v2554-stability.js */
+/* Canonical Initiative/Calendar stability behavior retained inline. */
 
 /* V2.55.4 — stability reset on V2.54.4 baseline */
 (function(){
