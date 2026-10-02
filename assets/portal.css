@@ -5766,3 +5766,14 @@ html body.final-v257.final-shell-r5.e1-page .ge-sidebar-toggle:hover{background:
 .ge-master-groups .ge-master-group{appearance:none;-webkit-appearance:none;box-sizing:border-box;min-height:38px;padding:8px 13px;border:1px solid #a9bfd9;border-radius:8px;background:#fff;color:#082b59;font:inherit;font-weight:700;line-height:1.2;cursor:pointer;box-shadow:none}
 .ge-master-groups .ge-master-group:hover,.ge-master-groups .ge-master-group:focus-visible,.ge-master-groups .ge-master-group.active{background:#082b59;color:#fff;border-color:#082b59}
 .ge-master-groups .ge-master-group:focus-visible{outline:2px solid #8eabd0;outline-offset:2px}
+
+/* R96 — Master Data canonical layout lock: equal controls + real sortable headers. */
+.ge-master-data .ge-ref-toolbar{display:grid!important;grid-template-columns:minmax(260px,1fr) minmax(320px,1.25fr) auto auto auto!important;align-items:end!important;gap:10px!important}
+.ge-master-data .ge-ref-toolbar>label{display:flex!important;flex-direction:column!important;justify-content:flex-end!important;gap:5px!important;min-width:0!important;margin:0!important;height:44px!important;font-size:12px!important;color:#34495e!important}
+.ge-master-data .ge-ref-toolbar>label .ge-input,.ge-master-data .ge-ref-toolbar>.ge-input{height:44px!important;min-height:44px!important;box-sizing:border-box!important;margin:0!important}
+.ge-master-data .ge-ref-toolbar>.ge-btn{height:44px!important;min-height:44px!important;box-sizing:border-box!important;align-self:end!important;white-space:nowrap!important}
+.ge-master-data .ge-ref-table thead th[data-sort]{cursor:pointer!important;user-select:none!important;white-space:nowrap!important}
+.ge-master-data .ge-ref-table thead th[data-sort]:hover{background:#eef3f8!important;color:#062b63!important}
+.ge-master-data .ge-sort-indicator{display:inline-block!important;margin-left:5px!important;font-size:11px!important;font-weight:600!important;opacity:.65!important}
+@media(max-width:900px){.ge-master-data .ge-ref-toolbar{grid-template-columns:1fr 1fr!important}.ge-master-data .ge-ref-toolbar>.ge-btn{width:max-content!important}}
+@media(max-width:620px){.ge-master-data .ge-ref-toolbar{grid-template-columns:1fr!important}.ge-master-data .ge-ref-toolbar>.ge-btn{width:100%!important}}
