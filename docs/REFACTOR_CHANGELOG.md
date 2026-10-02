@@ -26,7 +26,7 @@ This pass is intentionally conservative. The existing multi-page HTML/JavaScript
 - Netlify Functions source and their `firebase-admin` dependency declaration.
 - Existing `netlify.toml`, `_headers`, `firestore.rules`, and `firebase.json` behavior.
 - OCR assets and third-party browser libraries.
-- Existing legacy/versioned scripts such as `v2544-modal-fix.js` and `v2554-stability.js`; their usage is widespread enough that removal would require behavioral regression testing.
+- Historical compatibility scripts `v2544-modal-fix.js` and `v2554-stability.js` were later absorbed into the canonical business runtime during the P40 clean refactor; the old standalone files are no longer part of the runtime package.
 
 ## Deletions
 
