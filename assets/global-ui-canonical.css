@@ -1,0 +1,210 @@
+/* GLOBAL UI STANDARD — canonical shared layer
+   Scope: entire canonical portal shell. Page-specific CSS may control layout/data,
+   but may not redefine shared button/overlay typography or visual states. */
+:root{
+  --ui-navy:#082b59;
+  --ui-navy-hover:#0b3a78;
+  --ui-text:#18364f;
+  --ui-border:#b8c9da;
+  --ui-danger:#b42318;
+  --ui-control-h:40px;
+  --ui-control-radius:9px;
+  --ui-button-font:13px;
+  --ui-button-weight:600;
+}
+
+/* One button contract for every portal page. */
+html body .btn,
+html body button.btn,
+html body a.btn,
+html body input.btn,
+html body .ge-btn,
+html body button.ge-btn,
+html body a.ge-btn{
+  box-sizing:border-box;
+  min-height:var(--ui-control-h);
+  height:var(--ui-control-h);
+  padding:0 16px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  border:1px solid var(--ui-navy);
+  border-radius:var(--ui-control-radius);
+  background:#fff;
+  color:var(--ui-navy);
+  font-family:inherit;
+  font-size:var(--ui-button-font);
+  font-weight:var(--ui-button-weight);
+  line-height:1;
+  letter-spacing:0;
+  text-decoration:none;
+  white-space:nowrap;
+  box-shadow:none;
+  transform:none;
+  appearance:none;
+  -webkit-appearance:none;
+  cursor:pointer;
+}
+
+/* Secondary is the default action surface. */
+html body .btn:not(.primary):not(.danger):not(.btn-danger),
+html body .ge-btn:not(.primary):not(.danger){
+  background:#fff;
+  color:var(--ui-navy);
+  border-color:var(--ui-navy);
+}
+html body .btn:not(.primary):not(.danger):not(.btn-danger):hover,
+html body .btn:not(.primary):not(.danger):not(.btn-danger):focus-visible,
+html body .ge-btn:not(.primary):not(.danger):hover,
+html body .ge-btn:not(.primary):not(.danger):focus-visible{
+  background:var(--ui-navy);
+  color:#fff;
+  border-color:var(--ui-navy);
+}
+
+/* Primary. */
+html body .btn.primary,
+html body .ge-btn.primary{
+  background:var(--ui-navy);
+  color:#fff;
+  border-color:var(--ui-navy);
+}
+html body .btn.primary:hover,
+html body .btn.primary:focus-visible,
+html body .ge-btn.primary:hover,
+html body .ge-btn.primary:focus-visible{
+  background:var(--ui-navy-hover);
+  color:#fff;
+  border-color:var(--ui-navy-hover);
+}
+
+/* Danger. */
+html body .btn.danger,
+html body .btn.btn-danger,
+html body .ge-btn.danger{
+  background:#fff;
+  color:var(--ui-danger);
+  border-color:var(--ui-danger);
+}
+html body .btn.danger:hover,
+html body .btn.danger:focus-visible,
+html body .btn.btn-danger:hover,
+html body .btn.btn-danger:focus-visible,
+html body .ge-btn.danger:hover,
+html body .ge-btn.danger:focus-visible{
+  background:var(--ui-danger);
+  color:#fff;
+  border-color:var(--ui-danger);
+}
+
+html body .btn:disabled,
+html body .ge-btn:disabled,
+html body .btn[aria-disabled="true"],
+html body .ge-btn[aria-disabled="true"]{
+  opacity:.55;
+  cursor:not-allowed;
+  transform:none;
+}
+html body .btn:focus-visible,
+html body .ge-btn:focus-visible{
+  outline:2px solid rgba(8,43,89,.25);
+  outline-offset:2px;
+}
+
+/* Compact/table actions use the same typography, only smaller geometry. */
+html body .btn.compact,
+html body .ge-btn.compact,
+html body .row-actions .btn,
+html body td .btn{
+  min-height:36px;
+  height:36px;
+  padding:0 12px;
+  font-size:12px;
+  font-weight:600;
+  border-radius:8px;
+}
+
+/* Canonical shell/header layering. */
+html body.e1-page>.top,
+html body.e1-page>header.top,
+html body.e1-page .e1-top{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  z-index:10000;
+}
+
+/* One overlay layer: viewport-bound and above shell. */
+html body .modal-backdrop,
+html body .overlay-backdrop,
+html body [role="dialog"],
+html body [aria-modal="true"]{
+  position:fixed;
+}
+html body .modal-backdrop,
+html body .overlay-backdrop,
+html body [class*="modal-backdrop"]{
+  inset:0;
+  z-index:20000;
+}
+html body [role="dialog"],
+html body [aria-modal="true"],
+html body .modal,
+html body .dialog,
+html body .initiative-dialog{
+  z-index:20001;
+}
+html body .toast,
+html body [class*="toast"]{
+  z-index:21000;
+}
+
+/* Modal content must remain centered and inside the viewport. */
+html body .modal-backdrop,
+html body .overlay-backdrop{
+  align-items:center;
+  justify-content:center;
+}
+html body .modal-backdrop .modal-card,
+html body .modal-backdrop .modal,
+html body .overlay-backdrop .modal-card,
+html body .overlay-backdrop .modal{
+  position:relative;
+  max-height:calc(100vh - 40px);
+  overflow:auto;
+}
+
+/* Global action labels must never inherit browser button appearance. */
+html body button,
+html body input[type="button"],
+html body input[type="submit"]{
+  font-family:inherit;
+}
+
+/* Canonical page/action geometry: actions live in the page header's right side. */
+html body.e1-page #cleanPageOutlet .ge-page-head,
+html body.e1-page #cleanPageOutlet .title{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:20px;
+}
+html body.e1-page #cleanPageOutlet .ge-page-actions,
+html body.e1-page #cleanPageOutlet .bulk-action-group,
+html body.e1-page #cleanPageOutlet .hero-title-actions{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  flex-wrap:wrap;
+}
+@media(max-width:760px){
+  html body.e1-page #cleanPageOutlet .ge-page-head,
+  html body.e1-page #cleanPageOutlet .title{flex-direction:column}
+  html body.e1-page #cleanPageOutlet .ge-page-actions,
+  html body.e1-page #cleanPageOutlet .bulk-action-group,
+  html body.e1-page #cleanPageOutlet .hero-title-actions{width:100%;margin-left:0;justify-content:flex-start}
+}

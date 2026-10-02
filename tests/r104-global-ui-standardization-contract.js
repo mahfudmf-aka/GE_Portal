@@ -1,0 +1,10 @@
+'use strict';
+const fs=require('fs'),assert=require('assert');
+const app=fs.readFileSync('app.html','utf8');
+const css=fs.readFileSync('assets/global-ui-canonical.css','utf8');
+assert(app.includes('assets/global-ui-canonical.css?v=r1'),'Global UI canonical stylesheet must be loaded by canonical shell');
+for(const token of ['--ui-navy','--ui-control-h','--ui-button-font','.btn:not(.primary):not(.danger):not(.btn-danger)','.btn.primary','.btn.danger','.row-actions .btn','.modal-backdrop','[role="dialog"]','z-index:20000','z-index:20001']) assert(css.includes(token),`Global UI contract missing ${token}`);
+assert(/background:#fff[;\s\S]*color:var\(--ui-navy\)/.test(css),'Secondary buttons must be white with navy text');
+assert(/\.btn:not\([^}]+\):hover[\s\S]*background:var\(--ui-navy\)[\s\S]*color:#fff/.test(css),'Secondary hover must be navy with white text');
+assert(css.includes('font-size:var(--ui-button-font)')&&css.includes('font-weight:var(--ui-button-weight)'),'Button typography must be canonical');
+console.log('R104_GLOBAL_UI_STANDARDIZATION_CONTRACT_PASS');
