@@ -98,3 +98,5 @@ execFileSync(process.execPath,['tests/r94-checklist-results-initiative-delete-co
 
 execFileSync(process.execPath,['tests/r95-master-data-runtime-restoration-contract.js'],{stdio:'inherit'});
 await import('./r96-master-data-integrity-lock-contract.js');
+
+await import('./r97-reference-checklist-dashboard-contract.js');
