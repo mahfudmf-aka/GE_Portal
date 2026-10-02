@@ -32,7 +32,7 @@ function getJourney(tp){
  return map[key]||'';
 }
 function uniqueTouchpoints(){
- return [...new Set([...(data.touchpoints||[]),...(data.initiatives||[]).map(x=>x.tp)].filter(Boolean))]
+ return [...new Set([...(data.touchpoints||[]),...(data.initiatives||[]).flatMap(x=>{const v=x.touchpoints||x.tp||x.touchpoint||'';return Array.isArray(v)?v:String(v).split(/[|,;]/)})].map(x=>String(x||'').trim()).filter(Boolean))]
    .sort((a,b)=>a.localeCompare(b));
 }
 function refreshInitiativeFilters(){
@@ -6592,6 +6592,7 @@ function geCloseSearchableFiltersV245(except=null){
 }
 
 function geEnhanceFilterSelectV245(select){
+  if(window.GEGlobalSelect || select?.dataset?.geGlobalSelectV1)return;
   if(!geIsFilterSelectV245(select)||select.dataset.searchableV245)return;
   select.dataset.searchableV245='1';
 

@@ -47,7 +47,7 @@ function getJourney(tp){
  return map[key]||'';
 }
 function uniqueTouchpoints(){
- return [...new Set([...(data.touchpoints||[]).map(x=>typeof x==='string'?x:(x.name||x.title||x.touchpoint||x.code||'')),...(data.initiatives||[]).map(x=>x.tp||x.touchpoint||'')].map(x=>String(x||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
+ return [...new Set([...(data.touchpoints||[]).map(x=>typeof x==='string'?x:(x.name||x.title||x.touchpoint||x.code||'')),...(data.initiatives||[]).flatMap(x=>{const v=x.touchpoints||x.tp||x.touchpoint||'';return Array.isArray(v)?v:String(v).split(/[|,;]/)})].map(x=>String(x||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
 }
 function refreshInitiativeFilters(){
  const ft=document.getElementById('ft');
@@ -6732,6 +6732,7 @@ function geCloseSearchableFiltersV245(except=null){
 }
 
 function geEnhanceFilterSelectV245(select){
+  if(window.GEGlobalSelect || select?.dataset?.geGlobalSelectV1)return;
   if(!geIsFilterSelectV245(select)||select.dataset.searchableV245)return;
   select.dataset.searchableV245='1';
 
@@ -9349,9 +9350,9 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
 
   function statusForAgreement(x){
     const end=validDate(x?.endDate);if(!end)return {label:'Status tidak ditentukan',cls:'neutral'};
-    const d=new Date(end+'T23:59:59');if(Number.isNaN(d.getTime()))return {label:'Requires Review',cls:'danger'};
-    const now=new Date();if(d<now)return {label:'Agreement expired',cls:'danger'};
-    const days=Math.ceil((d-now)/86400000);return days<90?{label:days+' hari tersisa',cls:'danger'}:days<180?{label:days+' hari tersisa',cls:'warning'}:{label:days+' hari tersisa',cls:'good'};
+    const d=new Date(end+'T23:59:59');if(Number.isNaN(d.getTime()))return {label:'Requires Review',cls:'warning'};
+    const now=new Date();if(d<now)return {label:'Agreement expired',cls:'warning'};
+    const days=Math.ceil((d-now)/86400000);return days<90?{label:days+' hari tersisa',cls:'warning'}:days<180?{label:days+' hari tersisa',cls:'warning'}:{label:days+' hari tersisa',cls:'good'};
   }
 
   function renderCards(){
@@ -9732,11 +9733,26 @@ const ulabel=u=>uname(u);
 const stations=()=>[...new Set([...(store().airports||[]).map(a=>a.code||a.airportCode||a.iata||a.stationCode),...(store().lounges||[]).map(x=>x.airport),...(store().initiatives||[]).flatMap(x=>arr(x.stations||x.airport))].map(x=>String(x||'').trim().toUpperCase()).filter(Boolean))].sort();
 const touchpoints=()=>[...new Set((store().touchpoints||[]).filter(x=>typeof x==='string'||x.status!=='Inactive').map(x=>typeof x==='string'?x:(x.name||x.touchpoint||x.label)).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'id'));
 const journeys=['Pre-Journey','Pre-Flight','Post-Flight','Post-Journey','Cross-Journey / End-to-End','Supporting / Enabler'];
-function picker(id,items,selected=[]){const root=document.getElementById(id);if(!root)return;const chosen=new Set(arr(selected));root.dataset.values=JSON.stringify([...chosen]);root.innerHTML=`<button type="button" class="ge-picker-trigger-r11"><span>${chosen.size?`${chosen.size} dipilih`:'Pilih'}</span><i>⌄</i></button><div class="ge-picker-pop-r11"><input class="ge-picker-search-r11" placeholder="Cari..." autocomplete="off"><div class="ge-picker-options-r11">${items.map(v=>`<label data-label="${esc(String(v).toLowerCase())}"><input type="checkbox" value="${esc(v)}" ${chosen.has(v)?'checked':''}><span>${esc(v)}</span></label>`).join('')||'<div class="ge-picker-empty-r11">Data belum tersedia.</div>'}</div><div class="ge-picker-actions-r11"><button type="button" data-picker-cancel>Batal</button><button type="button" class="primary" data-picker-ok>OK</button></div></div>`;
- const trigger=root.querySelector('.ge-picker-trigger-r11'),pop=root.querySelector('.ge-picker-pop-r11'),search=root.querySelector('.ge-picker-search-r11');
- const close=()=>pop.classList.remove('show'); trigger.onclick=()=>{document.querySelectorAll('.ge-picker-pop-r11.show').forEach(x=>x!==pop&&x.classList.remove('show'));pop.classList.toggle('show');if(pop.classList.contains('show'))setTimeout(()=>search.focus(),0)};
- search.oninput=()=>{const q=search.value.trim().toLowerCase();root.querySelectorAll('.ge-picker-options-r11 label').forEach(l=>l.hidden=q&&!l.dataset.label.includes(q))};
- root.querySelector('[data-picker-cancel]').onclick=close; root.querySelector('[data-picker-ok]').onclick=()=>{const vals=[...root.querySelectorAll('.ge-picker-options-r11 input:checked')].map(x=>x.value);root.dataset.values=JSON.stringify(vals);trigger.querySelector('span').textContent=vals.length?`${vals.length} dipilih`:'Pilih';close()};
+function picker(id,items,selected=[]){
+ const root=document.getElementById(id);if(!root)return;
+ const values=[...new Set(arr(selected).map(String))],chosen=new Set(values),allKey='__ALL__';
+ root.dataset.values=JSON.stringify(values);
+ const list=[...new Set((items||[]).map(x=>String(x).trim()).filter(Boolean))];
+ const labels=()=>{try{return JSON.parse(root.dataset.values||'[]')}catch{return[]}};
+ const summary=()=>{const vals=labels(),max=3;if(!vals.length)return 'Select';const shown=vals.slice(0,max);return shown.join(', ')+(vals.length>max?` +${vals.length-max}`:'')};
+ root.innerHTML=`<button type="button" class="ge-picker-trigger-r11"><span>${esc(summary())}</span><i>⌄</i></button><div class="ge-picker-pop-r11"><input class="ge-picker-search-r11" placeholder="Search..." autocomplete="off"><div class="ge-picker-options-r11"><label data-all-option="1"><input type="checkbox" value="${allKey}"><span>All</span></label>${list.map(v=>`<label data-label="${esc(v.toLowerCase())}"><input type="checkbox" value="${esc(v)}" ${chosen.has(v)?'checked':''}><span>${esc(v)}</span></label>`).join('')||'<div class="ge-picker-empty-r11">No matching data found.</div>'}</div><div class="ge-picker-actions-r11"><button type="button" data-picker-clear>Clear</button><button type="button" data-picker-cancel>Cancel</button><button type="button" class="primary" data-picker-ok>Apply</button></div></div>`;
+ const trigger=root.querySelector('.ge-picker-trigger-r11'),pop=root.querySelector('.ge-picker-pop-r11'),search=root.querySelector('.ge-picker-search-r11'),all=root.querySelector('[data-all-option] input');
+ const optionInputs=()=>[...root.querySelectorAll('.ge-picker-options-r11 input[type="checkbox"]')].filter(x=>x.value!==allKey);
+ const syncAll=()=>{const opts=optionInputs(),checked=opts.filter(x=>x.checked).length;all.checked=opts.length>0&&checked===opts.length;all.indeterminate=checked>0&&checked<opts.length};
+ const renderSummary=()=>{trigger.querySelector('span').textContent=summary();syncAll()};
+ const close=()=>{pop.classList.remove('show');search.value='';root.querySelectorAll('.ge-picker-options-r11 label').forEach(l=>l.hidden=false)};
+ trigger.onclick=()=>{document.querySelectorAll('.ge-picker-pop-r11.show').forEach(x=>x!==pop&&x.classList.remove('show'));pop.classList.toggle('show');if(pop.classList.contains('show')){syncAll();setTimeout(()=>search.focus(),0)}};
+ search.oninput=()=>{const q=search.value.trim().toLowerCase();root.querySelectorAll('.ge-picker-options-r11 label').forEach(l=>{if(l.hasAttribute('data-all-option')){l.hidden=false;return}l.hidden=!!q&&!l.dataset.label.includes(q)})};
+ all.onchange=()=>{const check=all.checked;optionInputs().forEach(x=>x.checked=check);syncAll()};
+ root.querySelector('[data-picker-clear]').onclick=()=>{optionInputs().forEach(x=>x.checked=false);all.checked=false;all.indeterminate=false};
+ root.querySelector('[data-picker-cancel]').onclick=close;
+ root.querySelector('[data-picker-ok]').onclick=()=>{const vals=optionInputs().filter(x=>x.checked).map(x=>x.value);root.dataset.values=JSON.stringify(vals);renderSummary();close()};
+ syncAll();renderSummary();
 }
 function picked(id){try{return JSON.parse(document.getElementById(id)?.dataset.values||'[]')}catch{return []}}
 function fillPic(selectId,freeId,row={}){const el=document.getElementById(selectId);if(!el)return;el.innerHTML='<option value="">Pilih akun User & Access</option>'+users().map(u=>`<option value="${esc(ukey(u))}">${esc(ulabel(u))}</option>`).join('');el.value=row.picUserId||'';const free=document.getElementById(freeId);if(free)free.value=row.picUserId?'':(row.pic||'')}
@@ -9875,6 +9891,7 @@ window.openInitiativeModalV224=function(id=null){ensureInitiativeCanonicalFields
 window.geEnsureInitiativeCanonicalFieldsR12=ensureInitiativeCanonicalFields;
 
 function installSearchableSelect(select){
+ if(window.GEGlobalSelect)return;
  if(!select||select.multiple||select.dataset.comboR12)return;select.dataset.comboR12='1';
  const wrap=document.createElement('div');wrap.className='ge-combo-r12';
  const input=document.createElement('input');input.type='text';input.className='ge-combo-input-r12';input.placeholder=select.options[0]?.textContent||'Pilih atau ketik...';input.autocomplete='off';
@@ -9948,7 +9965,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 /* Final canonical Initiative Grid/List view. This wrapper is intentionally last so legacy exports cannot overwrite it. */
 const initRender=window.renderInitiatives;
-if(initRender)window.renderInitiatives=function(){const out=initRender.apply(this,arguments),view=window.GE_INITIATIVE_VIEW_R4||document.getElementById('geInitiativeViewSelectR6')?.value||'grid';if(view!=='list')return out;let rows=[];try{rows=typeof currentInitiativeRows==='function'?currentInitiativeRows().filter(typeof geInitiativeScopedV224==='function'?geInitiativeScopedV224:()=>true):(store().initiatives||[])}catch(e){rows=store().initiatives||[]}const host=document.getElementById('initRows');if(host){host.innerHTML=`<div class="ge-initiative-list-r4"><table data-initiative-list-r26><thead><tr><th data-sort="0">Initiative ↕</th><th data-sort="1">Journey ↕</th><th data-sort="2">Touch Point ↕</th><th data-sort="3">Station ↕</th><th data-sort="4">PIC ↕</th><th data-sort="5">Due ↕</th><th data-sort="6">Progress ↕</th><th>Action</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.name||'-')}</b></td><td>${esc((x.journeyScopes||[x.journey]).filter(Boolean).join(', '))}</td><td>${esc((x.touchpoints||[x.tp||x.touchpoint]).filter(Boolean).join(', '))}</td><td>${esc((x.stations||[x.airport]).filter(Boolean).join(', '))}</td><td>${esc(x.pic||'-')}</td><td>${esc(x.dueDate||x.endDate||'-')}</td><td>${Number(x.real||0)}% / ${Number(x.plan||0)}%</td><td><button class="btn secondary compact-btn" onclick="window.openInitiativeModalV224('${esc(x.id)}')">Update</button><button class="btn secondary compact-btn" onclick="window.openInitiativeTimelineV224('${esc(x.id)}')">Milestone</button><button class="btn danger compact-btn" onclick="window.deleteInitiativeV224('${esc(x.id)}')">Delete</button></td></tr>`).join('')||'<tr><td colspan="8">Belum ada inisiatif pada filter ini.</td></tr>'}</tbody></table></div>`;window.geEnhanceAllTables?.();const t=host.querySelector('table[data-initiative-list-r26]');t?.querySelectorAll('th[data-sort]').forEach(th=>{th.style.cursor='pointer';th.onclick=()=>{const i=Number(th.dataset.sort),body=t.tBodies[0],dir=th.dataset.dir==='asc'?-1:1;[...body.rows].sort((a,b)=>a.cells[i].innerText.localeCompare(b.cells[i].innerText,'id',{numeric:true})*dir).forEach(r=>body.appendChild(r));th.dataset.dir=dir===1?'asc':'desc'}})}return out};
+if(initRender)window.renderInitiatives=function(){const out=initRender.apply(this,arguments),view=window.GE_INITIATIVE_VIEW_R4||document.getElementById('geInitiativeViewSelectR6')?.value||'grid';if(view!=='list')return out;let rows=[];try{rows=typeof currentInitiativeRows==='function'?currentInitiativeRows().filter(typeof geInitiativeScopedV224==='function'?geInitiativeScopedV224:()=>true):(store().initiatives||[])}catch(e){rows=store().initiatives||[]}const host=document.getElementById('initRows');if(host){host.innerHTML=`<div class="ge-initiative-list-r4"><table data-initiative-list-r26><thead><tr><th data-sort="0">Initiative ↕</th><th data-sort="1">Journey ↕</th><th data-sort="2">Touch Point ↕</th><th data-sort="3">Station ↕</th><th data-sort="4">PIC ↕</th><th data-sort="5">Due ↕</th><th data-sort="6">Progress ↕</th><th>Action</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.name||'-')}</b></td><td>${esc((x.journeyScopes||[x.journey]).filter(Boolean).join(', '))}</td><td>${esc((x.touchpoints||[x.tp||x.touchpoint]).filter(Boolean).join(', '))}</td><td>${esc((x.stations||[x.airport]).filter(Boolean).join(', '))}</td><td>${esc(x.pic||'-')}</td><td>${esc(x.dueDate||x.endDate||'-')}</td><td>${Number(x.real||0)}% / ${Number(x.plan||0)}%</td><td>${typeof geInitiativeManageButtonsV224==='function'?geInitiativeManageButtonsV224(x):''}</td></tr>`).join('')||'<tr><td colspan="8">Belum ada inisiatif pada filter ini.</td></tr>'}</tbody></table></div>`;window.geEnhanceAllTables?.();const t=host.querySelector('table[data-initiative-list-r26]');t?.querySelectorAll('th[data-sort]').forEach(th=>{th.style.cursor='pointer';th.onclick=()=>{const i=Number(th.dataset.sort),body=t.tBodies[0],dir=th.dataset.dir==='asc'?-1:1;[...body.rows].sort((a,b)=>a.cells[i].innerText.localeCompare(b.cells[i].innerText,'id',{numeric:true})*dir).forEach(r=>body.appendChild(r));th.dataset.dir=dir===1?'asc':'desc'}})}return out};
 window.geSetInitiativeViewR20=function(v){window.GE_INITIATIVE_VIEW_R4=v;document.querySelectorAll('#geInitiativeViewToggleR4 [data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v));window.renderInitiatives?.()};
 setTimeout(()=>{document.querySelectorAll('#geInitiativeViewToggleR4 [data-view]').forEach(b=>b.onclick=()=>window.geSetInitiativeViewR20(b.dataset.view));const s=document.getElementById('geInitiativeViewSelectR6');if(s)s.onchange=()=>window.geSetInitiativeViewR20(s.value)},0);
 

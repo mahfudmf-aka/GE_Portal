@@ -91,3 +91,4 @@ await import('./r72-read-persistence.js');
 await import('./r81-p8-production-deployment-contract.js');
 await import('./r103-initiative-crud-feedback-contract.js');
 await import('./r104-global-ui-standardization-contract.js');
+await import('./r105-global-select-initiative-contract.js');
