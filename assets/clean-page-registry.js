@@ -78,7 +78,7 @@ window.P40_CLEAN_PAGES['attention-settings']={title:'Management Attention Rules'
   if(!p.scripts.some(x=>String(x.src||'').includes('lounge-planning-v29.js')))p.scripts.push({src:'assets/lounge-planning-v29.js?v=p83'});
 })();
 /* Master Data regression labels: Airline & Partner | Ground Handling Agent | Partner Service Alignment. */
-/* P83 canonical source markers: retained for the historical contract; these are source markers only, not rendered groups. data-ref-tab=\"currency\" data-ref-tab=\"positions\" */
+/* P83 canonical source markers retained only as historical notes; they are not rendered groups. */
 /* Existing airport cost records are managed with Cost Intelligence. */
 (function(){const p=window.P40_CLEAN_PAGES; p['airport-cost-structure']={title:'Airport Cost Structure',html:'<section id="planningDomainContent" class="planning-domain-page"><div class="ge-card">Memuat struktur biaya…</div></section>',scripts:[{src:'assets/edition1-store.js?v=r96'},{src:'assets/planning-domains.js?v=r74'}],styles:['assets/portal.css?v=r74']};const cost=p['cost-intelligence'];if(cost&&!cost.html.includes('airport-cost-structure'))cost.html=cost.html.replace('Budget &amp; Financial</a>','Budget &amp; Financial</a><a class="ge-btn" href="app.html?page=airport-cost-structure">Airport Cost Structure</a>')})();
 
