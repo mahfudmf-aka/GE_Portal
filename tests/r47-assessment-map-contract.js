@@ -8,7 +8,7 @@ const w={};vm.runInNewContext(read('assets/clean-page-registry.js'),{window:w});
 assert(nav.includes("item('airport-experience.html','Network & Map'")&&!nav.includes("item('app.html?page=airport-experience&view=map'"),'Network and Map must have one sidebar target');
 assert(w.P40_CLEAN_PAGES['airport-experience'].html.includes('data-section="map"')&&w.P40_CLEAN_PAGES['airport-experience'].html.includes('data-section="network"'),'Combined page must keep map and station list');
 assert(!app.includes("toggleAttribute('hidden',view"),'Combined page must not hide one projection');
-assert(app.includes("await loadSrc('assets/form-management.js?v=r61')")&&app.includes('await window.geFormManagementInit?.()'),'Form Management must initialize');
+assert(/await loadSrc\('assets\/form-management\.js(?:\?v=[^']+)?'\)/.test(app)&&app.includes('await window.geFormManagementInit?.()'),'Form Management must initialize');
 for(const c of ['monitoringTemplates','monitoringAssessments'])assert(api.includes(`'${c}'`)&&store.includes(`${c}:[]`),`${c} must be in Firestore route and client state`);
 for(const text of ['Ground Touch Point Monitoring','Check-In & Drop Baggage','Assessment','Custom','sections','fields','versions','formSnapshot','monitoringWorks','formSubmissions','GEFiles.put','GEStore.flush'])assert(assess.includes(text),`Form workflow missing ${text}`);
 assert(station.includes('formSubmissions')&&station.includes('formTemplates'),'Mapped Assessment must flow into station views');
