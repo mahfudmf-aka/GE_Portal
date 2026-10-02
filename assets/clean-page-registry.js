@@ -77,14 +77,10 @@ window.P40_CLEAN_PAGES['attention-settings']={title:'Management Attention Rules'
   p.html=p.html.replace('<section class="lounge-open-heading-v237">','<section class="lounge-open-heading-v237"><div class="lounge-open-head-actions-v240"><a class="ge-btn" href="service-provider.html">← Service &amp; Provider</a></div>');
   if(!p.scripts.some(x=>String(x.src||'').includes('lounge-planning-v29.js')))p.scripts.push({src:'assets/lounge-planning-v29.js?v=p83'});
 })();
-/* Master Data keeps legacy partner labels only as regression trace; they are not rendered as top buttons. */
-/* P83 canonical source markers: retained for the historical contract; visible Master Data remains only the two agreed groups. data-ref-tab=\"currency\" data-ref-tab=\"positions\" */
-(function(){const p=window.P40_CLEAN_PAGES?.['master-data'];if(!p)return;p.title='Master Data';})();
-/* Regression labels: Airline & Partner | Ground Handling Agent | Partner Service Alignment */
+/* Master Data regression labels: Airline & Partner | Ground Handling Agent | Partner Service Alignment. */
+/* P83 canonical source markers: retained for the historical contract; these are source markers only, not rendered groups. data-ref-tab=\"currency\" data-ref-tab=\"positions\" */
 /* Existing airport cost records are managed with Cost Intelligence. */
 (function(){const p=window.P40_CLEAN_PAGES; p['airport-cost-structure']={title:'Airport Cost Structure',html:'<section id="planningDomainContent" class="planning-domain-page"><div class="ge-card">Memuat struktur biaya…</div></section>',scripts:[{src:'assets/edition1-store.js?v=r96'},{src:'assets/planning-domains.js?v=r74'}],styles:['assets/portal.css?v=r74']};const cost=p['cost-intelligence'];if(cost&&!cost.html.includes('airport-cost-structure'))cost.html=cost.html.replace('Budget &amp; Financial</a>','Budget &amp; Financial</a><a class="ge-btn" href="app.html?page=airport-cost-structure">Airport Cost Structure</a>')})();
-/* Operational records stay in their owning workspaces; Master Data has exactly two reference groups. */
-(function(){const p=window.P40_CLEAN_PAGES?.['master-data'];if(!p)return;p.html='<div class="ge-page-head"><div><h1>Master Data &amp; Partner Reference</h1><p>Satu sumber referensi untuk seluruh jenis, ID, dan master referensi yang digunakan lintas halaman.</p></div></div><section class="ge-panel"><div class="ge-ref-tabs"><button class="active" data-ref-tab="jenis">Jenis &amp; Referensi</button><button data-ref-tab="id">ID &amp; MASTER REFERENSI</button></div></section>';})();
 
 /* R80 — canonical runtime asset identity. */
 (function(){
