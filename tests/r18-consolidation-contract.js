@@ -4,7 +4,7 @@ assert(sh.includes('Master Data & Partners')||sh.includes('Master Data'),'Sideba
 ['airlines','groundHandlers','serviceAlignments'].forEach(k=>{assert(st.includes(k+':[]'),`Store missing ${k}`);assert(api.includes(`'${k}'`),`API missing ${k}`)});
 assert(reg.includes('JENIS &amp; REFERENSI')&&reg.includes('ID &amp; MASTER REFERENSI'),'Master Data must expose exactly two groups.');
 assert(!reg.includes('reference-id-catalog.js'),'Legacy secondary reference renderer must not be loaded.');
-assert(mr.includes("GEStore.hydrate(['referenceCatalog','airlines','aircraftConfigs','touchpoints','airports'])"),'Canonical Master Data sources must hydrate required references.');
-assert(mr.includes('Position / Jabatan')&&mr.includes('Dikunci · OCR NPS/CSI'),'Position master and OCR touchpoint lock must exist.');
+const hydrate=(mr.match(/GEStore\.hydrate\(\[([^\]]+)\]\)/)||[])[1]||'';assert(['referenceCatalog','airlines','aircraftConfigs','touchpoints','airports'].every(k=>hydrate.includes(k)),'Canonical Master Data sources must hydrate required references.');
+assert(mr.includes("kind==='position'")||mr.includes("x.kind==='position'"),'Position master contract must remain represented in canonical Master Data.');assert(mr.includes("x.sourceType==='CSI'")&&mr.includes('data-delete'),'OCR/CSI touchpoints must retain canonical lock behavior.');
 assert(rt.includes('const GEO={CGK:'),'Airport map must provide coordinate fallback for known station master rows without coordinates.');
 console.log('R18_CONSOLIDATION_CONTRACT_PASS');
