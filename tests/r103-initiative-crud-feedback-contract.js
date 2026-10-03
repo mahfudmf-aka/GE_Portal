@@ -1,0 +1,14 @@
+const fs = require('fs');
+const assert = require('assert');
+const runtime = fs.readFileSync('assets/edition1-business-runtime.js','utf8');
+const registry = fs.readFileSync('assets/clean-page-registry.js','utf8');
+assert(/window\.saveInitiativeV224=async function\(\)/.test(runtime), 'Initiative save must have a canonical async handler');
+assert(/#initiativeModalV224 form button\[type=\"submit\"\]/.test(runtime), 'Initiative save must target the canonical submit button');
+assert(/saveButton\.textContent='Menyimpan\.\.\.'/.test(runtime), 'Initiative save must provide immediate button feedback');
+assert(/window\.GEStore\.save\(d\);await window\.GEStore\.flush\(\)/.test(runtime), 'Initiative save must flush persisted data');
+assert(/deleteInitiativeV224 = async function\(id\)/.test(runtime), 'Initiative delete must have a canonical async handler');
+const del = runtime.match(/deleteInitiativeV224 = async function\(id\)\{[\s\S]*?\n\};/);
+assert(del && /await window\.GEStore\.flush\(\)/.test(del[0]), 'Initiative delete must flush persisted data');
+assert(del && /geStorageNoticeV223\('Inisiatif Dihapus'/.test(del[0]), 'Initiative delete must provide visible success feedback');
+assert(/<form onsubmit=\\"event\.preventDefault\(\);saveInitiativeV224\(\)\\">/.test(registry), 'Initiative modal must submit through the canonical save handler');
+console.log('R103_INITIATIVE_CRUD_FEEDBACK_CONTRACT_PASS');

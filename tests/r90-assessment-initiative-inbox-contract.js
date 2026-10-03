@@ -1,0 +1,17 @@
+const fs=require('fs'),assert=require('assert');
+const runtime=fs.readFileSync('assets/edition1-business-runtime.js','utf8');
+const forms=fs.readFileSync('assets/form-management.js','utf8');
+const css=fs.readFileSync('assets/portal.css','utf8');
+const app=fs.readFileSync('app.html','utf8');
+assert(/deleteInitiativeV224 = async function\(id\)\{[\s\S]*?const key=String\(id\?\?''\);[\s\S]*?find\(v=>String\(v\.id\?\?''\)===key\)[\s\S]*?filter\(v=>String\(v\.id\?\?''\)!==key\)/.test(runtime),'Initiative Delete canonical implementation must normalize IDs for lookup and removal');
+assert(/data-initiative-action="timeline"/.test(runtime)&&/data-initiative-action="update"/.test(runtime)&&/data-initiative-action="delete"/.test(runtime),'Initiative action bridge controls missing');
+assert(/action==='delete'.*window\.deleteInitiativeV224/.test(runtime),'Initiative Delete action bridge missing');
+assert(/recipientId:String\(userId\)/.test(runtime)&&/recipientName:recipient\./.test(runtime),'Assignment notifications must reference the target account');
+assert(/senderId,senderUserId:senderId/.test(runtime)&&/senderEmail:extra\.senderEmail/.test(runtime),'Inbox records must reference sender account identity');
+assert(/class="ge-btn[^"]*" data-start=/.test(forms)&&/class="ge-btn[^"]*" data-view=/.test(forms),'Monitoring action buttons must use canonical theme');
+assert(/class="ge-btn" data-add-field=/.test(forms)&&/class="ge-btn danger" data-remove-field=/.test(forms),'Checklist Builder field controls must use canonical button theme');
+assert(/class="ge-btn" data-move-field=/.test(forms)&&/class="ge-btn" data-duplicate=/.test(forms),'Checklist Builder edit controls must use canonical button theme');
+assert(/data-multi-save>Save Selection/.test(forms)&&/data-action="save-draft">Save/.test(forms),'Monitoring action labels must use canonical English labels');
+assert(css.includes('R90 canonical Monitoring & Assessment button theme'),'Canonical Monitoring & Assessment button theme missing');
+assert(app.includes("assets/form-management.js?v=r61"),'Monitoring renderer cache-bust must advance when canonical renderer changes');
+console.log('R90_ASSESSMENT_INITIATIVE_INBOX_CONTRACT_PASS');

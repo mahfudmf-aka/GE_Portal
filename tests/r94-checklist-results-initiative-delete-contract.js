@@ -1,0 +1,14 @@
+const assert=require('assert');const fs=require('fs');
+const fm=fs.readFileSync('assets/form-management.js','utf8');
+const br=fs.readFileSync('assets/edition1-business-runtime.js','utf8');
+const css=fs.readFileSync('assets/portal.css','utf8');
+const share=fs.readFileSync('netlify/functions/checklist-share.js','utf8');
+assert(/async function createShare\(\)/.test(fm)&&/w\.share=share/.test(fm),'Share generation must persist through canonical store');
+assert(/data-action=\\?"export-submissions/.test(fm),'Submission CSV action must be wired');
+assert(/ge-pie-chart/.test(fm)&&/ge-traffic-chart/.test(fm)&&/isPercentage/.test(fm)&&/isTraffic/.test(fm),'Indicator-aware pie/bar analytics required');
+assert(/ge-form-question-label/.test(fm),'Question label hierarchy class required');
+assert(/async function deleteInitiativeV224/.test(br)&&/await window\.GEStore\.flush\(\)/.test(br)&&/String\(x\.id\)!==key/.test(br),'Initiative delete must persist with normalized ID');
+assert(/data-initiative-action=\\?"delete/.test(br),'Canonical initiative delete action required in renderer');
+assert(/token:share\.token\|\|''/.test(share),'Share token must be returned for existing links');
+assert(/ge-form-question-label/.test(css)&&/ge-pie-chart/.test(css)&&/ge-traffic-chart/.test(css),'Checklist analytics/typography CSS required');
+console.log('R94_CHECKLIST_RESULTS_INITIATIVE_DELETE_CONTRACT_PASS');

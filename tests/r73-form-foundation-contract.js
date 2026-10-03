@@ -1,0 +1,15 @@
+'use strict';
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const src=fs.readFileSync('assets/form-management.js','utf8').replace('window.geFormManagementInit=init;','window.geFormManagementInit=init;window.__formsFoundationTest={multi};');
+const store={formTemplates:[],monitoringWorks:[],formSubmissions:[],touchpoints:[]};
+const window={GEStore:{get:()=>store},gxGetSession:()=>({}),gxCanManage:()=>true};
+vm.runInNewContext(src,{window,document:{addEventListener(){},getElementById(){return null}},crypto:{randomUUID:()=>Math.random().toString(36).slice(2)},console,Date});
+const html=window.__formsFoundationTest.multi('journeyScopes',[['Pre-Flight','Pre-Flight'],['Post-Flight','Post-Flight']],['Pre-Flight']);
+assert(html.includes('data-multi-save'));
+assert(html.includes('data-multi-cancel'));
+assert(html.includes('Simpan Pilihan'));
+assert(html.includes('data-multi-committed=\"Pre-Flight\"'));
+const server=fs.readFileSync('netlify/functions/edition1-data.js','utf8');
+assert(server.includes("if(c==='formTemplates' && !isOperationalAdmin(actor) && actor.role!=='Super Admin')"));
+assert(server.includes("x.status==='Published' || String(x.createdBy||'')===String(actor.id)"));
+console.log('R73_FORM_FOUNDATION_CONTRACT_PASS');

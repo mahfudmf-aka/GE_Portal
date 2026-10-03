@@ -47,7 +47,7 @@ function getJourney(tp){
  return map[key]||'';
 }
 function uniqueTouchpoints(){
- return [...new Set([...(data.touchpoints||[]).map(x=>typeof x==='string'?x:(x.name||x.title||x.touchpoint||x.code||'')),...(data.initiatives||[]).map(x=>x.tp||x.touchpoint||'')].map(x=>String(x||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
+ return [...new Set([...(data.touchpoints||[]).map(x=>typeof x==='string'?x:(x.name||x.title||x.touchpoint||x.code||'')),...(data.initiatives||[]).flatMap(x=>{const v=x.touchpoints||x.tp||x.touchpoint||'';return Array.isArray(v)?v:String(v).split(/[|,;]/)})].map(x=>String(x||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
 }
 function refreshInitiativeFilters(){
  const ft=document.getElementById('ft');
@@ -121,7 +121,18 @@ function renderInitiativeCharts(rows){
    </button>`;
  }).join('');
 }
-function geFilterInitiativeTouchpoint(tp){location.href='app.html?page=calendar&view=gantt&touchpoint='+encodeURIComponent(tp||'');}
+function geFilterInitiativeTouchpoint(tp){
+  const value=String(tp||'').trim();
+  const ft=document.getElementById('ft');
+  const q=document.getElementById('q');
+  const fs=document.getElementById('fs');
+  if(q)q.value='';
+  if(fs)fs.value='';
+  refreshInitiativeFilters();
+  if(ft){ft.value=value;if(ft.value!==value)ft.value='';}
+  renderInitiatives();
+  document.getElementById('initRows')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
 function renderInitiatives(){
  refreshInitiativeFilters();
  const rows=currentInitiativeRows();
@@ -5651,11 +5662,26 @@ deletePlanningRecordV222 = async function(type,id){
   if(type==='system')renderAirportSystems();
 };
 
-deleteInitiativeV224 = async function(id){
-  if(!geInitiativeAdminV224())return;
-  const x=(data.initiatives||[]).find(v=>v.id===id);if(!x)return;
-  if(!await geConfirmDeleteV234({title:'Hapus Inisiatif?',item:x.name||'Inisiatif',message:'Timeline, milestone, dan referensi dokumen yang terkait dengan inisiatif ini akan ikut terhapus dari master inisiatif.'}))return;
-  data.initiatives=data.initiatives.filter(v=>v.id!==id);save();renderInitiatives();
+window.deleteInitiativeV224 = async function(id){
+  if(!geInitiativeAdminV224())return false;
+  const key=String(id??'');
+  const d=window.GEStore?.get?.()||data;
+  d.initiatives=Array.isArray(d.initiatives)?d.initiatives:[];
+  const x=d.initiatives.find(v=>String(v.id)===key);
+  if(!x)return false;
+  if(!await geConfirmDeleteV234({title:'Hapus Inisiatif?',item:x.name||'Inisiatif',message:'Timeline, milestone, dan referensi dokumen yang terkait dengan inisiatif ini akan ikut terhapus dari master inisiatif.'}))return false;
+  try{
+    d.initiatives=d.initiatives.filter(v=>String(v.id)!==key);
+    window.GEStore.save(d);
+    await window.GEStore.flush();
+    window.renderInitiatives?.();
+    geStorageNoticeV223('Inisiatif Dihapus',`${x.name||'Inisiatif'} berhasil dihapus.`,'success');
+    return true;
+  }catch(error){
+    console.error('[Initiative delete]',error);
+    geStorageNoticeV223('Penghapusan Gagal',error?.message||'Inisiatif belum terhapus. Silakan coba lagi.','error');
+    return false;
+  }
 };
 
 deleteInitiativeDocumentV227 = async function(id,kind,index){
@@ -6706,6 +6732,7 @@ function geCloseSearchableFiltersV245(except=null){
 }
 
 function geEnhanceFilterSelectV245(select){
+  if(window.GEGlobalSelect || select?.dataset?.geGlobalSelectV1)return;
   if(!geIsFilterSelectV245(select)||select.dataset.searchableV245)return;
   select.dataset.searchableV245='1';
 
@@ -9323,9 +9350,9 @@ window.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInitiative
 
   function statusForAgreement(x){
     const end=validDate(x?.endDate);if(!end)return {label:'Status tidak ditentukan',cls:'neutral'};
-    const d=new Date(end+'T23:59:59');if(Number.isNaN(d.getTime()))return {label:'Requires Review',cls:'danger'};
-    const now=new Date();if(d<now)return {label:'Agreement expired',cls:'danger'};
-    const days=Math.ceil((d-now)/86400000);return days<90?{label:days+' hari tersisa',cls:'danger'}:days<180?{label:days+' hari tersisa',cls:'warning'}:{label:days+' hari tersisa',cls:'good'};
+    const d=new Date(end+'T23:59:59');if(Number.isNaN(d.getTime()))return {label:'Requires Review',cls:'warning'};
+    const now=new Date();if(d<now)return {label:'Agreement expired',cls:'warning'};
+    const days=Math.ceil((d-now)/86400000);return days<90?{label:days+' hari tersisa',cls:'warning'}:days<180?{label:days+' hari tersisa',cls:'warning'}:{label:days+' hari tersisa',cls:'good'};
   }
 
   function renderCards(){
@@ -9706,11 +9733,26 @@ const ulabel=u=>uname(u);
 const stations=()=>[...new Set([...(store().airports||[]).map(a=>a.code||a.airportCode||a.iata||a.stationCode),...(store().lounges||[]).map(x=>x.airport),...(store().initiatives||[]).flatMap(x=>arr(x.stations||x.airport))].map(x=>String(x||'').trim().toUpperCase()).filter(Boolean))].sort();
 const touchpoints=()=>[...new Set((store().touchpoints||[]).filter(x=>typeof x==='string'||x.status!=='Inactive').map(x=>typeof x==='string'?x:(x.name||x.touchpoint||x.label)).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'id'));
 const journeys=['Pre-Journey','Pre-Flight','Post-Flight','Post-Journey','Cross-Journey / End-to-End','Supporting / Enabler'];
-function picker(id,items,selected=[]){const root=document.getElementById(id);if(!root)return;const chosen=new Set(arr(selected));root.dataset.values=JSON.stringify([...chosen]);root.innerHTML=`<button type="button" class="ge-picker-trigger-r11"><span>${chosen.size?`${chosen.size} dipilih`:'Pilih'}</span><i>⌄</i></button><div class="ge-picker-pop-r11"><input class="ge-picker-search-r11" placeholder="Cari..." autocomplete="off"><div class="ge-picker-options-r11">${items.map(v=>`<label data-label="${esc(String(v).toLowerCase())}"><input type="checkbox" value="${esc(v)}" ${chosen.has(v)?'checked':''}><span>${esc(v)}</span></label>`).join('')||'<div class="ge-picker-empty-r11">Data belum tersedia.</div>'}</div><div class="ge-picker-actions-r11"><button type="button" data-picker-cancel>Batal</button><button type="button" class="primary" data-picker-ok>OK</button></div></div>`;
- const trigger=root.querySelector('.ge-picker-trigger-r11'),pop=root.querySelector('.ge-picker-pop-r11'),search=root.querySelector('.ge-picker-search-r11');
- const close=()=>pop.classList.remove('show'); trigger.onclick=()=>{document.querySelectorAll('.ge-picker-pop-r11.show').forEach(x=>x!==pop&&x.classList.remove('show'));pop.classList.toggle('show');if(pop.classList.contains('show'))setTimeout(()=>search.focus(),0)};
- search.oninput=()=>{const q=search.value.trim().toLowerCase();root.querySelectorAll('.ge-picker-options-r11 label').forEach(l=>l.hidden=q&&!l.dataset.label.includes(q))};
- root.querySelector('[data-picker-cancel]').onclick=close; root.querySelector('[data-picker-ok]').onclick=()=>{const vals=[...root.querySelectorAll('.ge-picker-options-r11 input:checked')].map(x=>x.value);root.dataset.values=JSON.stringify(vals);trigger.querySelector('span').textContent=vals.length?`${vals.length} dipilih`:'Pilih';close()};
+function picker(id,items,selected=[]){
+ const root=document.getElementById(id);if(!root)return;
+ const values=[...new Set(arr(selected).map(String))],chosen=new Set(values),allKey='__ALL__';
+ root.dataset.values=JSON.stringify(values);
+ const list=[...new Set((items||[]).map(x=>String(x).trim()).filter(Boolean))];
+ const labels=()=>{try{return JSON.parse(root.dataset.values||'[]')}catch{return[]}};
+ const summary=()=>{const vals=labels(),max=3;if(!vals.length)return 'Select';const shown=vals.slice(0,max);return shown.join(', ')+(vals.length>max?` +${vals.length-max}`:'')};
+ root.innerHTML=`<button type="button" class="ge-picker-trigger-r11"><span>${esc(summary())}</span><i>⌄</i></button><div class="ge-picker-pop-r11"><input class="ge-picker-search-r11" placeholder="Search..." autocomplete="off"><div class="ge-picker-options-r11"><label data-all-option="1"><input type="checkbox" value="${allKey}"><span>All</span></label>${list.map(v=>`<label data-label="${esc(v.toLowerCase())}"><input type="checkbox" value="${esc(v)}" ${chosen.has(v)?'checked':''}><span>${esc(v)}</span></label>`).join('')||'<div class="ge-picker-empty-r11">No matching data found.</div>'}</div><div class="ge-picker-actions-r11"><button type="button" data-picker-clear>Clear</button><button type="button" data-picker-cancel>Cancel</button><button type="button" class="primary" data-picker-ok>Apply</button></div></div>`;
+ const trigger=root.querySelector('.ge-picker-trigger-r11'),pop=root.querySelector('.ge-picker-pop-r11'),search=root.querySelector('.ge-picker-search-r11'),all=root.querySelector('[data-all-option] input');
+ const optionInputs=()=>[...root.querySelectorAll('.ge-picker-options-r11 input[type="checkbox"]')].filter(x=>x.value!==allKey);
+ const syncAll=()=>{const opts=optionInputs(),checked=opts.filter(x=>x.checked).length;all.checked=opts.length>0&&checked===opts.length;all.indeterminate=checked>0&&checked<opts.length};
+ const renderSummary=()=>{trigger.querySelector('span').textContent=summary();syncAll()};
+ const close=()=>{pop.classList.remove('show');search.value='';root.querySelectorAll('.ge-picker-options-r11 label').forEach(l=>l.hidden=false)};
+ trigger.onclick=()=>{document.querySelectorAll('.ge-picker-pop-r11.show').forEach(x=>x!==pop&&x.classList.remove('show'));pop.classList.toggle('show');if(pop.classList.contains('show')){syncAll();setTimeout(()=>search.focus(),0)}};
+ search.oninput=()=>{const q=search.value.trim().toLowerCase();root.querySelectorAll('.ge-picker-options-r11 label').forEach(l=>{if(l.hasAttribute('data-all-option')){l.hidden=false;return}l.hidden=!!q&&!l.dataset.label.includes(q)})};
+ all.onchange=()=>{const check=all.checked;optionInputs().forEach(x=>x.checked=check);syncAll()};
+ root.querySelector('[data-picker-clear]').onclick=()=>{optionInputs().forEach(x=>x.checked=false);all.checked=false;all.indeterminate=false};
+ root.querySelector('[data-picker-cancel]').onclick=close;
+ root.querySelector('[data-picker-ok]').onclick=()=>{const vals=optionInputs().filter(x=>x.checked).map(x=>x.value);root.dataset.values=JSON.stringify(vals);renderSummary();close()};
+ syncAll();renderSummary();
 }
 function picked(id){try{return JSON.parse(document.getElementById(id)?.dataset.values||'[]')}catch{return []}}
 function fillPic(selectId,freeId,row={}){const el=document.getElementById(selectId);if(!el)return;el.innerHTML='<option value="">Pilih akun User & Access</option>'+users().map(u=>`<option value="${esc(ukey(u))}">${esc(ulabel(u))}</option>`).join('');el.value=row.picUserId||'';const free=document.getElementById(freeId);if(free)free.value=row.picUserId?'':(row.pic||'')}
@@ -9726,14 +9768,15 @@ function setv(id,v){const e=document.getElementById(id);if(e)e.value=v??''}
 function initInitiativeForm(row={}){picker('initiativeStationPickerR11',stations(),row.stations||row.airport);picker('initiativeJourneyPickerR11',journeys,row.journeyScopes||row.journey);picker('initiativeTouchpointPickerR11',touchpoints(),row.touchpoints||row.tp||row.touchpoint);fillPic('initiativePicV224','initiativePicFreeR11',row);}
 window.openInitiativeModalV224=function(id=null){if(typeof geInitiativeAdminV224==='function'&&!geInitiativeAdminV224())return;const row=id?(store().initiatives||[]).find(x=>String(x.id)===String(id)):null;setv('initiativeEditIdV224',row?.id||'');const title=document.getElementById('initiativeModalTitleV224');if(title)title.textContent=row?'Update Inisiatif':'Tambah Inisiatif';setv('initiativeNameV224',row?.name);setv('initiativeDueDateV224',row?.dueDate);setv('initiativePlanV224',row?.plan??0);setv('initiativeRealV224',row?.real??0);setv('initiativeRemarkV224',row?.remark);setv('initiativeStartDateV10',row?.startDate);setv('initiativeEndDateV10',row?.endDate);setv('initiativeActualDateV10',row?.actualDate);setv('initiativeEstimatedCostV10',row?.estimatedCost||0);setv('initiativeBudgetV10',row?.budget||0);setv('initiativeActualCostV10',row?.actualCost||0);setv('initiativePriorityV10',row?.priority||'Normal');setv('initiativeStatusV10',row?.status||'Not Started');setv('initiativeOutputV10',row?.output);setv('initiativeAchievementV10',row?.achievement);initInitiativeForm(row||{});document.getElementById('initiativeModalV224')?.classList.add('show')};
 window.saveInitiativeV224=async function(){if(typeof geInitiativeAdminV224==='function'&&!geInitiativeAdminV224())return;const d=store();d.initiatives=Array.isArray(d.initiatives)?d.initiatives:[];const id=String(document.getElementById('initiativeEditIdV224')?.value||''),name=document.getElementById('initiativeNameV224')?.value.trim()||'',sts=picked('initiativeStationPickerR11'),jrn=picked('initiativeJourneyPickerR11'),tps=picked('initiativeTouchpointPickerR11');if(!name||!sts.length||!jrn.length||!tps.length)return alert('Nama Inisiatif, Station / Area, Journey Scope, dan Touch Point wajib diisi.');const invalid=tps.filter(name=>{const master=(d.touchpoints||[]).find(x=>typeof x==='object'&&x.name===name);return master&&!(master.journeys||[master.journey]).some(j=>jrn.includes(j))});if(invalid.length)return alert('Journey Scope belum sesuai dengan Touch Point: '+invalid.join(', '));const picId=document.getElementById('initiativePicV224')?.value||'',free=document.getElementById('initiativePicFreeR11')?.value.trim()||'',u=users().find(x=>ukey(x)===picId),existing=id?d.initiatives.find(x=>String(x.id)===id):null,row=existing||{id:Date.now(),workflow:[],triggerDocuments:[],supportingDocuments:[]},oldPicId=existing?.picUserId||'';Object.assign(row,{name,stations:sts,airport:sts.join(', '),journeyScopes:jrn,journey:jrn[0],touchpoints:tps,tp:tps[0],touchpointIds:tps.map(name=>(d.touchpoints||[]).find(v=>typeof v==='object'&&v.name===name)?.id).filter(Boolean),picUserId:picId,pic:u?uname(u):free,dueDate:document.getElementById('initiativeDueDateV224')?.value||'',startDate:document.getElementById('initiativeStartDateV10')?.value||'',endDate:document.getElementById('initiativeEndDateV10')?.value||'',actualDate:document.getElementById('initiativeActualDateV10')?.value||'',plan:Number(document.getElementById('initiativePlanV224')?.value||0),real:Number(document.getElementById('initiativeRealV224')?.value||0),estimatedCost:Number(document.getElementById('initiativeEstimatedCostV10')?.value||0),budget:Number(document.getElementById('initiativeBudgetV10')?.value||0),actualCost:Number(document.getElementById('initiativeActualCostV10')?.value||0),priority:document.getElementById('initiativePriorityV10')?.value||'Normal',status:document.getElementById('initiativeStatusV10')?.value||'Not Started',output:document.getElementById('initiativeOutputV10')?.value.trim()||'',achievement:document.getElementById('initiativeAchievementV10')?.value.trim()||'',remark:document.getElementById('initiativeRemarkV224')?.value.trim()||''});if(!existing)d.initiatives.push(row);d.touchpoints=Array.isArray(d.touchpoints)?d.touchpoints:[];tps.forEach(tp=>{if(!d.touchpoints.some(x=>(typeof x==='string'?x:x.name)===tp))d.touchpoints.push(tp)});const previousPic=oldPicId;
- const saveButton=document.querySelector('#initiativeModalV224 [onclick*="saveInitiativeV224"]');if(saveButton)saveButton.disabled=true;
+ const saveButton=document.querySelector('#initiativeModalV224 form button[type="submit"]');
+ if(saveButton){saveButton.disabled=true;saveButton.dataset.originalText=saveButton.textContent;saveButton.textContent='Menyimpan...';}
  try{
   window.GEStore.save(d);await window.GEStore.flush();
   if(picId&&picId!==previousPic){assignment('Initiative',row.id,row.name,picId,row.dueDate);await window.GEStore.flush()}
   document.getElementById('initiativeModalV224')?.classList.remove('show');window.renderInitiatives?.();
-  geStorageNoticeV223('Inisiatif Tersimpan',`${row.name} berhasil diperbarui.`, 'success');
+  geStorageNoticeV223('Inisiatif Tersimpan',`${row.name} berhasil disimpan.`, 'success');
  }catch(error){console.error('[Initiative save]',error);geStorageNoticeV223('Penyimpanan Gagal',error?.message||'Perubahan belum tersimpan. Silakan coba lagi.','error')}
- finally{if(saveButton)saveButton.disabled=false}};
+ finally{if(saveButton){saveButton.disabled=false;saveButton.textContent=saveButton.dataset.originalText||'Simpan';}}};
 window.openInitiativeStepV224=function(parentId,index=''){if(typeof geInitiativeAdminV224==='function'&&!geInitiativeAdminV224())return;const x=(store().initiatives||[]).find(v=>String(v.id)===String(parentId));if(!x)return;x.workflow=Array.isArray(x.workflow)?x.workflow:[];const step=index!==''?x.workflow[Number(index)]:null;setv('initiativeStepParentIdV224',parentId);setv('initiativeStepEditIndexV224',index);setv('initiativeStepTitleV224',step?.title);setv('initiativeStepDueDateV224',step?.dueDate);setv('initiativeStepStatusV224',step?.status||'Not Started');setv('initiativeStepRemarkV224',step?.remark);setv('geV254StepType',step?.stepType||'date');setv('geV254StepStart',step?.startDate);setv('geV254StepEnd',step?.endDate);setv('geV254StepEstimate',step?.estimatedCost||0);setv('geV254StepActualCost',step?.actualCost||0);fillPic('initiativeStepPicV224','initiativeStepPicFreeR11',step||{});document.getElementById('initiativeStepModalV224')?.classList.add('show')};
 window.saveInitiativeStepV224=async function(){const d=store(),parent=String(document.getElementById('initiativeStepParentIdV224')?.value||''),x=(d.initiatives||[]).find(v=>String(v.id)===parent);if(!x)return;x.workflow=Array.isArray(x.workflow)?x.workflow:[];const idx=document.getElementById('initiativeStepEditIndexV224')?.value||'',title=document.getElementById('initiativeStepTitleV224')?.value.trim()||'';if(!title)return alert('Nama Tahapan / Milestone wajib diisi.');const oldPicId=idx!==''?x.workflow[Number(idx)]?.picUserId||'':'';const picId=document.getElementById('initiativeStepPicV224')?.value||'',free=document.getElementById('initiativeStepPicFreeR11')?.value.trim()||'',u=users().find(v=>ukey(v)===picId),obj={title,picUserId:picId,pic:u?uname(u):free,stepType:document.getElementById('geV254StepType')?.value||'date',startDate:document.getElementById('geV254StepStart')?.value||'',endDate:document.getElementById('geV254StepEnd')?.value||'',dueDate:document.getElementById('initiativeStepDueDateV224')?.value||'',estimatedCost:Number(document.getElementById('geV254StepEstimate')?.value||0),actualCost:Number(document.getElementById('geV254StepActualCost')?.value||0),status:document.getElementById('initiativeStepStatusV224')?.value||'Not Started',remark:document.getElementById('initiativeStepRemarkV224')?.value.trim()||''};if(idx==='')x.workflow.push(obj);else x.workflow[Number(idx)]=obj;try{window.GEStore.save(d);await window.GEStore.flush();if(picId&&picId!==oldPicId){assignment('Milestone',`${parent}:${idx===''?x.workflow.length-1:idx}`,`${x.name||'Initiative'} — ${title}`,picId,obj.dueDate);await window.GEStore.flush()}document.getElementById('initiativeStepModalV224')?.classList.remove('show');window.openInitiativeTimelineV224?.(typeof x.id==='number'?Number(x.id):x.id);geStorageNoticeV223('Milestone Tersimpan',`${title} berhasil disimpan.`,'success')}catch(e){geStorageNoticeV223('Penyimpanan Gagal',e.message||String(e),'error')}};
 ['closeInitiativeModalV224','closeInitiativeProgressV224','closeInitiativeStepV224','closeInitiativeTimelineV224','openInitiativeTimelineV224','deleteInitiativeV224','deleteInitiativeStepV224','openInitiativeProgressV224','saveInitiativeProgressV224'].forEach(n=>{try{if(typeof eval(n)==='function')window[n]=eval(n)}catch(e){}});
@@ -9848,6 +9891,7 @@ window.openInitiativeModalV224=function(id=null){ensureInitiativeCanonicalFields
 window.geEnsureInitiativeCanonicalFieldsR12=ensureInitiativeCanonicalFields;
 
 function installSearchableSelect(select){
+ if(window.GEGlobalSelect)return;
  if(!select||select.multiple||select.dataset.comboR12)return;select.dataset.comboR12='1';
  const wrap=document.createElement('div');wrap.className='ge-combo-r12';
  const input=document.createElement('input');input.type='text';input.className='ge-combo-input-r12';input.placeholder=select.options[0]?.textContent||'Pilih atau ketik...';input.autocomplete='off';
@@ -9921,7 +9965,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 /* Final canonical Initiative Grid/List view. This wrapper is intentionally last so legacy exports cannot overwrite it. */
 const initRender=window.renderInitiatives;
-if(initRender)window.renderInitiatives=function(){const out=initRender.apply(this,arguments),view=window.GE_INITIATIVE_VIEW_R4||document.getElementById('geInitiativeViewSelectR6')?.value||'grid';if(view!=='list')return out;let rows=[];try{rows=typeof currentInitiativeRows==='function'?currentInitiativeRows().filter(typeof geInitiativeScopedV224==='function'?geInitiativeScopedV224:()=>true):(store().initiatives||[])}catch(e){rows=store().initiatives||[]}const host=document.getElementById('initRows');if(host){host.innerHTML=`<div class="ge-initiative-list-r4"><table data-initiative-list-r26><thead><tr><th data-sort="0">Initiative ↕</th><th data-sort="1">Journey ↕</th><th data-sort="2">Touch Point ↕</th><th data-sort="3">Station ↕</th><th data-sort="4">PIC ↕</th><th data-sort="5">Due ↕</th><th data-sort="6">Progress ↕</th><th>Action</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.name||'-')}</b></td><td>${esc((x.journeyScopes||[x.journey]).filter(Boolean).join(', '))}</td><td>${esc((x.touchpoints||[x.tp||x.touchpoint]).filter(Boolean).join(', '))}</td><td>${esc((x.stations||[x.airport]).filter(Boolean).join(', '))}</td><td>${esc(x.pic||'-')}</td><td>${esc(x.dueDate||x.endDate||'-')}</td><td>${Number(x.real||0)}% / ${Number(x.plan||0)}%</td><td><button class="btn secondary compact-btn" onclick="openInitiativeModalV224('${esc(x.id)}')">Update</button><button class="btn secondary compact-btn" onclick="openInitiativeTimelineV224('${esc(x.id)}')">Milestone</button></td></tr>`).join('')||'<tr><td colspan="8">Belum ada inisiatif pada filter ini.</td></tr>'}</tbody></table></div>`;window.geEnhanceAllTables?.();const t=host.querySelector('table[data-initiative-list-r26]');t?.querySelectorAll('th[data-sort]').forEach(th=>{th.style.cursor='pointer';th.onclick=()=>{const i=Number(th.dataset.sort),body=t.tBodies[0],dir=th.dataset.dir==='asc'?-1:1;[...body.rows].sort((a,b)=>a.cells[i].innerText.localeCompare(b.cells[i].innerText,'id',{numeric:true})*dir).forEach(r=>body.appendChild(r));th.dataset.dir=dir===1?'asc':'desc'}})}return out};
+if(initRender)window.renderInitiatives=function(){const out=initRender.apply(this,arguments),view=window.GE_INITIATIVE_VIEW_R4||document.getElementById('geInitiativeViewSelectR6')?.value||'grid';if(view!=='list')return out;let rows=[];try{rows=typeof currentInitiativeRows==='function'?currentInitiativeRows().filter(typeof geInitiativeScopedV224==='function'?geInitiativeScopedV224:()=>true):(store().initiatives||[])}catch(e){rows=store().initiatives||[]}const host=document.getElementById('initRows');if(host){host.innerHTML=`<div class="ge-initiative-list-r4"><table data-initiative-list-r26><thead><tr><th data-sort="0">Initiative ↕</th><th data-sort="1">Journey ↕</th><th data-sort="2">Touch Point ↕</th><th data-sort="3">Station ↕</th><th data-sort="4">PIC ↕</th><th data-sort="5">Due ↕</th><th data-sort="6">Progress ↕</th><th>Action</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.name||'-')}</b></td><td>${esc((x.journeyScopes||[x.journey]).filter(Boolean).join(', '))}</td><td>${esc((x.touchpoints||[x.tp||x.touchpoint]).filter(Boolean).join(', '))}</td><td>${esc((x.stations||[x.airport]).filter(Boolean).join(', '))}</td><td>${esc(x.pic||'-')}</td><td>${esc(x.dueDate||x.endDate||'-')}</td><td>${Number(x.real||0)}% / ${Number(x.plan||0)}%</td><td>${typeof geInitiativeManageButtonsV224==='function'?geInitiativeManageButtonsV224(x):''}</td></tr>`).join('')||'<tr><td colspan="8">Belum ada inisiatif pada filter ini.</td></tr>'}</tbody></table></div>`;window.geEnhanceAllTables?.();const t=host.querySelector('table[data-initiative-list-r26]');t?.querySelectorAll('th[data-sort]').forEach(th=>{th.style.cursor='pointer';th.onclick=()=>{const i=Number(th.dataset.sort),body=t.tBodies[0],dir=th.dataset.dir==='asc'?-1:1;[...body.rows].sort((a,b)=>a.cells[i].innerText.localeCompare(b.cells[i].innerText,'id',{numeric:true})*dir).forEach(r=>body.appendChild(r));th.dataset.dir=dir===1?'asc':'desc'}})}return out};
 window.geSetInitiativeViewR20=function(v){window.GE_INITIATIVE_VIEW_R4=v;document.querySelectorAll('#geInitiativeViewToggleR4 [data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v));window.renderInitiatives?.()};
 setTimeout(()=>{document.querySelectorAll('#geInitiativeViewToggleR4 [data-view]').forEach(b=>b.onclick=()=>window.geSetInitiativeViewR20(b.dataset.view));const s=document.getElementById('geInitiativeViewSelectR6');if(s)s.onchange=()=>window.geSetInitiativeViewR20(s.value)},0);
 

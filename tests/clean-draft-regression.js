@@ -67,7 +67,7 @@ assert(business.includes('map.addEventListener(\'wheel\'') && business.includes(
 assert(/window\.saveInitiativeStepV224=(?:async )?function/.test(business),'Milestone save must have an active canonical handler.');
 assert(business.includes('Pilih akun User & Access') && registry.includes('Input PIC manual'),'PIC must be based on users and retain free-text fallback.');
 assert(business.includes('window.geSetCalendarWorkspace'),'Calendar / Project / Gantt switching must exist.');
-assert(business.includes("page=calendar&view=gantt&touchpoint="),'Initiative Touch Point must deep-link to filtered Gantt.');
+assert(business.includes('function geFilterInitiativeTouchpoint(tp)') && business.includes('ft.value=value;'),'Initiative Touch Point panel must activate the lower Touch Point filter.');
 assert(registry.includes('geWorkspaceTabsR10') && registry.includes('data-view=\\"project\\"') && registry.includes('data-view=\\"gantt\\"'),'Calendar / Project / Gantt controls must be structural page markup.');
 assert(registry.includes('initiativeStationPickerR11') && registry.includes('ge-picker-r11'),'Initiative Station / Area must use the compact searchable checkbox picker.');
 assert(registry.includes('initiativePicV224') && registry.includes('initiativePicFreeR11'),'Initiative PIC must support Firebase User & Access plus manual free text.');

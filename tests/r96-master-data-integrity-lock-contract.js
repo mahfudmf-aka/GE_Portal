@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const registry=fs.readFileSync('assets/clean-page-registry.js','utf8');
+const master=fs.readFileSync('assets/master-reference.js','utf8');
+const css=fs.readFileSync('assets/portal.css','utf8');
+assert(registry.includes('id=\\"geMasterKind\\"')&&registry.includes('id=\\"geMasterSearch\\"'),'Master Data controls missing');
+for(const id of ['geMasterAdd','geMasterTemplate','geMasterUpload','geMasterUploadFile','geMasterHead','geMasterRows']) assert(registry.includes(`id=\\"${id}\\"`),`Missing canonical control ${id}`);
+assert(registry.includes('assets/master-reference.js?v=r80'),'Master Data must use canonical renderer');
+assert(registry.includes('assets/portal.css?v=r81'),'Master Data must use locked theme CSS');
+assert(master.includes('sortKey')&&master.includes('data-sort')&&master.includes('aria-sort'),'Master Data sort contract missing');
+assert(master.includes('gx-data-background-refresh'),'Master Data must rerender after Firestore background refresh');
+assert(master.includes("GEStore.hydrate(['referenceCatalog','airlines','aircraftConfigs','touchpoints','airports'])"),'Master Data datasource contract changed');
+assert(master.includes('function referenceRows')&&master.includes('function entityRows'),'Master Data canonical data adapters missing');
+assert(css.includes('.ge-master-data .ge-ref-toolbar')&&css.includes('.ge-master-data .ge-ref-table thead th[data-sort]'),'Master Data layout/sort theme contract missing');
+console.log('R96_MASTER_DATA_INTEGRITY_LOCK_CONTRACT_PASS');

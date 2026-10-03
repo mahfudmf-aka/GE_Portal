@@ -10,13 +10,15 @@ function unique(arr){return new Set(arr).size===arr.length}
 function safe(fn){try{return {ok:true,value:fn()}}catch(e){return {ok:false,error:e&&e.message||String(e)}}}
 function checkCore(){const out=[];
  if(!window.GECore){out.push(result('p11-engine','P1.1','Core Engine tersedia','FAIL','GECore tidak ditemukan.'));return out}
- const masters=['organizations','airports','stations','journeys','touchpoints','services','capabilities','serviceLocations'];
+ const masters=['organizations','airports','terminals','stations','serviceLocations','lounges','tenants','snackBoxes','journeys','touchpoints','services','serviceStandards','capabilities','users','periods','sources','masterCategories'];
  out.push(result('p11-engine','P1.1','Core Engine tersedia','PASS',GECore.schemaVersion||''));
  const d=safe(()=>GECore.read());
  out.push(result('p11-store','P1.1','Core repository dapat dibaca',d.ok?'PASS':'FAIL',d.ok?'Repository readable.':d.error));
  const ids=[];let invalid=[];masters.forEach(m=>{const rows=safe(()=>GECore.list(m,{includeArchived:true}));if(rows.ok){rows.value.forEach(x=>{ids.push(x.id);if(!x.id||typeof x.id!=='string')invalid.push(`${m}:missing-id`)})}});
  out.push(result('p11-id','P1.1','Core ID stabil & unik',invalid.length===0&&unique(ids)?'PASS':'FAIL',invalid.length?invalid.join(', '):`${ids.length} Core IDs checked.`));
  const s=safe(()=>GECore.stats());
+ const c=safe(()=>GECore.completeness());
+ out.push(result('p11-completeness','P1.1','Core baseline master schema lengkap',c.ok&&c.value.missing.length===0?'PASS':'FAIL',c.ok?`Coverage ${c.value.coverage}%; missing ${c.value.missing.join(', ')||'none'}`:c.error));
  out.push(result('p11-bootstrap','P1.1','Core master bootstrap tersedia',s.ok&&s.value.stations&&s.value.airports?'PASS':'FAIL',s.ok?`Stations ${s.value.stations&&s.value.stations.total||0}; Airports ${s.value.airports&&s.value.airports.total||0}.`:s.error));
  return out}
 function checkRelationship(){const out=[];if(!window.GERelationship){out.push(result('p12-engine','P1.2','Relationship Engine tersedia','FAIL','GERelationship tidak ditemukan.'));return out}

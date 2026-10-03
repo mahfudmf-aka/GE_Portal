@@ -15,7 +15,7 @@ const assessment=fs.readFileSync('assets/assessment-workspace.js','utf8');
 assert(assessment.includes("kind:'Standard-linked'")&&assessment.includes("kind']='Custom'")===false);
 assert(assessment.includes("x.kind!=='Standard-linked'")&&assessment.includes('standardLinked:t.status===\'Published\'&&t.kind===\'Standard-linked\''));
 assert(assessment.includes('Buat Checklist Ground Touch Point')&&assessment.includes('touchpointId:'));
-const master=fs.readFileSync('assets/master-reference.js','utf8');assert(master.includes('journeys,aliases:uniq(values)')&&master.includes('function unmappedNames()'));
+const master=fs.readFileSync('assets/master-reference.js','utf8');assert(master.includes('journeys,aliases:uniq(values)')&&master.includes('isLockedTouchpoint'));
 const service=fs.readFileSync('assets/r43-airport-experience-foundation.js','utf8');assert(service.includes('data-cap-point')&&service.includes('data-point')&&service.includes('ge-experience-card'));
 const css=fs.readFileSync('assets/portal.css','utf8');assert(css.includes('.attention-panel .ge-attention-list{max-height:340px'));
 console.log('R54_GROUND_INTEGRATION_CONTRACT_PASS');

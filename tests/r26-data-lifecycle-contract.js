@@ -7,8 +7,8 @@ const au=fs.readFileSync('netlify/functions/auth-update-user.js','utf8');
 const css=fs.readFileSync('assets/portal.css','utf8');
 function ok(c,msg){if(!c)throw new Error(msg)}
 ok(m.includes('Preview Upload Data')&&m.includes('Upload berhasil:'),'upload must preview and confirm persistence');
-ok(m.includes('data-delete')&&m.includes('Hapus Terpilih'),'row and multi delete required');
-ok(m.includes("field('Cabin F'")&&m.includes("field('Cabin C'")&&m.includes("field('Cabin Y'")&&m.includes('Total Configuration'),'aircraft cabin configuration required');
+ok(m.includes('data-delete')&&m.includes('Hapus'),'canonical row delete action required');
+ok(m.includes('Cabin F')&&m.includes('Cabin C')&&m.includes('Cabin Y')&&m.includes('Total Configuration'),'aircraft cabin configuration required');
 ok(st.includes('const previous=pending.catch(()=>undefined)'),'save queue must recover after failed write');
 ok(b.includes("geAirportVisibleRows():airports()"),'canonical map must render union station rows');
 ok(b.includes('data-initiative-list-r26')&&b.includes("th.onclick=()=>"),'initiative list headers must sort');

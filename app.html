@@ -9,11 +9,12 @@
  try{
   // Protected page content must never boot before Firebase auth + authoritative profile/role are resolved.
   if(!window.GX_AUTH_READY) throw new Error('Authentication bootstrap tidak tersedia.');
-  await window.GX_AUTH_READY;
-  if(!window.gxGetSession?.()) return; // auth bootstrap is redirecting to login or access fallback.
-  if(window.gxCurrentPageKey?.()==='admin.html'&&!window.gxHasUserManagementPermission?.()){outlet.innerHTML='<div class="clean-page-error"><h2>Akses User &amp; Role tidak tersedia</h2><p>Hanya Super Admin atau HO/GE Team dengan access level Admin yang dapat mengelola pengguna.</p></div>';reveal();return;}
-
   const params=new URLSearchParams(location.search); let route=String(params.get('page')||'index').trim().toLowerCase();
+  const isSharedChecklist=route==='monitoring-assessment'&&!!params.get('share');
+  if(!isSharedChecklist) await window.GX_AUTH_READY;
+  if(!isSharedChecklist&&!window.gxGetSession?.()) return; // auth bootstrap is redirecting to login or access fallback.
+  if(isSharedChecklist){ document.body.classList.add('ge-shared-public-route'); document.querySelector('.top')?.remove(); document.querySelector('.side')?.remove(); document.querySelector('.footer')?.remove(); document.querySelector('.back-to-top')?.remove(); document.querySelector('.shell')?.classList.add('ge-shared-public-shell'); }
+  if(window.gxCurrentPageKey?.()==='admin.html'&&!window.gxHasUserManagementPermission?.()){outlet.innerHTML='<div class="clean-page-error"><h2>Akses User &amp; Role tidak tersedia</h2><p>Hanya Super Admin atau HO/GE Team dengan access level Admin yang dapat mengelola pengguna.</p></div>';reveal();return;}
   // app.html is the SPA host, never a logical page. Recover stale/legacy ?page=app links before rendering.
   if(route==='app'){route='index';params.set('page','index');history.replaceState(null,'','app.html?'+params.toString());}
   const alias=(window.P40_CLEAN_ALIASES||{})[route];if(alias){const parts=String(alias).split('?');route=parts[0];if(parts[1])new URLSearchParams(parts[1]).forEach((v,k)=>{if(!params.has(k))params.set(k,v)});params.set('page',route);history.replaceState(null,'','app.html?'+params.toString());}

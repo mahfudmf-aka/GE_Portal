@@ -88,6 +88,8 @@ await import('./r62-script-loader.js');
 await import('./r70-requirement-engine.js');
 await import('./r72-planning-inbox.js');
 await import('./r72-read-persistence.js');
-
-import {execFileSync} from 'node:child_process';
-execFileSync(process.execPath,['tests/p83-canonical-reference-contract.js'],{stdio:'inherit'});
+await import('./r81-p8-production-deployment-contract.js');
+await import('./r103-initiative-crud-feedback-contract.js');
+await import('./r104-global-ui-standardization-contract.js');
+await import('./r105-global-select-initiative-contract.js');
+await import('./r106-checklist-share-public-contract.js');

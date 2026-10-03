@@ -1,0 +1,11 @@
+'use strict';
+const fs=require('fs'),assert=require('assert');
+const netlify=fs.readFileSync('netlify.toml','utf8');
+const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
+assert(netlify.includes('npm --prefix netlify/functions install --omit=dev --ignore-scripts && npm run test'),'Netlify build must run functions install then npm run test');
+assert(netlify.includes('directory = "netlify/functions"'),'Netlify Functions directory must be canonical');
+assert(netlify.includes('publish = "."'),'Netlify publish directory must be repository root');
+assert(pkg.scripts&&pkg.scripts.test==='node tests/run-build.mjs','package test must execute canonical build chain');
+assert(pkg.engines&&String(pkg.engines.node).includes('20'),'Node 20 compatibility must remain declared');
+assert(!/FIREBASE_PRIVATE_KEY\s*=|CLIENT_SECRET\s*=|API_KEY\s*=/.test(netlify),'Production secrets must not be committed to netlify.toml');
+console.log('R81_P8_PRODUCTION_DEPLOYMENT_CONTRACT_PASS');

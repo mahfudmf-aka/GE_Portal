@@ -1,0 +1,18 @@
+'use strict';
+const fs=require('fs'), vm=require('vm'), assert=require('assert');
+const src=fs.readFileSync('assets/management-outcome-v257.js','utf8');
+assert(src.includes("const KEY='GE_V257_MANAGEMENT_OUTCOME_P5'"),'P5 must retain canonical persistence key');
+assert(src.includes("reviews:[],outcomes:[],conditionProposals:[],transformationItems:[]"),'P5 buckets must remain canonical');
+const sandbox={window:{GEStore:{get:()=>({initiatives:[{id:'i1',name:'Initiative 1'}]})}},localStorage:{_v:null,getItem(){return this._v},setItem(_,v){this._v=v},removeItem(){this._v=null}},Date,Math};
+vm.runInNewContext(src,sandbox);
+const p5=sandbox.window.GEManagementOutcome;
+assert.strictEqual(p5.schemaVersion,'2.57-P5');
+let m=p5.outcomeMetrics({baseline:70,actualOutcome:85,target:90,plannedImprovement:20});
+assert.strictEqual(m.outcomeImprovement,15);
+assert.strictEqual(m.targetAttainment,85/90*100);
+assert.strictEqual(m.outcomeAchievement,75);
+p5.save('outcomes',{id:'o1',initiativeId:'i1',baseline:70,target:90,actualOutcome:85,plannedImprovement:20,status:'Awaiting Measurement'});
+assert.strictEqual(p5.outcomeForInitiative('i1').length,1);
+assert.strictEqual(p5.outcomeForInitiative('i1')[0].status,'Awaiting Measurement');
+assert.strictEqual(p5.integrity().ok,true);
+console.log('R79_P5_MANAGEMENT_OUTCOME_CONTRACT_PASS');

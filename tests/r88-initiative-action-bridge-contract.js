@@ -1,0 +1,11 @@
+'use strict';
+const fs=require('fs');const assert=require('assert');
+const src=fs.readFileSync('assets/edition1-business-runtime.js','utf8');
+assert(src.includes('data-initiative-action="timeline"'),'Initiative Detail/Timeline must use the canonical data action bridge.');
+assert(src.includes('data-initiative-action="update"'),'Initiative Update must use the canonical data action bridge.');
+assert(src.includes('data-initiative-action="delete"'),'Initiative Delete must use the canonical data action bridge.');
+assert(src.includes('data-initiative-touchpoint-filter'),'Touch Point summary must use the canonical lower-filter bridge.');
+assert(src.includes('geInitiativeActionBridge'),'Canonical Initiative action bridge missing.');
+assert(src.includes('geInitiativeTouchpointBridge'),'Canonical Touch Point filter bridge missing.');
+assert(!/function geInitiativeManageButtonsV224\([\s\S]{0,1400}?onclick=/.test(src),'Initiative action renderer must not depend on inline onclick handlers.');
+console.log('R88_INITIATIVE_ACTION_BRIDGE_CONTRACT_PASS');

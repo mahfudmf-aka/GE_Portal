@@ -1,0 +1,20 @@
+const fs=require('fs');
+const app=fs.readFileSync('app.html','utf8');
+const runtime=fs.readFileSync('assets/edition1-business-runtime.js','utf8');
+const css=fs.readFileSync('assets/global-ui-canonical.css','utf8');
+const select=fs.readFileSync('assets/global-select-standard.js','utf8');
+const registry=fs.readFileSync('assets/clean-page-registry.js','utf8');
+const assert=(c,m)=>{if(!c)throw new Error(m)};
+assert(app.includes('assets/global-select-standard.js'),'Global select component must load from canonical app shell');
+assert(select.includes('className=\'ge-global-select\'') && select.includes('No matching data found.'),'Global select must provide searchable empty state');
+assert(select.includes('function setMultiValue') && select.includes('isAllOption'),'Global select must implement multi-select / Select All semantics');
+assert(select.includes('input.addEventListener(\'input\''),'Global select must filter options while typing');
+assert(css.includes('.ge-global-select') && css.includes('.ge-select-chip'),'Global select canonical CSS must be present');
+assert(runtime.includes('flatMap(x=>{const v=x.touchpoints||x.tp||x.touchpoint||\'\';return Array.isArray(v)?v:String(v).split(/[|,;]/)})'),'Initiative Touch Point filter options must normalize multi-value records');
+assert(runtime.includes("typeof geInitiativeManageButtonsV224==='function'?geInitiativeManageButtonsV224(x):''"),'Initiative List View must use the same canonical action renderer as Grid View');
+assert(runtime.includes("function geFilterInitiativeTouchpoint(tp){") && runtime.includes("if(q)q.value=''") && runtime.includes("refreshInitiativeFilters();"),'Touch Point summary must reset and drive the canonical Initiative filter');
+assert(runtime.includes('window.deleteInitiativeV224 = async function(id)') && runtime.includes('await window.GEStore.flush();'),'Initiative Delete must use one canonical async handler with persisted flush');
+assert(runtime.includes("cls:'warning'}:days<180?{label:days+' hari tersisa',cls:'warning'}"),'Lounge attention status must use amber/warning semantics');
+assert(registry.includes('lounge-open-head-actions-v240'),'Lounge return navigation must live in the page heading action area');
+
+console.log('R105_GLOBAL_SELECT_INITIATIVE_CONTRACT_PASS');
