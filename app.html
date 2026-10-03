@@ -1,8 +1,8 @@
 <!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ground Experience Portal</title>
 <script>document.documentElement.classList.add('ge-route-pending')</script><style>html.ge-route-pending,html.ge-route-pending body{background:#f4f7fb!important}html.ge-route-pending body.e1-page>.top,html.ge-route-pending body.e1-page>.shell,html.ge-route-pending body.e1-page>.footer,html.ge-route-pending body.e1-page>.back-to-top{display:none!important}html.ge-route-pending body.e1-page:before{content:'Memuat halaman tujuan…';position:fixed;inset:0;display:grid;place-items:center;color:#123d72;font:600 16px Arial,sans-serif}</style>
-<link rel="stylesheet" href="assets/portal.css?v=r60"><link rel="stylesheet" href="assets/clean-shell.css?v=r60"><link rel="stylesheet" href="assets/global-ui-canonical.css?v=r1">
+<link rel="stylesheet" href="assets/portal.css?v=r60"><link rel="stylesheet" href="assets/clean-shell.css?v=r60">
 <script>try{if(localStorage.getItem('GE_V257_SIDEBAR_COLLAPSED')==='1')document.documentElement.classList.add('ge-precollapsed')}catch(e){}</script><script src="assets/portal-shell.js?v=r72"></script><script src="assets/firebase-config.js?v=r32"></script><script src="assets/firebase-client.js?v=r66"></script><script src="assets/auth.js?v=r59"></script><script src="assets/clean-page-registry.js?v=r74"></script></head><body id="top" class="e1-page"><header class="top"></header><div class="shell"><aside class="side"></aside><main class="main" id="cleanPageOutlet"><div class="clean-page-loading">Memuat halaman…</div></main></div><footer class="footer"><b>GROUND EXPERIENCE — GARUDA INDONESIA</b><br>Portal Service Experience</footer><button aria-label="Kembali ke atas" class="back-to-top" id="backToTop">↑</button>
-<script src="assets/global-ui-standard.js?v=r1"></script><script src="assets/global-select-standard.js?v=r1"></script><script src="assets/edition1-overlay-manager.js?v=r104"></script><script src="assets/clean-route-adapter.js?v=r15.1"></script><script>
+<script src="assets/clean-route-adapter.js?v=r15.1"></script><script>
 (async function(){
  const outlet=document.getElementById('cleanPageOutlet');
  const reveal=()=>document.documentElement.classList.remove('ge-route-pending');
@@ -13,7 +13,7 @@
   const isSharedChecklist=route==='monitoring-assessment'&&!!params.get('share');
   if(!isSharedChecklist) await window.GX_AUTH_READY;
   if(!isSharedChecklist&&!window.gxGetSession?.()) return; // auth bootstrap is redirecting to login or access fallback.
-  if(isSharedChecklist){ const shareCss=document.createElement('link');shareCss.rel='stylesheet';shareCss.href='assets/checklist-share.css?v=r106';document.head.appendChild(shareCss); document.body.classList.add('ge-shared-public-route'); document.querySelector('.top')?.remove(); document.querySelector('.side')?.remove(); document.querySelector('.footer')?.remove(); document.querySelector('.back-to-top')?.remove(); document.querySelector('.shell')?.classList.add('ge-shared-public-shell'); }
+  if(isSharedChecklist){ document.body.classList.add('ge-shared-public-route'); document.querySelector('.top')?.remove(); document.querySelector('.side')?.remove(); document.querySelector('.footer')?.remove(); document.querySelector('.back-to-top')?.remove(); document.querySelector('.shell')?.classList.add('ge-shared-public-shell'); }
   if(window.gxCurrentPageKey?.()==='admin.html'&&!window.gxHasUserManagementPermission?.()){outlet.innerHTML='<div class="clean-page-error"><h2>Akses User &amp; Role tidak tersedia</h2><p>Hanya Super Admin atau HO/GE Team dengan access level Admin yang dapat mengelola pengguna.</p></div>';reveal();return;}
   // app.html is the SPA host, never a logical page. Recover stale/legacy ?page=app links before rendering.
   if(route==='app'){route='index';params.set('page','index');history.replaceState(null,'','app.html?'+params.toString());}
@@ -51,7 +51,7 @@
   if(['cx-import','customer-experience'].includes(route)){await loadSrc('assets/edition1-store.js?v=r49');await window.GEStore.hydrate(['customerExperience']);}
   for(const item of def.scripts||[]){ if(item.src){await loadSrc(item.src);} else if(item.code){(0,eval)(item.code);} }
   if(['station-360','service-experience','capability-classification'].includes(route)){await loadSrc('assets/edition1-store.js?v=r47');try{await window.GEStore?.hydrate(['monitoringTemplates','monitoringAssessments','formTemplates','formSubmissions','airports','serviceAlignments','facilities','assets','airportSystems','lounges','personnel','touchpoints','customerExperience']);}catch(e){console.warn('[Airport Experience source]',e);}}
-  if(!isSharedChecklist&&['airport-experience','station-360','service-experience','capability-classification','monitoring-assessment'].includes(route)){await loadSrc('assets/r43-airport-experience-foundation.js?v=r56');}
+  if(['airport-experience','station-360','service-experience','capability-classification','monitoring-assessment'].includes(route)){await loadSrc('assets/r43-airport-experience-foundation.js?v=r56');}
   if(route==='monitoring-assessment'){await loadSrc('assets/form-management.js?v=r59');await window.geFormManagementInit?.();}
   if(['inisiatif','calendar','monitoring-assessment','service-experience','capability-classification'].includes(route)&&window.gxCanManage?.()){await loadSrc('assets/edition1-store.js?v=r59');await loadSrc('assets/master-reference.js?v=r61');try{await window.GXMasterReference?.syncCatalog()}catch(e){console.warn('[Ground Touch Point sync]',e)}}
   if(route==='master-data')await window.GXMasterReference?.init();
@@ -61,7 +61,7 @@
   // Re-firing DOMContentLoaded here re-runs global legacy listeners and can create duplicate handlers/recursive render chains.
   const canonicalExplicitBoot=new Set(['index','calendar','airport-experience','inisiatif','lounge-list','standar','admin','berita','service-planning','branch-office-planning','gaso-planning','planning-documents','data','master-data','attention-settings']);
   if(!canonicalExplicitBoot.has(route)) document.dispatchEvent(new Event('DOMContentLoaded',{bubbles:true}));
-  if(!isSharedChecklist&&window.geInitR43&&['airport-experience','station-360','service-experience','capability-classification','monitoring-assessment'].includes(route))setTimeout(window.geInitR43,300);
+  if(window.geInitR43&&['airport-experience','station-360','service-experience','capability-classification','monitoring-assessment'].includes(route))setTimeout(window.geInitR43,300);
   if(route==='airport-experience'&&params.get('focus')==='map')setTimeout(()=>outlet.querySelector('#interactiveMap')?.scrollIntoView({block:'start'}),100);
  }catch(err){console.error('[P40 Clean]',err); if(!outlet){reveal();return} const n=document.createElement('div');n.className='clean-page-error';n.innerHTML='<b>Runtime halaman gagal dimuat.</b><br><small>'+String(err.message||err)+'</small>';outlet.replaceChildren(n);reveal();}
 })();
